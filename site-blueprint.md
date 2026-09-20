@@ -182,7 +182,7 @@ Two rows, no card grid. Objects is a shelf, not a shop.
 2. **One promise line**: "Write, and a person answers within a day."
 3. **Form**: name, email, message, optional "regarding" select (Private appointment / Private commission / Press). Labels above fields, never placeholder-as-label. Error text below fields. No reCAPTCHA badge visible; use an invisible honeypot.
 4. **Alternatives**. Direct email and one phone number, set as text. No chat widget. Luxury is a reply, not a pop-up.
-5. **Grievance Officer block**. Required by the DPDP Act and the E-commerce Rules, set as quiet text, not a warning box: name, grievance@liceroparfum.com, phone, hours, "Acknowledged within 72 hours. Resolved within 30 days." Draft in `ligero/legal/compliance-checklist.md`.
+5. **Grievance Officer block**. Required by the DPDP Act and the E-commerce Rules, set as quiet text, not a warning box: name, grievance@ligeroparfums.com, phone, hours, "Acknowledged within 72 hours. Resolved within 30 days." Draft in `legal/compliance-checklist.md`.
 6. **Footer**.
 
 ## 12. Marketing psychology, applied quietly

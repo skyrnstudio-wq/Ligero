@@ -4,7 +4,7 @@ Skill used: `image-to-3d-pipeline` (installed in ~/.agents/skills/). Workflow: H
 
 ## Done
 
-1. Source: `noir-source.jpg` (copy of images/Ligero noir_with_box...jpeg, 2048x2048).
+1. Source: `noir-source.jpg` (copy of public/images/perfumes/noir-cacao.jpeg, 2048x2048).
 2. Background removal: `cutout.swift` (Apple Vision, VNGenerateForegroundInstanceMaskRequest) -> `noir-cutout.png`, transparent, subject 60.2% of frame.
 3. Upload asset: `noir-upload-1024.png` (1024px PNG with alpha). This is the file for Hunyuan3D.
 

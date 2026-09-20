@@ -4,6 +4,7 @@ Thumbs.db
 
 # Tooling & editor artifacts
 .freebuff/
+.backup/
 .vscode/
 .idea/
 
@@ -14,5 +15,8 @@ Thumbs.db
 
 # Dependencies & build outputs
 node_modules/
+.next/
+out/
 dist/
 build/
+*.tsbuildinfo

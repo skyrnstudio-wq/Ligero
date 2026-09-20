@@ -6,7 +6,7 @@ These terms govern orders through this website and use of it. Plain language, co
 
 ## 1. Who we are
 
-Ligero Parfum, a fragrance house registered in India. Registered office: [full address]. GSTIN: [number]. Contact: concierge@liceroparfum.com.
+Ligero Parfum, a fragrance house registered in India. Registered office: [full address]. GSTIN: [number]. Contact: concierge@ligeroparfums.com.
 
 ## 2. What the house makes
 
@@ -26,7 +26,7 @@ An order is an offer to buy. The sale exists when we confirm dispatch, not befor
 
 - Dispatch from [city] within [2] working days of order. Delivery in [3 to 7] working days depending on pincode.
 - Courier attempts delivery three times before the parcel returns to us. We refund the product value minus two-way freight on courier-failed deliveries.
-- If a parcel arrives damaged, photograph the outer packaging and the bottle within 48 hours of delivery and write to concierge@liceroparfum.com. We replace or refund.
+- If a parcel arrives damaged, photograph the outer packaging and the bottle within 48 hours of delivery and write to concierge@ligeroparfums.com. We replace or refund.
 
 ## 6. Returns, what the law gives and what we add
 

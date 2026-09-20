@@ -32,7 +32,7 @@ Working doc for launch. Not legal advice. Counsel reviews the final drafts.
 ```
 Grievance Officer
 Name: [name]
-Email: grievance@liceroparfum.com
+Email: grievance@ligeroparfums.com
 Phone: [+91 number]
 Hours: Mon to Fri, 10:00 to 18:00 IST
 Acknowledged within 72 hours. Resolved within 30 days.

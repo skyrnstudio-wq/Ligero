@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  /* AUBE — Raw Silk & Burnt Apricot (site default) */
+  --color-aube-base: #f3ede3; /* page background — raw silk */
+  --color-aube-surface: #fbf8f2; /* cards, raised panels */
+  --color-aube-text: #2b2118; /* espresso ink */
+  --color-aube-text-muted: #6f6154; /* warm taupe — secondary text */
+  --color-aube-accent: #b0522a; /* burnt apricot — the one accent */
+  --color-aube-secondary: #8fa6b2; /* dawn grey-blue — tags, secondary */
+  --color-aube-gold: #c6a15b; /* soft gold — hairlines only */
+  --color-aube-hairline: #e0d7c7; /* 1px borders, dividers on raw silk */
+
+  --font-display: var(--font-cormorant), "Georgia", serif;
+  --font-body: var(--font-schibsted), "Helvetica Neue", sans-serif;
+  --font-editorial: var(--font-bodoni), "Didot", serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-aube-base);
+    color: var(--color-aube-text);
+  }
+}
+
+/* Staggered reveal for The Collection. Collapsed under reduced motion. */
+@layer components {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+}

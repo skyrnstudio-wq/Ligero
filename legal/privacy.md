@@ -69,7 +69,7 @@ As required under the DPDP Act, 2023 and the Consumer Protection (E-commerce) Ru
 
 **Name:** [Grievance Officer name]
 **Designation:** Grievance Officer, Ligero Parfum
-**Email:** grievance@liceroparfum.com
+**Email:** grievance@ligeroparfums.com
 **Phone:** [+91 phone]
 **Hours:** Mon to Fri, 10:00 to 18:00 IST
 **Postal:** [Full registered address]
@@ -78,7 +78,7 @@ Acknowledged in 72 hours, resolved in 30 days. If unresolved, you may escalate t
 
 ## 12. Contact for privacy questions
 
-privacy@liceroparfum.com. A person answers within a day.
+privacy@ligeroparfums.com. A person answers within a day.
 
 ---
 
