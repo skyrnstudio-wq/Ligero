@@ -1,0 +1,18 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tooling & editor artifacts
+.freebuff/
+.vscode/
+.idea/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Dependencies & build outputs
+node_modules/
+dist/
+build/
