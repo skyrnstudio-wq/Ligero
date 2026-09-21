@@ -54,7 +54,7 @@ export default function Correspondence() {
                   placeholder="Enter your email"
                   aria-invalid={Boolean(error)}
                   aria-describedby={error ? "correspondence-error" : undefined}
-                  className="w-full flex-1 border-b border-aube-hairline bg-transparent py-3 font-body text-aube-text placeholder:text-aube-text-muted/50 focus:border-aube-accent focus:outline-none"
+                  className="w-full flex-1 border-b border-aube-hairline bg-transparent py-3 font-body text-aube-text placeholder:text-aube-text-muted focus:border-aube-accent focus:outline-none"
                 />
                 <button
                   type="submit"

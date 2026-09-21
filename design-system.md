@@ -21,7 +21,7 @@ For dark editorial breaks, the Noctis product page, and the site footer.
 | Surface        | `#1A1F24` | Cards, raised panels                                  |
 | Text           | `#EAE6DC` | Unbleached silk white                                 |
 | Text muted     | `#A9A69C` | Secondary copy, captions                              |
-| Accent         | `#B9975B` | Antique brass — CTAs, links, highlights              |
+| Accent         | `#B9975B` | Antique brass — CTAs, links, highlights (6.7:1 on base)  |
 | Secondary      | `#5C2528` | Deep oxblood — badges, hovers on dark                |
 | Metal/hairline | `#3A3F45` | Dividers, borders                                     |
 
@@ -34,8 +34,8 @@ The light theme: homepage, collection and e-commerce pages. Warm but with a bite
 | Base       | `#F3EDE3` | Raw silk                                  |
 | Surface    | `#FBF8F2` | Cards on raw silk                         |
 | Text       | `#2B2118` | Espresso ink                              |
-| Text muted | `#6F6154` | Warm taupe — secondary copy, captions    |
-| Accent     | `#B0522A` | Burnt apricot — AA contrast on base      |
+| Text muted | `#6F6154` | Warm taupe — secondary copy, captions (5.1:1 on base)   |
+| Accent     | `#A64B24` | Burnt apricot — 4.9:1 on base, WCAG AA     |
 | Secondary  | `#8FA6B2` | Dawn grey-blue — tags, secondary buttons |
 | Metal      | `#C6A15B` | Soft gold hairlines                       |
 | Hairline   | `#E0D7C7` | Dividers on raw silk                      |
@@ -147,14 +147,16 @@ Plain `<link>` fallback (non-Next pages, emails, prototypes):
   --color-surface: #FBF8F2;    /* cards, raised panels */
   --color-text: #2B2118;       /* espresso ink */
   --color-text-muted: #6F6154; /* warm taupe — secondary text */
-  --color-accent: #B0522A;     /* burnt apricot — CTAs, links */
+  --color-accent: #A64B24;     /* burnt apricot — CTAs, links. 4.9:1 on base (AA) */
   --color-secondary: #8FA6B2;  /* dawn grey-blue — tags, secondary buttons */
   --color-gold: #C6A15B;       /* soft gold — hairlines only */
   --color-hairline: #E0D7C7;   /* 1px borders, dividers on raw silk */
+  --color-nav-silk: #ECE3D3;   /* header bar tint, light mode — a half-step deeper than base */
 
   /* Dark sections (Noctis) invert the same roles:
      base #101418 · surface #1A1F24 · text #EAE6DC · muted #A9A69C
-     accent #B9975B · secondary #5C2528 · hairline #3A3F45 */
+     accent #B9975B (brass, 6.7:1 on base) · secondary #5C2528 · hairline #3A3F45
+     nav tint #151A1F (lifted soot) */
 
   /* Type — when using next/font, point these at the font variables
      from app/layout.tsx instead: var(--font-fraunces) / var(--font-schibsted) */
@@ -171,16 +173,31 @@ Plain `<link>` fallback (non-Next pages, emails, prototypes):
   --color-aube-surface: #FBF8F2;
   --color-aube-text: #2B2118;
   --color-aube-text-muted: #6F6154;
-  --color-aube-accent: #B0522A;
+  --color-aube-accent: #A64B24;
   --color-aube-secondary: #8FA6B2;
   --color-aube-gold: #C6A15B;
   --color-aube-hairline: #E0D7C7;
+  --color-nav-silk: #ECE3D3;
+
+  /* Noctis dark theme */
+  --color-noctis-base: #101418;
+  --color-noctis-surface: #1A1F24;
+  --color-noctis-accent: #B9975B;
+  --color-nav-soot: #151A1F;
 
   /* With next/font: --font-display: var(--font-fraunces); --font-body: var(--font-schibsted); */
   --font-display: "Fraunces", serif;
   --font-body: "Schibsted Grotesk", sans-serif;
 }
 ```
+
+### Contrast floor (verified programmatically, WCAG AA)
+
+- Accent on raw silk: `#A64B24` = 4.94:1. The former `#B0522A` measured 4.41:1 and failed at label sizes; do not revert.
+- Espresso on accent hover fills: do not place `#2B2118` text on `#A64B24` backgrounds (2.7:1). Accent fills pair with `#F3EDE3` text only at display sizes, or use espresso fills with silk text for buttons.
+- Taupe `#6F6154` and silk `#EAE6DC` must never be lightened below full opacity for text under 18px. Muted text opacity floor on dark: `/55`. Placeholder text uses full-strength taupe (global `::placeholder` rule in `globals.css`).
+- The cart badge is espresso-on-silk (light) or espresso-on-brass (dark). White text on brass fails (2.75:1) and is banned.
+- Hairlines (`#E0D7C7` on silk, 1.23:1) and inactive carousel dots are decorative non-text UI and are exempt.
 
 Swap the hex values per section using the other palettes; keep the same token names so components never change.
 

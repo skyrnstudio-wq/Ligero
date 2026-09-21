@@ -1,0 +1,51 @@
+[
+  {
+    "slug": "aube",
+    "name": "Aubé",
+    "imageName": "aube_notes",
+    "notes": "Crisp Mint · Water Jasmine · Green Cedar",
+    "prompt": "Haute parfumerie editorial photograph of fresh raw ingredients. Dew-covered crisp spearmint leaves, pristine white water jasmine (Jasminum sambac) blossoms, and aromatic green cedar sprigs artfully placed on a wet light travertine stone slab, soft natural morning sunlight, luxury fragrance campaign aesthetic, 8k resolution, macro depth of field."
+  },
+  {
+    "slug": "fleur",
+    "name": "Fleur",
+    "imageName": "fleur_notes",
+    "notes": "Magnolia · Bulgarian Rose · Luxury Musk",
+    "prompt": "Luxury perfume advertising editorial still life. Soft velvety pink Bulgarian rose petals and open blooms, elegant creamy white magnolia flower, subtle draped natural silk suggesting skin-soft musk, diffused warm morning atelier light, Hasselblad medium format camera, exquisite floral detail."
+  },
+  {
+    "slug": "ambre-doux",
+    "name": "Ambre Doux",
+    "imageName": "ambre_doux_notes",
+    "notes": "Radiant Saffron · Crystalline Amber · Silken Woods",
+    "prompt": "Editorial macro still life of luxury perfume ingredients. Glowing deep red saffron threads (stigmas), translucent golden crystalline amber resin stones catching radiant warm sunlight, resting on polished silken hardwood, warm honey and golden amber glow, opulent fragrance editorial."
+  },
+  {
+    "slug": "noctis",
+    "name": "Noctis",
+    "imageName": "noctis_notes",
+    "notes": "Dark Plum · Grey Amber · Driftwood",
+    "prompt": "Moody atmospheric fine fragrance campaign still life. Rich ripe dark plums sliced open revealing deep purple flesh and glistening droplets, natural grey ambergris chunks, weathered coastal driftwood, dark nocturnal chiaroscuro lighting with subtle moonlight glints, mysterious luxury aesthetic."
+  },
+  {
+    "slug": "blanc",
+    "name": "Blanc",
+    "imageName": "blanc_notes",
+    "notes": "Wild Strawberry · Whipped Cream · Madagascar Vanilla",
+    "prompt": "Ultra-luxurious editorial still life of fragrance raw gourmand materials. Lush deep red wild strawberries (Fragaria vesca) with green calyxes, opulent billowy swirls of fresh whipped cream, whole dark oily Madagascar vanilla bean pods split open showing tiny seeds, ivory marble surface, soft natural daylight, high-fashion perfume campaign."
+  },
+  {
+    "slug": "maree",
+    "name": "Marée",
+    "imageName": "maree_notes",
+    "notes": "Marine Accord · Rosemary · Mineral Woods",
+    "prompt": "Dramatic oceanic haute parfumerie still life. Crashing ocean wave sea spray, fresh aromatic sprigs of green wild coastal rosemary with tiny blue blossoms, wet mineral sea stones and weathered oceanic driftwood, cool coastal marine light, fine mist particles in air."
+  },
+  {
+    "slug": "noir-cacao",
+    "name": "Noir Cacao",
+    "imageName": "noircacao_notes",
+    "notes": "Cacao Absolute · Dark Chocolate · Madagascar Vanilla",
+    "prompt": "Dark decadence luxury fragrance editorial still life. Hand-broken shards of 85% dark artisan chocolate, raw roasted cacao beans spilling from a rustic surface, whole Madagascar vanilla pods tied with natural twine, warm spice dust, rich moody studio lighting, indulgent gourmand atmosphere."
+  }
+]

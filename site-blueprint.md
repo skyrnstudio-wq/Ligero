@@ -10,7 +10,7 @@ Seven routes. Depth kills desire.
 
 ```
 /                    Home. The brand film you can scroll.
-/collection          The Collection. The Five, then Suite.
+/collection          The Collection. All seven perfumes.
 /collection/[slug]   Fragrance detail. noctis, aube, maree, ambre-doux, blanc, fleur, noir-coco.
 /objects             Objects. The Discovery Set, En Route, and what follows.
 /maison              The Maison. Story, craft, sourcing.
@@ -18,7 +18,9 @@ Seven routes. Depth kills desire.
 /contact             Concierge. Private appointments.
 ```
 
-Catalog, client-confirmed: the Five permanent (Noctis, AUBE, Marée, Ambre Doux, Blanc), plus Suite, the line that followed (Fleur, Noir Coco), plus Objects (the Discovery Set, En Route for the car). "Suite" and "En Route" are house-name proposals, pending client confirmation.
+Catalog, client-confirmed: seven perfumes (Noctis, AUBE, Marée, Ambre Doux, Blanc, Fleur, Noir Cacao), plus Objects (the Discovery Set, En Route for the car). The Seven are the whole line; there is no tier or permanence split. Name spelling is client-confirmed as "Noir Cacao"; earlier "Noir Coco" references in this document are superseded.
+
+Copy direction, client-confirmed: lead with feel and emotion, never with inventory counts or collection architecture. Do not build copy around "the Five", "permanent", "Suite", or any permanence framing. Seven is a fact to state quietly where a number is needed ("Seven perfumes"), never a theme.
 
 Nav reads: Collection, Maison, Journal, Concierge. Four words. FAQ, shipping, returns live in the footer, never the nav.
 
@@ -45,9 +47,9 @@ Legal pages exist because Indian law requires them (DPDP Act 2023, Consumer Prot
 
 ## 4. Home sections, in order
 
-1. **Hero**. AUBE raw silk. Eyebrow LIGERO PARFUM. Headline in Cormorant 300 at 5rem: "Scent, worn like silk." Subline: "Seven perfumes, five of them permanent." CTA text link, hairline underline: "Explore the Collection". No button fill.
-2. **Manifesto**. Centered, Cormorant 3rem: "The Five are permanent. Everything else must earn its place."
-3. **The Five**. Horizontal scroll row of five tall-crop product images, name in Cormorant italic below each. No prices. Home does the desiring; the collection page does the selling. The Five stay Home's icons; Suite and Objects live on their own pages.
+1. **Hero**. AUBE raw silk. Eyebrow LIGERO PARFUM. Headline in Cormorant 300 at 5rem: "Scent, worn like silk." Subline: "Seven perfumes, rested ninety days." CTA text link, hairline underline: "Explore the Collection". No button fill.
+2. **Manifesto**. Centered, Cormorant 3rem: one felt idea about wearing Ligero. No inventory statements.
+3. **The Collection**. Horizontal scroll row of tall-crop product images, name in Cormorant italic below each. No prices. Home does the desiring; the collection page does the selling. Objects live on their own page.
 4. **Craft strip**. Three images, 9-word captions, hairline-separated: sourcing, blending, resting.
 5. **Editorial break**. Full-width Noctis band, Bodoni Moda 4rem: "Perfume is memory, made wearable."
 6. **The Correspondence**. One email field, button "Request the Correspondence".
@@ -57,24 +59,25 @@ Layout families used: split hero, centered manifesto, horizontal scroll, caption
 
 ## 5. Home copy
 
+Copy leads with feel and emotion. No permanence framing, no collection-architecture language in user-facing strings.
+
 - Hero eyebrow: LIGERO PARFUM
 - Hero headline: "Scent, worn like silk."
-- Hero subline: "Seven perfumes, five of them permanent."
+- Hero subline: "Seven perfumes, rested ninety days."
 - Hero CTA: "Explore the Collection"
-- Manifesto: "The Five are permanent. Everything else must earn its place."
-- The Five section title: "The Five". Names only. The mystery does the work.
+- Manifesto: one felt idea about what wearing Ligero is like. No inventory statements.
+- The Collection section title: "Seven Olfactive Emotions." Names only. The mystery does the work.
 - Craft captions (9 words each): "Raw materials come from four farms. We can name them." / "Each blend rests ninety days before a single bottle is filled." / "Nothing added to preserve. Nothing added to shine."
 - Editorial break: "Perfume is memory, made wearable."
-- Correspondence label: THE CORRESPONDENCE. Promise: "Four letters a year. Nothing else." Button: "Request the Correspondence."
+- Correspondence label: THE PRIVATE SALON. Button: "Join the Salon."
 
-Hero stack is exactly 4 elements (eyebrow, headline, subline, CTA). Subline is 7 words. One CTA intent on the page: collection. Newsletter CTA is a separate intent (email).
+Hero stack is exactly 4 elements (eyebrow, headline, subline, CTA). One CTA intent on the page: collection. Newsletter CTA is a separate intent (email).
 
 ## 6. Collection page (/collection)
 
 1. **Type-only hero**: "The Collection", 6rem Cormorant italic.
-2. **The Five**. Five full-width rows, 60/40 split, image side alternating (max 2 zigzags in a row, break with a full-bleed image between rows 2 and 3). Each row: name in 5rem Cormorant italic, one 7-word line, three note words in Schibsted 12px uppercase, price in Schibsted, link "Open Noctis" with hairline underline. One link label pattern, used five times ("Open AUBE", "Open Marée", and so on).
-3. **Suite**. The line that followed. Two rows in the same pattern: Fleur, Noir Coco. Introduced by one line: "The Five never change. Suite is what earned its place after them."
-4. **Prices**. Numerals only in display type ("1299" not "₹1299"), with one small line: "Prices in rupees, inclusive of all taxes."
+2. **The seven perfumes**. Full-width rows, 60/40 split, image side alternating (max 2 zigzags in a row, break with a full-bleed image between rows 2 and 3). Each row: name in 5rem Cormorant italic, one 7-word line, three note words in Schibsted 12px uppercase, price in Schibsted, link "Open Noctis" with hairline underline. One link label pattern, used seven times ("Open AUBE", "Open Marée", and so on).
+3. **Prices**. Numerals only in display type ("1299" not "₹1299"), with one small line: "Prices in rupees, inclusive of all taxes."
 5. **The Discovery Set band**. Hairline box: "New to the house? The Discovery Set. Every perfume, two millilitres each. 999." Link: "Order the Discovery Set".
 6. **Bespoke band**. Hairline box: "Private commissions are accepted twice a year. Write to the maison."
 7. **The Correspondence**.
@@ -95,7 +98,7 @@ Two-column: left sticky panel (name, price, "Add to Case"), right scrolling cont
 2. **Notes as poem**: three lines, no pyramid jargon. No "top notes" language.
 3. **Ritual**: 25 to 40 words on where and when.
 4. **The Material**: 30 to 50 words on one hero ingredient, one farm named.
-5. **Provenance line**: "Blended in Grasse. Rested ninety days."
+5. **Provenance line**: "Blended in India. Rested ninety days."
 6. **Continue the story**: two related fragrances, name plus one-liner. Not a card grid; two wide rows.
 7. **Footer**.
 
@@ -105,7 +108,7 @@ Sample copy, Noctis:
 - Notes: "Smoked papyrus. Leather. The hour after midnight."
 - Ritual: "On pulse points, after dark. Two sprays. Nothing more is needed."
 - The Material: "Papyrus from the Nile delta. Cut by hand, pressed the same day, rested for a year before it meets the blend."
-- Provenance: "Blended in Grasse. Rested ninety days."
+- Provenance: "Blended in India. Rested ninety days."
 
 Sample copy, AUBE:
 - Notes: "Bergamot peel. Orange blossom. Warm skin at dawn."
@@ -127,14 +130,14 @@ Sample copy, Blanc:
 - Ritual: "Wear it when you want to be remembered as calm."
 - The Material: "Iris pallida, aged three years before grinding. A note that costs more than gold by weight."
 
-Sample copy, Fleur (Suite):
+Sample copy, Fleur:
 - One-liner: "Jasmine, sambac, the courtyard after rain."
 - Notes: "Jasmine sambac. Vetiver. Wet earth at dusk."
 - Ritual: "A daylight fragrance. Throat, wrists, the ends of the hair."
 - The Material: "Jasmine sambac from Madurai, picked before dawn while the flowers still sleep."
 - Price: 1299.
 
-Sample copy, Noir Coco (Suite):
+Sample copy, Noir Cacao:
 - One-liner: "Coconut, toasted, at the last hour of the party."
 - Notes: "Coconut husk. Black vanilla. The last hour of the party."
 - Ritual: "An after-dark fragrance. Chest, coat collar, one spray too many."
@@ -162,7 +165,7 @@ Sample copy, Objects:
 3. **Essay page pattern**: single column, 65ch, Cormorant 20px body, drop cap on first paragraph. No related-posts grid. One closing link: "The Collection."
 4. **Footer**.
 
-Sample essay titles: "Why we rest a perfume for ninety days." / "The cost of real iris." / "The Five, and why they never change." / "What the sea does to kelp absolute." / "On wearing perfume for yourself."
+Sample essay titles: "Why we rest a perfume for ninety days." / "The cost of real iris." / "What the sea does to kelp absolute." / "On wearing perfume for yourself."
 
 ## 10. Objects (/objects)
 
@@ -187,9 +190,9 @@ Two rows, no card grid. Objects is a shelf, not a shop.
 
 ## 12. Marketing psychology, applied quietly
 
-- Scarcity: "Seven perfumes, five of them permanent." Small batches, no restocks promised. True scarcity, never a countdown timer.
-- Authority: named farms, named estates, Grasse. Facts do the persuading.
-- Mimetic desire: The Five row. Desire spreads from seeing others' objects of desire. No testimonial wall; luxury avoids quotes from strangers.
+- Scarcity: small batches, no restocks promised. True scarcity, never a countdown timer. Never framed as permanence or tiering.
+- Authority: named farms and single-origin Indian estates. Facts do the persuading. Ligero is an Indian maison; do not claim French or Grasse provenance anywhere.
+- Mimetic desire: the Collection row. Desire spreads from seeing others' objects of desire. No testimonial wall; luxury avoids quotes from strangers.
 - Loss aversion in the bespoke band: "twice a year" closes twice, gently.
 - Zero-price effect: never discount. No sale language anywhere, ever.
 - Peak-end rule: the Correspondence is the last section before the footer on every page. Every visit ends with a small gift.
@@ -212,8 +215,9 @@ Two rows, no card grid. Objects is a shelf, not a shop.
 - No 3-equal-card rows anywhere. Layout families alternate per section.
 - No testimonial quotes with fake names. No star ratings.
 - No emojis, no icon soup; icons only where function demands (form errors, mobile menu).
-- Motion: hero parallax and one staggered reveal on The Five, both wrapped in prefers-reduced-motion.
-- All contrast pairs AA verified: espresso on raw silk 12.3:1, burnt apricot on raw silk 4.6:1, silk white on Noctis 11.8:1.
+- Motion: hero parallax and one staggered reveal on the Collection row, both wrapped in prefers-reduced-motion.
+- Contrast pairs AA verified by computation (2026-09 audit): espresso on raw silk 13.5:1 · accent `#A64B24` on raw silk 4.94:1 · taupe on raw silk 5.13:1 · silk white on Noctis 14.8:1 · brass `#B9975B` on Noctis 6.7:1. Muted-text opacity floors: full-strength taupe on silk, `/55` on Noctis dark. Cart badge: espresso text on espresso/brass fills, never white-on-brass. Do not revert the accent to `#B0522A` (4.41:1, fails AA at label sizes).
+- Header bar uses the nav tints (`#ECE3D3` light / `#151A1F` dark), a half-step deeper than the page so the bar reads as its own layer. All header text passes AA on the tints.
 - Images: real product photography only. The repo images folder is the source. No picsum placeholders on production pages.
 - Zero em dashes in every visible string, verified by search before ship.
 
@@ -226,7 +230,7 @@ Two rows, no card grid. Objects is a shelf, not a shop.
 | Blanc | 1099 |
 | Fleur | 1299 |
 | Noctis | 1299 |
-| Noir Coco | 1599 |
+| Noir Cacao | 1599 |
 | Ambre Doux | 1699 |
 | Marée | 1699 |
 | En Route (car) | 499 |

@@ -9,7 +9,7 @@ export default function EditorialBreak() {
         <p className="font-editorial text-3xl font-light leading-[1.25] sm:text-4xl lg:text-[3.8rem] lg:leading-[1.18]">
           Skin remembers what the mind forgets.
         </p>
-        <p className="mt-5 font-display text-lg italic text-[#c6a15b] sm:text-xl">
+        <p className="mt-5 font-display text-lg italic text-noctis-accent sm:text-xl">
           An undeniable sillage that outlasts the night.
         </p>
       </div>

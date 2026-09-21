@@ -1,16 +1,16 @@
 import Image from "next/image";
 
-const HERO_IMAGE = "/images/hero/Hero-bg-169.jpg";
+const HERO_IMAGE = "/images/hero/Hero-bg-feathered.webp";
 
 /**
- * Home hero featuring the 16:9 campaign photograph.
- * Rendered with object-contain to strictly prevent any cropping or zooming.
- * The typography stack sits effortlessly in the negative space on the left.
+ * Home hero featuring the campaign photograph with seamless alpha-feathered negative space.
+ * Rendered with object-contain to strictly prevent any cropping or zooming of the bottles.
+ * The typography stack sits effortlessly in the raw-silk negative space on the left.
  */
 export default function Hero() {
   return (
-    <section className="relative flex min-h-[85svh] flex-col justify-between overflow-hidden bg-[#F0E2D6] lg:min-h-[88vh] lg:max-h-[960px] lg:flex-row lg:items-center">
-      {/* Zero-zoom 16:9 image container */}
+    <section className="relative flex min-h-[85svh] flex-col justify-between overflow-hidden bg-[#F3EDE3] lg:min-h-[88vh] lg:max-h-[960px] lg:flex-row lg:items-center">
+      {/* Zero-zoom image container with seamless feathered left edge */}
       <div className="absolute inset-0 overflow-hidden">
         <Image
           src={HERO_IMAGE}
@@ -22,21 +22,21 @@ export default function Hero() {
         />
       </div>
 
-      {/* Tonal gradient veil on the left so the text has clear contrast and melts seamlessly into the background */}
+      {/* Gentle raw-silk veil on the left so the typography has soft, effortless contrast */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 left-0 hidden w-1/2 bg-gradient-to-r from-[#F0E2D6] via-[#F0E2D6]/85 to-transparent lg:block"
+        className="pointer-events-none absolute inset-y-0 left-0 hidden w-2/5 bg-gradient-to-r from-[#F3EDE3] via-[#F3EDE3]/70 to-transparent lg:block"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-[#F0E2D6] via-[#F0E2D6]/85 to-transparent lg:hidden"
+        className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-[#F3EDE3] via-[#F3EDE3]/85 to-transparent lg:hidden"
       />
 
       {/* Typography stack */}
       <div className="relative z-10 flex px-6 pb-12 pt-32 sm:px-10 lg:items-center lg:px-16 lg:py-20 xl:px-24">
         <div className="max-w-[22rem] sm:max-w-[30rem] lg:max-w-[32rem] xl:max-w-[36rem]">
           <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-aube-text-muted">
-            Haute Parfumerie · Hand-Crafted
+            Ligero Parfum
           </p>
           <h1 className="mt-5 font-display text-4xl font-light leading-[1.12] tracking-[-0.01em] text-aube-text sm:text-5xl lg:text-6xl xl:text-[4.15rem]">
             An intimate obsession.

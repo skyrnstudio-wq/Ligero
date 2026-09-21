@@ -6,10 +6,19 @@
   --color-aube-surface: #fbf8f2; /* cards, raised panels */
   --color-aube-text: #2b2118; /* espresso ink */
   --color-aube-text-muted: #6f6154; /* warm taupe — secondary text */
-  --color-aube-accent: #b0522a; /* burnt apricot — the one accent */
+  --color-aube-accent: #a64b24; /* burnt apricot — the one accent. 4.9:1 on raw silk (WCAG AA) */
   --color-aube-secondary: #8fa6b2; /* dawn grey-blue — tags, secondary */
   --color-aube-gold: #c6a15b; /* soft gold — hairlines only */
   --color-aube-hairline: #e0d7c7; /* 1px borders, dividers on raw silk */
+
+  /* Noctis dark-theme tokens (footer, editorial bands, dark PDP) */
+  --color-noctis-base: #101418; /* smoke-black base */
+  --color-noctis-surface: #1a1f24; /* raised panels on dark */
+  --color-noctis-accent: #b9975b; /* antique brass — 6.7:1 on noctis base */
+
+  /* Header bar tints — a half-step deeper than the page so the bar reads as its own layer */
+  --color-nav-silk: #ece3d3; /* warm silk shadow, light mode */
+  --color-nav-soot: #151a1f; /* lifted soot, dark mode */
 
   --font-display: var(--font-cormorant), "Georgia", serif;
   --font-body: var(--font-schibsted), "Helvetica Neue", sans-serif;
@@ -20,6 +29,11 @@
   body {
     background-color: var(--color-aube-base);
     color: var(--color-aube-text);
+  }
+
+  ::placeholder {
+    color: var(--color-aube-text-muted);
+    opacity: 1;
   }
 }
 

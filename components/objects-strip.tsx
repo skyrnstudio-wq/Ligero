@@ -4,11 +4,6 @@
  */
 const OBJECTS = [
   {
-    name: "The Discovery Set",
-    line: "The complete olfactory wardrobe. Seven miniature flacons in a hand-spun linen pouch, inviting you to live with each fragrance before claiming your signature.",
-    cta: "Experience the Discovery Set",
-  },
-  {
     name: "En Route",
     line: "An evocative atmosphere for the private cabin. Hand-finished car diffuser charged with pure atlas cedar, bergamot, and sun-warmed amber.",
     cta: "Discover En Route",

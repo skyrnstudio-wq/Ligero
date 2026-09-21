@@ -30,7 +30,7 @@ export default function ProductOrderPanel({ product, isDark = false }: ProductOr
   };
 
   const btnBg = isDark
-    ? "bg-[#B9975B] text-[#101418] hover:bg-[#c9a76b] border-[#B9975B]"
+    ? "bg-noctis-accent text-noctis-base hover:bg-[#c9a76b] border-noctis-accent"
     : "bg-aube-text text-aube-base hover:bg-aube-accent hover:border-aube-accent border-aube-text";
 
   const borderColor = isDark ? "border-[#3A3F45]" : "border-aube-hairline";

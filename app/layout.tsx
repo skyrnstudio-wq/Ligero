@@ -3,7 +3,6 @@ import { Cormorant_Garamond, Schibsted_Grotesk, Bodoni_Moda } from "next/font/go
 import "./globals.css";
 import { CaseProvider } from "@/context/case-context";
 import CaseDrawer from "@/components/case-drawer";
-import IntroLoader from "@/components/intro-loader";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -30,7 +29,7 @@ const schibsted = Schibsted_Grotesk({
 
 export const metadata: Metadata = {
   title: "Ligero Parfum",
-  description: "Seven perfumes, all permanent.",
+  description: "Seven perfumes. Blended in India, rested ninety days.",
 };
 
 export default function RootLayout({
@@ -40,7 +39,6 @@ export default function RootLayout({
     <html lang="en" className={`${cormorant.variable} ${bodoni.variable} ${schibsted.variable}`}>
       <body className="font-body antialiased selection:bg-aube-accent selection:text-white">
         <CaseProvider>
-          <IntroLoader />
           {children}
           <CaseDrawer />
         </CaseProvider>

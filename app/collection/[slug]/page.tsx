@@ -45,7 +45,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const containerBg = isDark ? "bg-[#101418] text-[#EAE6DC]" : "bg-aube-base text-aube-text";
   const mutedText = isDark ? "text-[#A9A69C]" : "text-aube-text-muted";
   const hairlineBorder = isDark ? "border-[#3A3F45]" : "border-aube-hairline";
-  const accentColor = isDark ? "text-[#B9975B]" : "text-aube-accent";
+  const accentColor = isDark ? "text-noctis-accent" : "text-aube-accent";
   const surfaceBg = isDark ? "bg-[#1A1F24]" : "bg-aube-surface";
 
   return (
@@ -116,6 +116,49 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   </p>
                 </section>
 
+                {/* Scent Architecture / Pyramid (when available) */}
+                {product.scentProfile && (
+                  <section aria-labelledby="profile-heading" className={`border-b ${hairlineBorder}/60 pb-12`}>
+                    <h2 id="profile-heading" className={`text-xs font-medium uppercase tracking-[0.24em] ${accentColor}`}>
+                      Scent Architecture
+                    </h2>
+                    <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
+                      {product.scentProfile.top && (
+                        <div>
+                          <p className={`text-[10px] uppercase tracking-[0.22em] ${mutedText}`}>Top Notes</p>
+                          <p className="mt-1.5 text-sm font-medium">{product.scentProfile.top}</p>
+                        </div>
+                      )}
+                      {product.scentProfile.heart && (
+                        <div>
+                          <p className={`text-[10px] uppercase tracking-[0.22em] ${mutedText}`}>Heart Notes</p>
+                          <p className="mt-1.5 text-sm font-medium">{product.scentProfile.heart}</p>
+                        </div>
+                      )}
+                      {product.scentProfile.base && (
+                        <div>
+                          <p className={`text-[10px] uppercase tracking-[0.22em] ${mutedText}`}>Base Notes</p>
+                          <p className="mt-1.5 text-sm font-medium">{product.scentProfile.base}</p>
+                        </div>
+                      )}
+                    </div>
+                    {(product.scentProfile.family || product.scentProfile.longevity) && (
+                      <div className="mt-6 flex flex-wrap items-center gap-4 pt-2">
+                        {product.scentProfile.family && (
+                          <span className={`text-[11px] uppercase tracking-[0.2em] ${accentColor}`}>
+                            Family: {product.scentProfile.family}
+                          </span>
+                        )}
+                        {product.scentProfile.longevity && (
+                          <span className={`text-[11px] uppercase tracking-[0.2em] ${mutedText}`}>
+                            • {product.scentProfile.longevity}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </section>
+                )}
+
                 {/* 2. The Ritual */}
                 <section aria-labelledby="ritual-heading" className={`border-b ${hairlineBorder}/60 pb-12`}>
                   <h2 id="ritual-heading" className={`text-xs font-medium uppercase tracking-[0.24em] ${accentColor}`}>
@@ -145,7 +188,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                     {product.provenance}
                   </p>
                   <p className={`mt-2 text-xs uppercase tracking-[0.18em] ${mutedText}`}>
-                    Pure alcohol from French beet sugar. Zero synthetic fixatives.
+                    Zero synthetic fixatives. Zero shortcuts.
                   </p>
                 </section>
 

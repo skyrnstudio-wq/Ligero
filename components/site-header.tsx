@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import { useCase } from "@/context/case-context";
@@ -17,6 +18,9 @@ interface SiteHeaderProps {
  * the largest element in the bar.
  */
 export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -39,10 +43,24 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
     }
   });
 
-  // Listen for intro loader completion event
-  const [introDone, setIntroDone] = useState(false);
+  // Intro loader is only displayed on the home page ('/').
+  // On all other routes, header elements are immediately visible.
+  const [introDone, setIntroDone] = useState(() => {
+    if (typeof window !== "undefined") {
+      if (window.location.pathname !== "/") return true;
+      if (window.__ligeroIntroDone || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return true;
+      }
+    }
+    return !isHome;
+  });
 
   useEffect(() => {
+    if (!isHome) {
+      setIntroDone(true);
+      return;
+    }
+
     // If intro already finished or reduced motion is active
     if (typeof window !== "undefined" && (window.__ligeroIntroDone || window.matchMedia("(prefers-reduced-motion: reduce)").matches)) {
       setIntroDone(true);
@@ -52,18 +70,18 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
     const onIntroDone = () => setIntroDone(true);
     window.addEventListener("ligero:intro-done", onIntroDone);
     return () => window.removeEventListener("ligero:intro-done", onIntroDone);
-  }, []);
+  }, [isHome]);
 
   const textColor = isDark ? "text-[#EAE6DC]" : "text-aube-text";
-  const hoverColor = isDark ? "hover:text-[#B9975B]" : "hover:text-aube-accent";
-  const badgeBg = isDark ? "bg-[#B9975B]" : "bg-aube-accent";
+  const hoverColor = isDark ? "hover:text-noctis-accent" : "hover:text-aube-accent";
+  const badgeBg = isDark ? "bg-noctis-accent" : "bg-aube-text";
+  const badgeText = isDark ? "text-noctis-base" : "text-aube-base";
   const stripBg = isDark
     ? scrolled
-      ? "border-b border-[#3A3F45] bg-[#101418]/95 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.4)]"
-      : "border-b border-white/[0.08] bg-[#101418]/80 backdrop-blur-md"
-    : scrolled
-    ? "border-b border-aube-hairline bg-aube-base/95 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(43,33,24,0.06)]"
-    : "border-b border-aube-text/[0.08] bg-aube-base/80 backdrop-blur-md";
+      ? "border-b border-[#3A3F45] bg-nav-soot/95 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.4)]"
+      : "border-b border-white/[0.08] bg-nav-soot/85 backdrop-blur-md"
+    : scrolled      ? "border-b border-aube-hairline bg-nav-silk/95 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(43,33,24,0.08)]"
+      : "border-b border-aube-text/[0.08] bg-nav-silk/85 backdrop-blur-md";
 
   return (
     <>
@@ -148,7 +166,7 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
                   <path d="M16 10a4 4 0 0 1-8 0" />
                 </svg>
                 <span
-                  className={`absolute -right-2 -top-1.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full ${badgeBg} px-1 text-[8.5px] font-semibold leading-none text-white transition-transform ${
+                  className={`absolute -right-2 -top-1.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full ${badgeBg} ${badgeText} px-1 text-[8.5px] font-semibold leading-none transition-transform ${
                     totalCount > 0 ? "scale-100" : "scale-90 opacity-70"
                   }`}
                 >

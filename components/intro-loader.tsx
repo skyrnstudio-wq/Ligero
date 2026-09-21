@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
@@ -12,12 +13,15 @@ declare global {
 
 /**
  * Editorial entrance loader.
- * Renders immediately on frame 0 with zero flash of the webpage.
+ * Renders only on the home page ('/').
  * Displays the house mark and tagline gracefully in the center.
  * Then smoothly scales down and glides into the navbar logo target,
  * handing off with zero blink and pixel-perfect accuracy.
  */
 export default function IntroLoader() {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+
   const [stage, setStage] = useState<"center" | "flying" | "done">("center");
   const [flightData, setFlightData] = useState<{
     deltaX: number;
@@ -28,6 +32,12 @@ export default function IntroLoader() {
   const centerLogoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!isHome) {
+      window.__ligeroIntroDone = true;
+      setStage("done");
+      return;
+    }
+
     // If intro was already executed in this session or reduced motion is preferred, skip immediately
     if (
       typeof window !== "undefined" &&
@@ -112,7 +122,7 @@ export default function IntroLoader() {
     };
   }, []);
 
-  if (stage === "done") {
+  if (!isHome || stage === "done") {
     return null;
   }
 
@@ -132,7 +142,7 @@ export default function IntroLoader() {
           delay: isFlying ? 0.35 : 0,
           ease: [0.65, 0, 0.35, 1],
         }}
-        className="pointer-events-auto absolute inset-0 bg-[#F0E2D6]"
+        className="pointer-events-auto absolute inset-0 bg-[#F3EDE3]"
       />
 
       {/* Centered logo container with fixed aspect ratio matching the logo perfectly */}
@@ -184,7 +194,7 @@ export default function IntroLoader() {
           transition={{ duration: 0.3, ease: "easeOut" }}
           className="pointer-events-none absolute -bottom-8 whitespace-nowrap text-[10px] uppercase tracking-[0.26em] text-aube-text-muted"
         >
-          Seven perfumes, all permanent.
+          Seven perfumes, rested ninety days.
         </motion.p>
       </div>
     </div>

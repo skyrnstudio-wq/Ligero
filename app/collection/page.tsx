@@ -3,11 +3,12 @@ import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import CollectionRow from "@/components/collection-row";
+import { OrderDiscoverySetButton } from "@/components/discovery-set";
 import { PERFUMES, OBJECTS } from "@/lib/products";
 
 export const metadata = {
   title: "The Collection — Ligero Parfum",
-  description: "Seven perfumes, all permanent. Blended in Grasse, rested ninety days.",
+  description: "Seven perfumes. Blended in India, rested ninety days.",
 };
 
 export default function CollectionPage() {
@@ -29,9 +30,9 @@ export default function CollectionPage() {
             The Collection
           </h1>
           <p className="mt-6 max-w-xl text-lg text-aube-text-muted sm:text-xl">
-            Seven perfumes, all permanent. Each blend rests ninety days in Grasse before a single bottle is filled.
+            Seven perfumes, each one rested ninety days before a single bottle is filled.
           </p>
-          <p className="mt-3 text-xs uppercase tracking-[0.18em] text-aube-text-muted/70">
+          <p className="mt-3 text-xs uppercase tracking-[0.18em] text-aube-text-muted">
             Prices in rupees, inclusive of all taxes.
           </p>
         </section>
@@ -59,8 +60,8 @@ export default function CollectionPage() {
                 <p className="font-display text-3xl font-light italic leading-tight text-[#EAE6DC] sm:text-4xl lg:text-5xl">
                   Each blend rests ninety days before a single bottle is filled.
                 </p>
-                <p className="mt-4 text-xs uppercase tracking-[0.22em] text-[#B9975B]">
-                  Grasse, France · Harvest Provenance
+                <p className="mt-4 text-xs uppercase tracking-[0.22em] text-noctis-accent">
+                  Single-origin harvests, named estates
                 </p>
               </div>
             </div>
@@ -80,7 +81,7 @@ export default function CollectionPage() {
             <div className="flex flex-col items-start justify-between gap-8 border border-aube-hairline bg-aube-surface p-8 sm:p-12 lg:flex-row lg:items-center lg:p-16">
               <div className="max-w-2xl">
                 <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-aube-text-muted">
-                  New to the house?
+                  New to Ligero?
                 </p>
                 <h3 className="mt-2 font-display text-3xl font-light italic text-aube-text sm:text-4xl">
                   The Discovery Set
@@ -93,12 +94,7 @@ export default function CollectionPage() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-4">
-                <Link
-                  href="/objects"
-                  className="border border-aube-text bg-aube-text px-8 py-3.5 text-xs uppercase tracking-[0.22em] text-aube-base transition-all hover:border-aube-accent hover:bg-aube-accent"
-                >
-                  Order the Discovery Set
-                </Link>
+                <OrderDiscoverySetButton />
               </div>
             </div>
           </section>

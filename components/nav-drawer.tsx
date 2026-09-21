@@ -182,7 +182,7 @@ export default function NavDrawer({ isOpen, onClose }: NavDrawerProps) {
         {/* Drawer Footer */}
         <div className="border-t border-aube-hairline/60 pt-6">
           <p className="font-display text-sm italic text-aube-text-muted">
-            Seven perfumes, all permanent.
+            Seven perfumes, rested ninety days.
           </p>
           <div className="mt-3 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-aube-text-muted">
             <span>Rested ninety days</span>
