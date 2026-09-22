@@ -78,7 +78,7 @@ Hero stack is exactly 4 elements (eyebrow, headline, subline, CTA). One CTA inte
 1. **Type-only hero**: "The Collection", 6rem Cormorant italic.
 2. **The seven perfumes**. Full-width rows, 60/40 split, image side alternating (max 2 zigzags in a row, break with a full-bleed image between rows 2 and 3). Each row: name in 5rem Cormorant italic, one 7-word line, three note words in Schibsted 12px uppercase, price in Schibsted, link "Open Noctis" with hairline underline. One link label pattern, used seven times ("Open AUBE", "Open Marée", and so on).
 3. **Prices**. Numerals only in display type ("1299" not "₹1299"), with one small line: "Prices in rupees, inclusive of all taxes."
-5. **The Discovery Set band**. Hairline box: "New to the house? The Discovery Set. Every perfume, two millilitres each. 999." Link: "Order the Discovery Set".
+5. **The Discovery Set band**. Hairline box: "New to the house? The Discovery Set. Every perfume, ten millilitres each. 999." Link: "Order the Discovery Set".
 6. **Bespoke band**. Hairline box: "Private commissions are accepted twice a year. Write to the maison."
 7. **The Correspondence**.
 8. **Footer**.
@@ -145,7 +145,7 @@ Sample copy, Noir Cacao:
 - Price: 1599.
 
 Sample copy, Objects:
-- The Discovery Set, 999: "Every perfume the house makes, two millilitres each."
+- The Discovery Set, 999: "Every perfume the house makes, ten millilitres each."
 - En Route, 499: "For the drive." One line, no poem, no ritual.
 
 ## 8. Maison (/maison)
@@ -172,7 +172,7 @@ Sample essay titles: "Why we rest a perfume for ninety days." / "The cost of rea
 The Discovery Set and En Route live here. Light section, few words.
 
 1. **Type-only hero**: "Objects."
-2. **The Discovery Set**. One wide row, bottle-lineup photo: "Every perfume the house makes, two millilitres each. Seven vials, one box. 999." Link: "Order the Discovery Set".
+2. **The Discovery Set**. One wide row, bottle-lineup photo: "Every perfume the house makes, ten millilitres each. Seven vials, one box. 999." Link: "Order the Discovery Set".
 3. **En Route**. One wide row, product photo: "For the drive. 499." One line. A car perfume explained in five words keeps the maison's dignity and the margin.
 4. **The Correspondence**.
 5. **Footer**.

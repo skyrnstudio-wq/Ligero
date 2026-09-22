@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useCase } from "@/context/case-context";
 
-const DISCOVERY_IMAGE = "/images/objects/discovery-set-placeholder.webp";
+const DISCOVERY_IMAGE = "/images/objects/discovery-set.webp";
 
 /**
  * Home section: The Discovery Set (site-blueprint.md §10).
@@ -18,7 +18,7 @@ function useOrderDiscoverySet() {
       slug: "discovery-set",
       name: "The Discovery Set",
       price: 999,
-      volume: "7 × 2 ml",
+      volume: "7 × 10 ml",
       image: DISCOVERY_IMAGE,
     });
     setIsCaseOpen(true);
@@ -58,7 +58,7 @@ export default function DiscoverySet() {
               <div className="relative aspect-[16/9] w-full">
                 <Image
                   src={DISCOVERY_IMAGE}
-                  alt="The Discovery Set presentation box with seven two-millilitre vials"
+                  alt="The Discovery Set presentation with seven ten-millilitre vials"
                   fill
                   sizes="(max-width: 1024px) 100vw, 58vw"
                   className="object-cover object-center"
@@ -75,13 +75,13 @@ export default function DiscoverySet() {
             </h2>
 
             <p className="mt-4 max-w-md text-base leading-relaxed text-aube-text-muted sm:text-lg">
-              Every perfume the house makes, two millilitres each. Seven vials, one box, rested ninety days.
+              Every perfume the house makes, ten millilitres each. Seven vials, one box, rested ninety days.
             </p>
 
             <div className="mt-6 flex items-baseline gap-4">
               <span className="font-display text-3xl font-light text-aube-text">999</span>
               <span className="text-[11px] uppercase tracking-[0.18em] text-aube-text-muted">
-                7 × 2 ml
+                7 × 10 ml
               </span>
             </div>
 

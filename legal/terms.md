@@ -39,7 +39,7 @@ An order is an offer to buy. The sale exists when we confirm dispatch, not befor
 
 ## 6a. The Discovery Set
 
-Every perfume the house makes, two millilitres each, seven vials, one box. 999, shipped across India. The set exists so the nose can decide before a bottle is opened. The set price is the price of trying; it is not a coupon and carries no credit against a full bottle unless the maison announces otherwise in the Correspondence.
+Every perfume the house makes, ten millilitres each, seven vials, one box. 999, shipped across India. The set exists so the nose can decide before a bottle is opened. The set price is the price of trying; it is not a coupon and carries no credit against a full bottle unless the maison announces otherwise in the Correspondence.
 
 ## 6b. Private commissions
 

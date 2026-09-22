@@ -87,7 +87,7 @@ export default function CollectionPage() {
                   The Discovery Set
                 </h3>
                 <p className="mt-3 text-base text-aube-text-muted sm:text-lg">
-                  Every perfume the house makes, two millilitres each. Seven vials, one box. Rested ninety days.
+                  Every perfume the house makes, ten millilitres each. Seven vials, one box. Rested ninety days.
                 </p>
                 <p className="mt-2 font-display text-2xl font-light text-aube-text">
                   {discoverySet.price}

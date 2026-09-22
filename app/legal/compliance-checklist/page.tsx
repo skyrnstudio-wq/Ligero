@@ -72,7 +72,7 @@ export default function ComplianceGrievancePage() {
             </p>
             <ul className="mt-4 flex flex-col gap-2 pl-4 list-disc marker:text-aube-accent text-sm">
               <li>Name of the commodity: Eau de Parfum / Extrait de Parfum.</li>
-              <li>Net quantity: 50 ml per flacon (2 ml per vial for the Discovery Set).</li>
+              <li>Net quantity: 50 ml per flacon (10 ml per vial for the Discovery Set).</li>
               <li>Maximum Retail Price (MRP): Inclusive of all taxes, clearly stated on each product page and carton.</li>
               <li>Country of origin: Made in India with single-origin Indian estates and imported botanicals.</li>
               <li>Consumer care details: concierge@ligeroparfums.com.</li>

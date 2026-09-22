@@ -181,9 +181,9 @@ export const OBJECTS: HouseObject[] = [
     slug: "discovery-set",
     name: "The Discovery Set",
     price: 999,
-    description: "Every perfume the house makes, two millilitres each.",
+    description: "Every perfume the house makes, ten millilitres each.",
     spec: "Seven vials, one box. Rested ninety days.",
-    image: "/images/perfumes/tray.jpeg",
+    image: "/images/objects/discovery-set.webp",
   },
   {
     slug: "en-route",
