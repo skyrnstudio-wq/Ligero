@@ -2,13 +2,9 @@ import IntroLoader from "@/components/intro-loader";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import Hero from "@/components/hero";
-import Manifesto from "@/components/manifesto";
 import TheCollection from "@/components/the-collection";
-import DiscoverySet from "@/components/discovery-set";
-import ObjectsStrip from "@/components/objects-strip";
-import CraftStrip from "@/components/craft-strip";
-import EditorialBreak from "@/components/editorial-break";
-import Correspondence from "@/components/correspondence";
+import ObjectsOfScent from "@/components/objects-of-scent";
+import PrivateSalon from "@/components/private-salon";
 
 export default function Home() {
   return (
@@ -16,14 +12,17 @@ export default function Home() {
       <IntroLoader />
       <SiteHeader />
       <main>
+        {/* Movement 1: The Campaign Hero */}
         <Hero />
-        <Manifesto />
+
+        {/* Movement 2: The Seven Olfactive Emotions */}
         <TheCollection />
-        <DiscoverySet />
-        <ObjectsStrip />
-        <CraftStrip />
-        <EditorialBreak />
-        <Correspondence />
+
+        {/* Movement 3: The Objects of Scent (Discovery Set & En Route) */}
+        <ObjectsOfScent />
+
+        {/* Movement 4: The Private Salon */}
+        <PrivateSalon />
       </main>
       <SiteFooter />
     </>

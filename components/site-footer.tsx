@@ -11,8 +11,6 @@ const EXPLORE = [
   { label: "The Journal", href: "/journal" },
 ];
 
-const MAISON = [{ label: "The Maison", href: "/maison" }];
-
 const CONCIERGE = [
   { label: "Concierge", href: "/contact" },
   { label: "Private Appointment", href: "/contact" },
@@ -29,31 +27,13 @@ export default function SiteFooter() {
   return (
     <footer className="bg-[#101418] px-6 pb-10 pt-20 text-[#EAE6DC] sm:px-10 lg:px-16">
       <div className="mx-auto max-w-6xl">
-        <div className="grid grid-cols-2 gap-x-8 gap-y-12 sm:grid-cols-4">
+        <div className="grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-12">
           <nav aria-label="Explore">
             <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#EAE6DC]/55">
               Explore
             </p>
             <ul className="mt-4 flex flex-col gap-2.5">
               {EXPLORE.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="font-display text-lg font-light text-[#EAE6DC] transition-colors hover:text-noctis-accent"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          <nav aria-label="Maison">
-            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#EAE6DC]/55">
-              Maison
-            </p>
-            <ul className="mt-4 flex flex-col gap-2.5">
-              {MAISON.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
@@ -97,7 +77,7 @@ export default function SiteFooter() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Ligero Parfum on Instagram"
-                className="group inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-[#EAE6DC]/70 transition-colors hover:text-noctis-accent"
+                className="group inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 text-xs uppercase tracking-[0.2em] text-[#EAE6DC]/70 transition-colors hover:text-noctis-accent"
               >
                 <span>Instagram</span>
                 <span className="text-[11px] text-noctis-accent transition-transform group-hover:translate-x-0.5">@ligeroparfums ↗</span>

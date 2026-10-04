@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
-import CollectionRow from "@/components/collection-row";
+import CollectionCard from "@/components/collection-card";
 import { OrderDiscoverySetButton } from "@/components/discovery-set";
 import { PERFUMES, OBJECTS } from "@/lib/products";
 
@@ -37,11 +37,16 @@ export default function CollectionPage() {
           </p>
         </section>
 
-        {/* First Batch of Perfumes */}
-        <section aria-label="Permanent Lineup Part One">
-          {firstBatch.map((product, idx) => (
-            <CollectionRow key={product.slug} product={product} index={idx} />
-          ))}
+        {/* First Batch — three across */}
+        <section
+          aria-label="The first three perfumes"
+          className="mx-auto max-w-[112rem] px-6 py-14 sm:px-10 lg:px-16 lg:py-20"
+        >
+          <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-10">
+            {firstBatch.map((product, idx) => (
+              <CollectionCard key={product.slug} product={product} index={idx} />
+            ))}
+          </div>
         </section>
 
         {/* Full-bleed Editorial Atmosphere Break */}
@@ -68,11 +73,16 @@ export default function CollectionPage() {
           </div>
         </section>
 
-        {/* Second Batch of Perfumes */}
-        <section aria-label="Permanent Lineup Part Two">
-          {secondBatch.map((product, idx) => (
-            <CollectionRow key={product.slug} product={product} index={idx + 3} />
-          ))}
+        {/* Second Batch — four across on wide screens, two on tablets */}
+        <section
+          aria-label="The remaining four perfumes"
+          className="mx-auto max-w-[112rem] px-6 py-14 sm:px-10 lg:px-16 lg:py-20"
+        >
+          <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:gap-x-10 xl:grid-cols-4">
+            {secondBatch.map((product, idx) => (
+              <CollectionCard key={product.slug} product={product} index={idx} />
+            ))}
+          </div>
         </section>
 
         {/* The Discovery Set Band */}
@@ -104,7 +114,7 @@ export default function CollectionPage() {
         <section className="mx-auto max-w-[112rem] px-6 pb-24 sm:px-10 lg:px-16">
           <div className="border border-aube-hairline bg-transparent p-8 text-center sm:p-12">
             <p className="font-display text-2xl font-light italic text-aube-text sm:text-3xl">
-              Private commissions are accepted twice a year. Write to the maison.
+              Private commissions are accepted twice a year. Write to the concierge.
             </p>
             <Link
               href="/contact"

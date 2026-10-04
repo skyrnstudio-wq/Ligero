@@ -10,7 +10,6 @@ interface NavDrawerProps {
 }
 
 const HOUSE_LINKS = [
-  { label: "The Maison", href: "/maison", desc: "Story, craft, sourcing" },
   { label: "The Journal", href: "/journal", desc: "Long pieces, no SKUs" },
   { label: "Objects", href: "/objects", desc: "Discovery Set & En Route" },
   { label: "Concierge", href: "/contact", desc: "Private appointments" },
@@ -133,18 +132,20 @@ export default function NavDrawer({ isOpen, onClose }: NavDrawerProps) {
                     <Link
                       href={`/collection/${perfume.slug}`}
                       onClick={onClose}
-                      className="group flex items-baseline justify-between transition-colors"
+                      className="group block transition-colors"
                     >
-                      <div>
+                      {/* Stacked rows: name + price on one line, the poetic one-liner
+                          below — legible at the drawer's 448px max width on phones */}
+                      <div className="flex items-baseline justify-between gap-3">
                         <span className="font-display text-xl font-normal text-aube-text transition-colors group-hover:text-aube-accent">
                           {perfume.name}
                         </span>
-                        <span className="ml-3 font-display text-xs italic text-aube-text-muted/80 transition-colors group-hover:text-aube-text">
-                          {perfume.oneLiner}
+                        <span className="flex-none font-body text-xs text-aube-text-muted transition-colors group-hover:text-aube-text">
+                          {perfume.price}
                         </span>
                       </div>
-                      <span className="font-body text-xs text-aube-text-muted group-hover:text-aube-text">
-                        {perfume.price}
+                      <span className="mt-0.5 block font-display text-xs italic leading-snug text-aube-text-muted/80 transition-colors group-hover:text-aube-text">
+                        {perfume.oneLiner}
                       </span>
                     </Link>
                   </li>
@@ -164,12 +165,12 @@ export default function NavDrawer({ isOpen, onClose }: NavDrawerProps) {
                   <Link
                     href={link.href}
                     onClick={onClose}
-                    className="group flex items-baseline justify-between transition-colors"
+                    className="group block transition-colors"
                   >
-                    <span className="font-display text-2xl font-light text-aube-text transition-colors group-hover:text-aube-accent">
+                    <span className="block font-display text-2xl font-light text-aube-text transition-colors group-hover:text-aube-accent">
                       {link.label}
                     </span>
-                    <span className="text-[11px] uppercase tracking-[0.16em] text-aube-text-muted transition-colors group-hover:text-aube-accent">
+                    <span className="mt-0.5 block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted transition-colors group-hover:text-aube-accent">
                       {link.desc}
                     </span>
                   </Link>

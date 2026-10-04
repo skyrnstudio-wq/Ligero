@@ -107,10 +107,10 @@ export default function TheCollection() {
   return (
     <section
       aria-label="The seven fragrances"
-      className="relative overflow-hidden bg-aube-base py-24 sm:py-32 border-y border-aube-hairline/60"
+      className="relative overflow-hidden bg-aube-base py-16 sm:py-20 md:py-24 border-b border-aube-hairline/70"
       style={{
         backgroundImage: `
-          radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.65) 0%, rgba(243, 237, 227, 0) 72%),
+          radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.75) 0%, rgba(243, 237, 227, 0.3) 65%, rgba(243, 237, 227, 0) 85%),
           url('/images/textures/raw-silk-canvas.webp')
         `,
         backgroundRepeat: "no-repeat, repeat",
@@ -118,15 +118,15 @@ export default function TheCollection() {
       }}
     >
       {/* Editorial Title Stack */}
-      <div className="mx-auto max-w-4xl px-6 pb-14 text-center sm:px-10">
+      <div className="mx-auto max-w-4xl px-6 pb-8 text-center sm:px-10 sm:pb-12">
         <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-aube-accent">
-          The Collection
+          The Collection // 50 ml Extrait de Parfum
         </p>
-        <h2 className="mt-3 font-display text-3xl font-light uppercase tracking-wider text-aube-text sm:text-4xl lg:text-[2.75rem]">
+        <h2 className="mt-3 font-display text-3xl font-light uppercase tracking-wider text-aube-text sm:text-4xl lg:text-5xl">
           Seven Olfactive Emotions.
         </h2>
-        <p className="mt-3 text-sm text-aube-text-muted tracking-wide">
-          Raw botanicals in natural light. Blended in India, rested ninety days.
+        <p className="mt-3 text-sm sm:text-base text-aube-text-muted tracking-wide max-w-lg mx-auto">
+          Raw single-origin botanicals in natural light. Blended in India, rested ninety days.
         </p>
       </div>
 
@@ -137,15 +137,15 @@ export default function TheCollection() {
           type="button"
           onClick={handlePrev}
           aria-label="Previous fragrance"
-          className="group absolute left-3 sm:left-6 md:left-10 lg:left-14 z-30 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full border border-aube-text/25 bg-aube-surface/90 text-aube-text backdrop-blur-md shadow-xl transition-all duration-300 hover:scale-105 hover:border-aube-text hover:bg-aube-text hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-aube-accent"
+          className="group absolute left-3 sm:left-6 md:left-10 lg:left-14 z-30 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-aube-text/25 bg-aube-surface/90 text-aube-text backdrop-blur-md shadow-lg transition-all duration-300 hover:scale-105 hover:border-aube-text hover:bg-aube-text hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-aube-accent"
         >
-          <span className="text-lg sm:text-xl transition-transform duration-300 group-hover:-translate-x-0.5">
+          <span className="text-sm sm:text-base transition-transform duration-300 group-hover:-translate-x-0.5">
             ←
           </span>
         </button>
 
         {/* Carousel Visuals Track */}
-        <div className="relative flex h-[440px] sm:h-[510px] md:h-[560px] lg:h-[600px] w-full items-center justify-center overflow-visible">
+        <div className="relative flex h-[260px] sm:h-[300px] md:h-[340px] lg:h-[380px] w-full items-center justify-center overflow-visible">
           {FRAGRANCES.map((item, idx) => {
             // Cyclic distance from active index (-3 to +3)
             let offset = idx - activeIndex;
@@ -181,14 +181,14 @@ export default function TheCollection() {
                 }`}
               >
                 {/* Visual Unit: Tall Portrait Editorial Card (3:4 ratio) + Side-Breaking 3D Bottle */}
-                <div className="relative h-[340px] w-[255px] sm:h-[420px] sm:w-[315px] md:h-[480px] md:w-[360px] lg:h-[520px] lg:w-[390px]">
+                <div className="relative h-[210px] w-[158px] sm:h-[250px] sm:w-[188px] md:h-[285px] md:w-[214px] lg:h-[320px] lg:w-[240px]">
                   {/* Background Card with Raw Botanical Notes Art (Tall 3:4 Portrait, completely uncovered on the left) */}
-                  <div className="relative h-full w-full overflow-hidden rounded-[2px] bg-[#1a1715] shadow-[0_25px_55px_rgba(43,33,24,0.2)] ring-1 ring-black/15 transition-shadow duration-300">
+                  <div className="relative h-full w-full overflow-hidden rounded-[2px] bg-[#1a1715] shadow-[0_16px_36px_rgba(43,33,24,0.16)] ring-1 ring-black/15 transition-shadow duration-300">
                     <Image
                       src={item.notesImage}
                       alt={`${item.name} olfactory notes`}
                       fill
-                      sizes="(max-width: 640px) 255px, (max-width: 768px) 315px, (max-width: 1024px) 360px, 390px"
+                      sizes="(max-width: 640px) 158px, (max-width: 768px) 188px, (max-width: 1024px) 214px, 240px"
                       className="object-cover"
                       priority={isCenter}
                     />
@@ -202,23 +202,23 @@ export default function TheCollection() {
                   {/* 3D Ground Contact Shadow beneath the breaking bottle */}
                   <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute -bottom-7 -right-8 sm:-bottom-9 sm:-right-12 z-10 h-8 w-36 sm:w-48 rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0.55)_0%,_transparent_72%)] blur-md"
+                    className="pointer-events-none absolute -bottom-4 -right-5 sm:-bottom-5 sm:-right-7 z-10 h-5 w-24 sm:w-30 rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0.55)_0%,_transparent_72%)] blur-md"
                   />
 
                   {/* 3D Perfume Bottle Cutout — anchored to the right, breaking out of the card edge */}
                   {/* Leaves 75% of the tall botanical art on the left completely open and clear */}
                   <div
-                    className="pointer-events-none absolute -bottom-6 -right-10 sm:-bottom-8 sm:-right-14 md:-bottom-10 md:-right-16 z-20 h-[92%] w-[50%] sm:h-[95%] sm:w-[52%] transition-transform duration-300"
+                    className="pointer-events-none absolute -bottom-4 -right-6 sm:-bottom-5 sm:-right-8 md:-bottom-6 md:-right-9 z-20 h-[92%] w-[50%] sm:h-[95%] sm:w-[52%] transition-transform duration-300"
                     style={{
                       filter:
-                        "drop-shadow(-18px 24px 26px rgba(0, 0, 0, 0.48)) drop-shadow(-6px 10px 12px rgba(0, 0, 0, 0.3)) drop-shadow(0 2px 5px rgba(0, 0, 0, 0.18))",
+                        "drop-shadow(-12px 14px 16px rgba(0, 0, 0, 0.42)) drop-shadow(-3px 6px 8px rgba(0, 0, 0, 0.25)) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.15))",
                     }}
                   >
                     <Image
                       src={item.cutoutImage}
                       alt={`${item.name} perfume bottle`}
                       fill
-                      sizes="(max-width: 640px) 140px, (max-width: 768px) 180px, 220px"
+                      sizes="(max-width: 640px) 90px, (max-width: 768px) 120px, 140px"
                       className="object-contain object-bottom select-none"
                       priority={isCenter}
                     />
@@ -234,44 +234,44 @@ export default function TheCollection() {
           type="button"
           onClick={handleNext}
           aria-label="Next fragrance"
-          className="group absolute right-3 sm:right-6 md:right-10 lg:right-14 z-30 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full border border-aube-text/25 bg-aube-surface/90 text-aube-text backdrop-blur-md shadow-xl transition-all duration-300 hover:scale-105 hover:border-aube-text hover:bg-aube-text hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-aube-accent"
+          className="group absolute right-3 sm:right-6 md:right-10 lg:right-14 z-30 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-aube-text/25 bg-aube-surface/90 text-aube-text backdrop-blur-md shadow-lg transition-all duration-300 hover:scale-105 hover:border-aube-text hover:bg-aube-text hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-aube-accent"
         >
-          <span className="text-lg sm:text-xl transition-transform duration-300 group-hover:translate-x-0.5">
+          <span className="text-sm sm:text-base transition-transform duration-300 group-hover:translate-x-0.5">
             →
           </span>
         </button>
       </div>
 
       {/* Active Fragrance Detail Block Below */}
-      <div className="relative mx-auto mt-12 max-w-xl px-6 text-center">
+      <div className="relative mx-auto mt-4 sm:mt-5 max-w-xl px-6 text-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeFragrance.slug}
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
             className="flex flex-col items-center"
           >
             {/* Title */}
-            <h3 className="font-display text-3xl sm:text-4xl font-light uppercase tracking-wider text-aube-text">
+            <h3 className="font-display text-xl sm:text-2xl font-light uppercase tracking-wider text-aube-text">
               {activeFragrance.name}
             </h3>
 
             {/* Chapter & Botanical Notes */}
-            <p className="mt-2 text-xs uppercase tracking-[0.24em] text-aube-accent font-medium">
+            <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-aube-accent font-medium">
               {activeFragrance.chapter} · {activeFragrance.notes}
             </p>
 
             {/* Poetic One-Liner */}
-            <p className="mt-2.5 text-sm sm:text-base italic text-aube-text/80">
+            <p className="mt-1 text-xs text-aube-text/80 italic">
               "{activeFragrance.oneLiner}"
             </p>
 
             {/* CTA Link */}
             <Link
               href={`/collection/${activeFragrance.slug}`}
-              className="group mt-5 inline-flex items-center gap-2.5 border-b border-aube-accent/60 pb-1 text-xs uppercase tracking-[0.22em] text-aube-text transition-all hover:border-aube-text hover:text-aube-accent"
+              className="group mt-2.5 inline-flex items-center gap-2 border-b border-aube-accent/60 pb-0.5 text-[11px] uppercase tracking-[0.2em] text-aube-text transition-all hover:border-aube-text hover:text-aube-accent"
             >
               <span>Explore {activeFragrance.name}</span>
               <span className="transition-transform duration-300 group-hover:translate-x-1">
@@ -282,7 +282,7 @@ export default function TheCollection() {
         </AnimatePresence>
 
         {/* Slide Indicator Dots */}
-        <div className="mt-8 flex items-center justify-center gap-2">
+        <div className="mt-3 sm:mt-3.5 flex items-center justify-center gap-2">
           {FRAGRANCES.map((f, i) => (
             <button
               key={f.slug}
@@ -291,8 +291,8 @@ export default function TheCollection() {
               aria-label={`Go to ${f.name}`}
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 i === activeIndex
-                  ? "w-7 bg-aube-accent"
-                  : "w-2 bg-aube-text/20 hover:bg-aube-text/40"
+                  ? "w-6 bg-aube-accent"
+                  : "w-1.5 bg-aube-text/20 hover:bg-aube-text/40"
               }`}
             />
           ))}

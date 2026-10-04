@@ -54,14 +54,14 @@ export default function DiscoverySet() {
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-16">
           {/* Left column: the set, seated on its surface card per the light-theme rule */}
           <div className="relative lg:col-span-7">
-            <div className="relative overflow-hidden border border-aube-hairline/70 bg-aube-base">
-              <div className="relative aspect-[16/9] w-full">
+            <div className="group relative overflow-hidden border border-aube-hairline/70 bg-aube-base shadow-[0_4px_24px_rgba(0,0,0,0.03)]">
+              <div className="relative aspect-[16/9] w-full overflow-hidden">
                 <Image
                   src={DISCOVERY_IMAGE}
-                  alt="The Discovery Set presentation with seven ten-millilitre vials"
+                  alt="The Discovery Set presentation box containing seven ten-millilitre vials"
                   fill
                   sizes="(max-width: 1024px) 100vw, 58vw"
-                  className="object-cover object-center"
+                  className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                   priority
                 />
               </div>

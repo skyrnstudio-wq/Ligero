@@ -202,9 +202,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
                       <Link
                         key={rel!.slug}
                         href={`/collection/${rel!.slug}`}
-                        className="group flex items-center justify-between py-6 transition-colors"
+                        className="group flex items-center justify-between gap-6 py-6 transition-colors"
                       >
-                        <div>
+                        <div className="min-w-0">
                           <p className="font-display text-3xl font-light italic transition-colors group-hover:opacity-75">
                             {rel!.name}
                           </p>
@@ -212,7 +212,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                             {rel!.oneLiner}
                           </p>
                         </div>
-                        <span className={`text-xs uppercase tracking-[0.2em] ${accentColor} transition-transform group-hover:translate-x-1`}>
+                        <span className={`flex-none whitespace-nowrap text-xs uppercase tracking-[0.2em] ${accentColor} transition-transform group-hover:translate-x-1`}>
                           Open {rel!.name} →
                         </span>
                       </Link>
