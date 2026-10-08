@@ -19,46 +19,53 @@ export default function PrivateSalon() {
 
   return (
     <section
+      id="maison"
       aria-label="The Private Salon"
-      className="relative overflow-hidden bg-[#101418] text-[#EAE6DC] py-24 sm:py-28 lg:py-36 border-t border-[#3A3F45]/80"
+      className="relative overflow-hidden bg-[#100b0a] text-[#f1ebe4] py-24 sm:py-28 lg:py-32 border-t border-[#f1ebe4]/10"
       style={{
         backgroundImage: `
-          radial-gradient(circle at 50% 40%, rgba(185, 151, 91, 0.12) 0%, rgba(16, 20, 24, 0) 75%),
-          url('/images/textures/dark-silk-canvas.webp')
+          radial-gradient(circle at 50% 40%, rgba(90, 36, 10, 0.22) 0%, rgba(16, 11, 10, 0) 75%),
+          url('/assets/plates/cotton-canvas-texture.png')
         `,
         backgroundRepeat: "no-repeat, repeat",
-        backgroundSize: "100% 100%, 360px 360px",
+        backgroundSize: "100% 100%, 360px 120px",
       }}
     >
       {/* Delicate Inner Vignette */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/50"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/60"
       />
 
       <div className="relative z-10 mx-auto max-w-2xl px-6 sm:px-10 text-center">
-        <div className="border border-[#3A3F45]/80 bg-[#151A1F]/80 p-8 sm:p-14 backdrop-blur-xs shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
+        <div className="border border-[#f1ebe4]/15 bg-[#171210]/90 p-8 sm:p-14 backdrop-blur-xs shadow-[0_16px_40px_rgba(0,0,0,0.45)]">
           <div className="flex items-center justify-center gap-3">
-            <span className="h-px w-6 bg-[#B9975B]/40" />
-            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#B9975B]">
-              The Private Salon
+            <span className="h-px w-6 bg-[#5a240a]" />
+            <p className="text-[11px] font-normal uppercase tracking-[0.28em] text-[#d48b59]">
+              03 / The Private Salon
             </p>
-            <span className="h-px w-6 bg-[#B9975B]/40" />
+            <span className="h-px w-6 bg-[#5a240a]" />
           </div>
 
-          <h2 className="mt-4 font-display text-3xl font-light italic text-[#F4EFE6] sm:text-4xl">
+          <h2
+            className="mt-4 text-3xl sm:text-4xl font-normal text-[#f1ebe4] leading-tight"
+            style={{ fontFamily: "var(--font-cormorant), 'Adamina', Georgia, serif" }}
+          >
             Private releases. Olfactory previews. Reserved for our patrons.
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-[#A9A69C] leading-relaxed max-w-md mx-auto">
+          <p className="mt-4 text-sm sm:text-base text-[#a9a39a] leading-relaxed max-w-md mx-auto font-light">
             Receive seasonal dispatches and private allocations of limited small-batch macerations.
           </p>
 
           {received ? (
-            <div className="mt-8 border-t border-[#3A3F45]/60 pt-6">
-              <p className="font-display text-xl font-light italic text-[#F4EFE6]">
+            <div className="mt-8 border-t border-[#f1ebe4]/15 pt-6">
+              <p
+                className="text-xl sm:text-2xl font-light italic text-[#f1ebe4]"
+                style={{ fontFamily: "var(--font-cormorant), 'Adamina', Georgia, serif" }}
+              >
                 Welcome. An invitation arrives with our next private dispatch.
               </p>
-              <p className="mt-2 text-[11px] uppercase tracking-[0.2em] text-[#B9975B]">
+              <p className="mt-2 text-[11px] uppercase tracking-[0.2em] text-[#d48b59]">
                 Four letters a year. Nothing else.
               </p>
             </div>
@@ -76,11 +83,11 @@ export default function PrivateSalon() {
                   placeholder="Enter your email"
                   aria-invalid={Boolean(error)}
                   aria-describedby={error ? "salon-error" : undefined}
-                  className="w-full flex-1 border-b border-[#3A3F45] bg-transparent py-3 px-1 font-body text-[#EAE6DC] placeholder:text-[#A9A69C]/60 focus:border-[#B9975B] focus:outline-none"
+                  className="w-full flex-1 border-b border-[#f1ebe4]/30 bg-transparent py-3 px-1 text-[#f1ebe4] placeholder:text-[#a9a39a]/60 focus:border-[#d48b59] focus:outline-none text-sm"
                 />
                 <button
                   type="submit"
-                  className="border border-[#B9975B] bg-[#B9975B] px-8 py-3 text-xs uppercase tracking-[0.22em] text-[#101418] font-medium transition-all hover:border-[#EAE6DC] hover:bg-[#EAE6DC] active:scale-[0.98] sm:self-center text-center whitespace-nowrap"
+                  className="border border-[#5a240a] bg-[#5a240a] px-8 py-3 text-[11px] uppercase tracking-[0.22em] text-[#f1ebe4] transition-all hover:border-[#f1ebe4] hover:bg-[#f1ebe4] hover:text-[#100b0a] active:scale-[0.98] sm:self-center text-center whitespace-nowrap cursor-pointer"
                 >
                   Join the Salon
                 </button>
@@ -89,12 +96,12 @@ export default function PrivateSalon() {
                 <p
                   id="salon-error"
                   role="alert"
-                  className="mt-3 text-left text-xs text-[#E57373]"
+                  className="mt-3 text-left text-xs text-[#e57373]"
                 >
                   {error}
                 </p>
               )}
-              <p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-[#A9A69C]/70">
+              <p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-[#a9a39a]/60">
                 Four letters a year. Nothing else.
               </p>
             </form>

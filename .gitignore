@@ -3,6 +3,7 @@
 Thumbs.db
 
 # Tooling & editor artifacts
+.impeccable/
 .freebuff/
 .backup/
 .vscode/

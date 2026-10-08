@@ -1,4 +1,3 @@
-import IntroLoader from "@/components/intro-loader";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import Hero from "@/components/hero";
@@ -9,10 +8,9 @@ import PrivateSalon from "@/components/private-salon";
 export default function Home() {
   return (
     <>
-      <IntroLoader />
       <SiteHeader />
       <main>
-        {/* Movement 1: The Campaign Hero */}
+        {/* Movement 1: The Campaign Hero — The Silk Emporium */}
         <Hero />
 
         {/* Movement 2: The Seven Olfactive Emotions */}

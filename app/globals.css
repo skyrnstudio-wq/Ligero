@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'Adamina';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/Adamina.ttf') format('truetype');
+}
 @import "tailwindcss";
 
 @theme {
