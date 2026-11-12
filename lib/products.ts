@@ -65,7 +65,7 @@ export const PERFUMES: Product[] = [
       concentration: "Eau de Parfum",
       longevity: "10–12 Hours on Skin · 24 Hours on Raw Silk",
       sillage: "Crisp Radiance · 4–6 Feet Scent Aura",
-      maceration: "Cold Rested in Stainless Vessels",
+      maceration: "Handcrafted in Small Batches",
     },
     keyIngredients: [
       {
@@ -118,7 +118,7 @@ export const PERFUMES: Product[] = [
       concentration: "Eau de Parfum",
       longevity: "12+ Hours on Skin · Indefinite on Cashmere",
       sillage: "Enveloping & Sophisticated · 6 Feet Scent Aura",
-      maceration: "Cold Rested in Stainless Vessels",
+      maceration: "Handcrafted in Small Batches",
     },
     keyIngredients: [
       {
@@ -171,7 +171,7 @@ export const PERFUMES: Product[] = [
       concentration: "Eau de Parfum",
       longevity: "14+ Hours on Skin · Days on Wool Coats",
       sillage: "Warm, Radiating Aura · Fills a Room Gently",
-      maceration: "Cold Rested in Stainless Vessels",
+      maceration: "Handcrafted in Small Batches",
     },
     keyIngredients: [
       {
@@ -224,13 +224,13 @@ export const PERFUMES: Product[] = [
       concentration: "Eau de Parfum",
       longevity: "14+ Hours on Skin · Deep Sillage",
       sillage: "Intense & Enigmatic · Command Sillage",
-      maceration: "Cold Rested in Stainless Vessels",
+      maceration: "Handcrafted in Small Batches",
     },
     keyIngredients: [
       {
         name: "Damson Black Plum",
         note: "Top / Head",
-        description: "Inky, shadowed fruit macerated with cracked peppery spices to create a sensual, dark-toned opening.",
+        description: "Inky, shadowed fruit steeped with cracked peppery spices to create a sensual, dark-toned opening.",
       },
       {
         name: "Coastal Grey Amber",
@@ -278,7 +278,7 @@ export const PERFUMES: Product[] = [
       concentration: "Eau de Parfum",
       longevity: "12+ Hours on Skin · Melts Into Skin",
       sillage: "Intimate, Caressing Aura · Hugs the Body",
-      maceration: "Cold Rested in Stainless Vessels",
+      maceration: "Handcrafted in Small Batches",
     },
     keyIngredients: [
       {
@@ -331,7 +331,7 @@ export const PERFUMES: Product[] = [
       concentration: "Eau de Parfum",
       longevity: "12+ Hours on Skin · Fresh Oceanic Aura",
       sillage: "Crisp, Invigorating Surge · 6 Feet Scent Aura",
-      maceration: "Cold Rested in Stainless Vessels",
+      maceration: "Handcrafted in Small Batches",
     },
     keyIngredients: [
       {
@@ -384,7 +384,7 @@ export const PERFUMES: Product[] = [
       concentration: "Eau de Parfum",
       longevity: "16+ Hours on Skin · Unrivaled Sillage",
       sillage: "Hypnotic, Intoxicating Aura · Fills a Ballroom",
-      maceration: "Cold Rested in Stainless Vessels",
+      maceration: "Handcrafted in Small Batches",
     },
     keyIngredients: [
       {

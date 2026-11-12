@@ -105,8 +105,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   const faqs = [
     {
-      question: `What is ${product.name}'s concentration and maceration process?`,
-      answer: `${product.name} is bottled as an Eau de Parfum using food-grade grain alcohol and natural botanical extracts. Every batch is cold-rested in stainless vessels before a single bottle is filled.`,
+      question: `What is ${product.name}'s concentration and formulation?`,
+      answer: `${product.name} is bottled as an Eau de Parfum using food-grade grain alcohol and natural botanical extracts. Handcrafted in small batches before a single bottle is filled.`,
     },
     {
       question: `How long does ${product.name} last on skin and fabric?`,
@@ -193,7 +193,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         {relatedProducts.length > 0 && (
           <section
             aria-labelledby="you-might-also-like-heading"
-            className="mx-auto max-w-[96rem] px-6 pt-16 pb-12 sm:px-10 sm:pt-24 lg:px-16"
+            className="mx-auto max-w-[96rem] px-6 pt-10 pb-8 sm:px-10 sm:pt-14 sm:pb-10 lg:px-16"
           >
             <h2
               id="you-might-also-like-heading"
@@ -202,7 +202,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
               You Might Also Like
             </h2>
 
-            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3 lg:gap-8">
+            <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3 lg:gap-8">
               {relatedProducts.map((rel) => {
                 const relNotes = rel.notesUppercase
                   .toLowerCase()
@@ -214,30 +214,26 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   >
                     <Link
                       href={`/collection/${rel.slug}`}
-                      className="relative block aspect-[4/5] w-full focus-visible:outline-2 focus-visible:outline-pdp-text"
+                      className="relative block aspect-[1/1] w-full focus-visible:outline-2 focus-visible:outline-pdp-text"
                     >
-                      <div className="relative flex h-full w-full items-center justify-center p-9 sm:p-11">
-                        <div
-                          aria-hidden="true"
-                          className="pointer-events-none absolute bottom-7 left-1/2 h-4 w-[44%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.32)_0%,rgba(28,20,14,0.13)_52%,transparent_78%)] blur-[3px] transition-all duration-700 group-hover:scale-x-90 group-hover:opacity-75"
-                        />
-                        <div className="relative h-full w-full max-w-[160px] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-1.5 group-hover:scale-[1.03]">
+                      <div className="relative flex h-full w-full items-center justify-center p-4 sm:p-5">
+                        <div className="relative h-full w-full max-w-[190px] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-1 group-hover:scale-[1.03]">
                           <Image
                             src={`/images/perfumes/cutouts/${rel.slug}.webp?v=2`}
                             alt={`${rel.name} bottle`}
                             fill
                             sizes="(max-width: 640px) 70vw, 24vw"
-                            className="object-contain object-center [filter:drop-shadow(-14px_18px_20px_rgba(28,20,14,0.26))_drop-shadow(0_6px_10px_rgba(28,20,14,0.16))]"
+                            className="object-contain object-center [filter:drop-shadow(-10px_14px_16px_rgba(28,20,14,0.18))_drop-shadow(0_4px_8px_rgba(28,20,14,0.10))]"
                           />
                         </div>
                       </div>
                     </Link>
 
-                    <div className="flex flex-col items-center px-3 pt-4 pb-4 text-center">
-                      <p className="font-body text-[9px] uppercase tracking-[0.2em] text-pdp-muted">
+                    <div className="flex flex-col items-center px-2 pt-2.5 pb-2 text-center">
+                      <p className="font-body text-[8.5px] uppercase tracking-[0.2em] text-pdp-muted">
                         Eau de Parfum
                       </p>
-                      <h3 className="mt-1 font-body text-xs font-semibold uppercase tracking-[0.16em] text-pdp-text">
+                      <h3 className="mt-0.5 font-body text-xs font-semibold uppercase tracking-[0.16em] text-pdp-text">
                         <Link
                           href={`/collection/${rel.slug}`}
                           className="transition-colors hover:text-pdp-accent"
@@ -245,10 +241,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
                           {rel.name}
                         </Link>
                       </h3>
-                      <p className="mt-1 max-w-[26ch] font-body text-[11px] leading-snug text-pdp-muted">
+                      <p className="mt-0.5 max-w-[26ch] font-body text-[11px] leading-snug text-pdp-muted">
                         {relNotes}
                       </p>
-                      <p className="mt-2 font-body text-xs tabular-nums text-pdp-text">
+                      <p className="mt-1.5 font-body text-xs tabular-nums text-pdp-text">
                         ₹{rel.price.toLocaleString("en-IN")}
                       </p>
                     </div>
