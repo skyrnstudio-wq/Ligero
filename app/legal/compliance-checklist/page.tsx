@@ -12,22 +12,19 @@ export default function ComplianceGrievancePage() {
     <div className="min-h-screen bg-aube-base text-aube-text">
       <SiteHeader />
 
-      <main className="mx-auto max-w-3xl px-6 pb-28 pt-36 sm:px-10 sm:pt-44">
+      <main className="mx-auto max-w-3xl px-6 pb-28 pt-[calc(var(--header-offset)+2rem)] sm:px-10 sm:pt-[calc(var(--header-offset)+3rem)]">
         <Link
           href="/legal"
-          className="text-xs uppercase tracking-[0.2em] text-aube-text-muted transition-colors hover:text-aube-accent"
+          className="inline-flex min-h-11 items-center text-xs uppercase tracking-[0.2em] text-aube-text-muted transition-colors hover:text-aube-accent"
         >
           ← Legal Policies
         </Link>
 
-        <p className="mt-8 text-xs font-medium uppercase tracking-[0.24em] text-aube-text-muted">
-          Statutory Disclosures
-        </p>
-        <h1 className="mt-3 font-display text-5xl font-light italic tracking-[-0.01em] text-aube-text sm:text-6xl">
+        <h1 className="mt-8 font-display text-5xl font-light italic tracking-[-0.01em] text-aube-text sm:text-6xl">
           Grievance Officer & Compliance
         </h1>
         <p className="mt-4 text-sm text-aube-text-muted">
-          Mandatory statutory declarations under Indian law.
+          Mandatory statutory declarations.
         </p>
 
         <div className="mt-12 flex flex-col gap-12 text-base leading-relaxed text-aube-text/90">
@@ -74,8 +71,8 @@ export default function ComplianceGrievancePage() {
               <li>Name of the commodity: Eau de Parfum / Extrait de Parfum.</li>
               <li>Net quantity: 50 ml per flacon (10 ml per vial for the Discovery Set).</li>
               <li>Maximum Retail Price (MRP): Inclusive of all taxes, clearly stated on each product page and carton.</li>
-              <li>Country of origin: Made in India with single-origin Indian estates and imported botanicals.</li>
-              <li>Consumer care details: concierge@ligeroparfums.com.</li>
+              <li>Country of origin: Made with single-origin estates and imported botanicals.</li>
+              <li>Consumer care details: sales@ligeroparfums.com.</li>
             </ul>
           </section>
 
@@ -85,7 +82,7 @@ export default function ComplianceGrievancePage() {
               3. Data Protection & Consumer Safeguards
             </h2>
             <p className="mt-4">
-              We process data strictly on legitimate purpose grounds (fulfillment and direct correspondence). We run no advertising tracking cookies, no cross-site pixels, and no automated profiling algorithms. Any dispute that cannot be resolved through our Grievance Officer may be escalated to the Data Protection Board of India or the National Consumer Helpline.
+              We process data strictly on legitimate purpose grounds (fulfillment and direct correspondence). We run no advertising tracking cookies, no cross-site pixels, and no automated profiling algorithms. Any dispute that cannot be resolved through our Grievance Officer may be escalated to the Data Protection Board or the National Consumer Helpline.
             </p>
           </section>
         </div>

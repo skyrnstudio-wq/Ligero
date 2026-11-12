@@ -13,70 +13,83 @@ Metals (brass/gold/platinum) appear **only** as 1px hairlines, thin borders, and
 
 ### 1.1 NOCTIS — Ink & Antique Brass *(dark · evening & editorial sections)*
 
-For dark editorial breaks, the Noctis product page, and the site footer.
+For dark editorial breaks, evening perfume pages (Noctis, Noir Cacao), and the site footer.
 
 | Role           | Hex         | Notes                                                 |
 | -------------- | ----------- | ----------------------------------------------------- |
-| Base           | `#101418` | Smoke-black with a blue-grey cast. Never pure`#000` |
+| Base           | `#101418` | Smoke-black with a blue-grey cast. Never pure `#000` |
 | Surface        | `#1A1F24` | Cards, raised panels                                  |
-| Text           | `#EAE6DC` | Unbleached silk white                                 |
-| Text muted     | `#A9A69C` | Secondary copy, captions                              |
-| Accent         | `#B9975B` | Antique brass — CTAs, links, highlights (6.7:1 on base)  |
-| Secondary      | `#5C2528` | Deep oxblood — badges, hovers on dark                |
-| Metal/hairline | `#3A3F45` | Dividers, borders                                     |
+| Text           | `#EAE6DC` | Unbleached silk white (14.8:1 on base)                |
+| Text muted     | `#A9A69C` | Secondary copy, captions (7.6:1 on base)              |
+| Accent         | `#B9975B` | Antique brass — CTAs, links, highlights (6.7:1 on base)|
+| Accent hover   | `#C9A76B` | Lifted antique brass for hover states                 |
+| Secondary      | `#5C2528` | Deep oxblood — badge & tag fills with silk text       |
+| Metal/hairline | `#3A3F45` | Dividers, borders on dark                             |
+| Error          | `#E59882` | Terracotta clay — form validation (8.0:1 on base)     |
 
 ### 1.2 AUBE — Raw Silk & Burnt Apricot *(light flagship · site default)*
 
 The light theme: homepage, collection and e-commerce pages. Warm but with a bite — the anti-beige-minimalism option.
 
-| Role       | Hex         | Notes                                     |
-| ---------- | ----------- | ----------------------------------------- |
-| Base       | `#F3EDE3` | Raw silk                                  |
-| Surface    | `#FBF8F2` | Cards on raw silk                         |
-| Text       | `#2B2118` | Espresso ink                              |
-| Text muted | `#6F6154` | Warm taupe — secondary copy, captions (5.1:1 on base)   |
-| Accent     | `#A64B24` | Burnt apricot — 4.9:1 on base, WCAG AA     |
-| Secondary  | `#8FA6B2` | Dawn grey-blue — tags, secondary buttons |
-| Metal      | `#C6A15B` | Soft gold hairlines                       |
-| Hairline   | `#E0D7C7` | Dividers on raw silk                      |
+| Role            | Hex         | Notes                                                 |
+| --------------- | ----------- | ----------------------------------------------------- |
+| Base            | `#F3EDE3` | Raw silk page background                              |
+| Surface         | `#FBF8F2` | Cards, raised panels on raw silk                      |
+| Text            | `#2B2118` | Espresso ink (13.5:1 on base)                         |
+| Text muted      | `#6F6154` | Warm taupe — secondary copy, captions (5.1:1 on base) |
+| Accent          | `#A64B24` | Burnt apricot — 4.9:1 on base, WCAG AA                |
+| Secondary (text)| `#4A6270` | Slate-dawn — text labels, secondary links (5.5:1)      |
+| Secondary (fill)| `#8FA6B2` | Dawn grey-blue — background fills, chip borders       |
+| Metal           | `#C6A15B` | Soft gold hairlines                                   |
+| Hairline        | `#E0D7C7` | Dividers, borders on raw silk                         |
+| Error           | `#8C2D19` | Venetian carmine — form errors (7.2:1 on base)        |
+| Success         | `#3B5238` | Pressed olive leaf — verified order status (7.4:1)     |
 
-### 1.3 MARÉE — Petrol & Sea Glass *(moody aquatic)*
+### 1.3 MARÉE — Coastal Sea Mist & Deep Marine Ink *(light blue oceanic)*
 
-For the Marée product page and aquatic/editorial sections. Petrol-green is rare in perfume — instantly distinct.
+For the Marée product page. Coastal morning light blue — luminous, fresh, and deeply maritime.
 
-| Role    | Hex         | Notes                      |
-| ------- | ----------- | -------------------------- |
-| Base    | `#0D1B1E` | Deep petrol                |
-| Surface | `#142429` | Cards, panels              |
-| Text    | `#DFE7E2` | Salt white                 |
-| Accent  | `#7FA8A0` | Sea glass                  |
-| Fill    | `#2E4A44` | Kelp — chips, hover fills |
-| Metal   | `#BFC9CB` | Platinum hairlines         |
+| Role    | Hex         | Notes                                      |
+| ------- | ----------- | ------------------------------------------ |
+| Base    | `#F0F6F9`   | Coastal sea mist page background           |
+| Surface | `#E5F0F5`   | Soft pale seafoam cards, panels            |
+| Text    | `#112530`   | Deep marine ink (14.2:1 on base)           |
+| Muted   | `#557280`   | Maritime slate (5.0:1 on base)             |
+| Accent  | `#197293`   | Crystalline sea glass azure                |
+| Hairline| `#CEE0E9`   | Ocean mist hairlines                       |
 
 ### 1.4 AMBRE DOUX — Tobacco & Amber *(rich warm dark)*
 
 For amber/gourmand scents and gifting pages. Reads like aged leather, not "luxury template gold."
 
-| Role      | Hex         | Notes           |
-| --------- | ----------- | --------------- |
-| Base      | `#201510` | Dark tobacco    |
-| Surface   | `#2B1D15` | Cards, panels   |
-| Text      | `#F1E4D3` | Cream           |
-| Accent    | `#D08C3C` | Amber           |
-| Secondary | `#6E2E2A` | Oxblood         |
-| Metal     | `#A98443` | Brass hairlines |
+| Role      | Hex         | Notes                                    |
+| --------- | ----------- | ---------------------------------------- |
+| Base      | `#201510` | Dark tobacco                             |
+| Surface   | `#2B1D15` | Cards, panels                            |
+| Text      | `#F1E4D3` | Cream (14.3:1 on base)                   |
+| Accent    | `#D08C3C` | Amber (6.4:1 on base)                    |
+| Secondary | `#6E2E2A` | Oxblood — surface fill behind cream text |
+| Metal     | `#A98443` | Brass hairlines                          |
 
 ### 1.5 BLANC — Porcelain & a Single Amber Drop *(gallery monochrome)*
 
 For lookbooks and the white-tray product photography. Monochrome gallery look where a single amber accent does all the work.
 
-| Role     | Hex         | Notes                             |
-| -------- | ----------- | --------------------------------- |
-| Base     | `#FAFAF7` | Porcelain                         |
-| Surface  | `#F1F0EB` | Bone                              |
-| Text     | `#1F1E1C` | Graphite                          |
-| Accent   | `#C87B2E` | One amber — CTAs and hovers only |
-| Hairline | `#E3E1DB` | Dividers, card edges              |
+| Role     | Hex         | Notes                                             |
+| -------- | ----------- | ------------------------------------------------- |
+| Base     | `#FAFAF7` | Porcelain page background                         |
+| Surface  | `#F1F0EB` | Bone cards and panels                             |
+| Text     | `#1F1E1C` | Graphite (15.9:1 on base)                         |
+| Accent   | `#9E5818` | Deepened amber — CTAs & hovers (5.2:1 on base, AA)|
+| Hairline | `#E3E1DB` | Dividers, card edges                              |
+
+### Theme & Palette Architecture (Option A: Restrained Dual-Mode)
+
+- **Default Canvas:** **AUBE** is the default site-wide canvas (Home, Collection, Discovery Set, Objects, Maison, Concierge, Help, and daytime PDPs like AUBE, Fleur, Blanc, Ambre Doux, Marée).
+- **Evening Scents & Noir Sections:** **NOCTIS** is applied to dark evening extraits (`noctis` and `noir-cacao`), the global footer, and editorial statement bands.
+- **Scent-Specific Palettes:** Marée (petrol/sea glass) and Ambre Doux (tobacco/amber) are reserved for evocative material callouts, notes poetry cards, and lookbook imagery rather than recoloring the entire UI chrome.
+- **Pure Colors Banned:** Pure `#000000` and `#FFFFFF` are banned from backgrounds and large surfaces. Dark uses `#101418` (smoke-black); light uses `#F3EDE3` (raw silk); overlays use `bg-noctis-base/70` or `bg-nav-silk/95`.
+- **Oxblood Secondary Usage:** `#5C2528` and `#6E2E2A` must only be used as background badge/tag fills paired with light unbleached silk text (`#EAE6DC` / `#F1E4D3`). Never use oxblood as foreground text on dark backgrounds.
 
 ### Light-theme rules
 
@@ -91,7 +104,7 @@ For lookbooks and the white-tray product photography. Monochrome gallery look wh
 
 ## 2. Font pairings (all free, Google Fonts)
 
-1. #PairingDisplayBody/UICharacterFits1**Maison Editorial**Bodoni Moda 500–700Archivo 400/500Vogue-style high contrast; display only ≥24pxNoctis (dark sections)2**Engraved Classic**Marcellus (all-caps)Instrument Sans 400/500Roman engraved, timelessBlanc3**Modern Artisan** *(site default)*Fraunces (optical size; soft/wonk axes)Schibsted Grotesk 400/500Contemporary niche perfumerAUBE (site default), Ambre Doux4**Couture Hairline**ItalianaHanken Grotesk 400/500Ultra-minimal couture; display ≥40px onlyBlanc, Marée5**Quiet Luxury**Newsreader LightFamiljen Grotesk 400/500Editorial calm; Newsreader italic for scent notesAUBE, Marée
+1. #PairingDisplayBody/UICharacterFits1**Maison Editorial**Bodoni Moda 500–700Archivo 400/500Vogue-style high contrast; display only ≥24pxNoctis (dark sections)2**Engraved Classic**Marcellus (all-caps)Instrument Sans 400/500Roman engraved, timelessBlanc3**Modern Artisan** *(site default)*Cormorant Garamond 300–600 (normal & italic)Schibsted Grotesk 400/500Contemporary niche perfumerAUBE (site default), Ambre Doux4**Couture Hairline**ItalianaHanken Grotesk 400/500Ultra-minimal couture; display ≥40px onlyBlanc, Marée5**Quiet Luxury**Newsreader LightFamiljen Grotesk 400/500Editorial calm; Newsreader italic for scent notesAUBE, Marée
 
 ### Type conventions
 
@@ -106,18 +119,19 @@ The site is Next.js (App Router), so prefer `next/font` — it self-hosts the fo
 
 ```tsx
 // app/layout.tsx
-import { Fraunces, Schibsted_Grotesk } from "next/font/google";
+import { Cormorant_Garamond, Schibsted_Grotesk } from "next/font/google";
 
-const fraunces = Fraunces({
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  variable: "--font-fraunces",
-  axes: ["opsz"], // add "SOFT" and/or "WONK" for a softer, quirkier display voice
+  weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-cormorant",
 });
 const schibsted = Schibsted_Grotesk({ subsets: ["latin"], variable: "--font-schibsted" });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${schibsted.variable}`}>
+    <html lang="en" className={`${cormorant.variable} ${schibsted.variable}`}>
       <body>{children}</body>
     </html>
   );
@@ -142,25 +156,28 @@ Plain `<link>` fallback (non-Next pages, emails, prototypes):
 
 ```css
 :root {
-  /* AUBE — Raw Silk & Burnt Apricot */
+  /* AUBE — Raw Silk & Burnt Apricot (site default) */
   --color-base: #F3EDE3;       /* page background — raw silk */
   --color-surface: #FBF8F2;    /* cards, raised panels */
   --color-text: #2B2118;       /* espresso ink */
   --color-text-muted: #6F6154; /* warm taupe — secondary text */
   --color-accent: #A64B24;     /* burnt apricot — CTAs, links. 4.9:1 on base (AA) */
-  --color-secondary: #8FA6B2;  /* dawn grey-blue — tags, secondary buttons */
+  --color-secondary: #4A6270;  /* slate-dawn for text (5.5:1 on base) */
   --color-gold: #C6A15B;       /* soft gold — hairlines only */
   --color-hairline: #E0D7C7;   /* 1px borders, dividers on raw silk */
+  --color-error: #8C2D19;      /* venetian carmine — 7.2:1 on base */
+  --color-success: #3B5238;    /* pressed olive leaf — 7.4:1 on base */
   --color-nav-silk: #ECE3D3;   /* header bar tint, light mode — a half-step deeper than base */
 
   /* Dark sections (Noctis) invert the same roles:
      base #101418 · surface #1A1F24 · text #EAE6DC · muted #A9A69C
-     accent #B9975B (brass, 6.7:1 on base) · secondary #5C2528 · hairline #3A3F45
+     accent #B9975B (brass, 6.7:1 on base) · accent hover #C9A76B
+     secondary #5C2528 · hairline #3A3F45 · error #E59882
      nav tint #151A1F (lifted soot) */
 
   /* Type — when using next/font, point these at the font variables
-     from app/layout.tsx instead: var(--font-fraunces) / var(--font-schibsted) */
-  --font-display: "Fraunces", "Georgia", serif;
+     from app/layout.tsx instead: var(--font-cormorant) / var(--font-schibsted) */
+  --font-display: "Cormorant Garamond", "Georgia", serif;
   --font-body: "Schibsted Grotesk", "Helvetica Neue", sans-serif;
 }
 ```
@@ -174,19 +191,28 @@ Plain `<link>` fallback (non-Next pages, emails, prototypes):
   --color-aube-text: #2B2118;
   --color-aube-text-muted: #6F6154;
   --color-aube-accent: #A64B24;
-  --color-aube-secondary: #8FA6B2;
+  --color-aube-secondary: #4A6270;
+  --color-aube-secondary-muted: #8FA6B2;
   --color-aube-gold: #C6A15B;
   --color-aube-hairline: #E0D7C7;
+  --color-aube-error: #8C2D19;
+  --color-aube-success: #3B5238;
   --color-nav-silk: #ECE3D3;
 
   /* Noctis dark theme */
   --color-noctis-base: #101418;
   --color-noctis-surface: #1A1F24;
+  --color-noctis-text: #EAE6DC;
+  --color-noctis-text-muted: #A9A69C;
   --color-noctis-accent: #B9975B;
+  --color-noctis-accent-hover: #C9A76B;
+  --color-noctis-hairline: #3A3F45;
+  --color-noctis-secondary: #5C2528;
+  --color-noctis-error: #E59882;
   --color-nav-soot: #151A1F;
 
-  /* With next/font: --font-display: var(--font-fraunces); --font-body: var(--font-schibsted); */
-  --font-display: "Fraunces", serif;
+  /* With next/font: --font-display: var(--font-cormorant); --font-body: var(--font-schibsted); */
+  --font-display: "Cormorant Garamond", serif;
   --font-body: "Schibsted Grotesk", sans-serif;
 }
 ```

@@ -12,18 +12,15 @@ export default function TermsPage() {
     <div className="min-h-screen bg-aube-base text-aube-text">
       <SiteHeader />
 
-      <main className="mx-auto max-w-3xl px-6 pb-28 pt-36 sm:px-10 sm:pt-44">
+      <main className="mx-auto max-w-3xl px-6 pb-28 pt-[calc(var(--header-offset)+2rem)] sm:px-10 sm:pt-[calc(var(--header-offset)+3rem)]">
         <Link
           href="/legal"
-          className="text-xs uppercase tracking-[0.2em] text-aube-text-muted transition-colors hover:text-aube-accent"
+          className="inline-flex min-h-11 items-center text-xs uppercase tracking-[0.2em] text-aube-text-muted transition-colors hover:text-aube-accent"
         >
           ← Legal Policies
         </Link>
 
-        <p className="mt-8 text-xs font-medium uppercase tracking-[0.24em] text-aube-text-muted">
-          Terms & Conditions
-        </p>
-        <h1 className="mt-3 font-display text-5xl font-light italic tracking-[-0.01em] text-aube-text sm:text-6xl">
+        <h1 className="mt-8 font-display text-5xl font-light italic tracking-[-0.01em] text-aube-text sm:text-6xl">
           Terms of Sale and Use
         </h1>
         <p className="mt-4 text-sm text-aube-text-muted">
@@ -40,7 +37,7 @@ export default function TermsPage() {
               1. Who we are
             </h2>
             <p className="mt-4">
-              Ligero Parfum, a niche fragrance house registered in India. Registered office in Mumbai, Maharashtra. Contact: concierge@ligeroparfums.com. Instagram: @ligeroparfums.
+              Ligero Parfum, a niche fragrance house. Contact: sales@ligeroparfums.com. Instagram: @ligeroparfums.
             </p>
           </section>
 
@@ -67,7 +64,7 @@ export default function TermsPage() {
               4. Prices and payment
             </h2>
             <ul className="mt-4 flex flex-col gap-2 pl-4 list-disc marker:text-aube-accent">
-              <li>Prices are in Indian Rupees, inclusive of GST and all applicable taxes.</li>
+              <li>Prices are inclusive of GST and all applicable taxes.</li>
               <li>Prepaid online orders only. We do not offer cash on delivery.</li>
               <li>In the event of an obvious pricing error, we will state the fact plainly, decline the order, and refund in full.</li>
             </ul>
@@ -75,7 +72,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="font-display text-2xl font-light italic text-aube-text sm:text-3xl">
-              5. Delivery across India
+              5. Delivery
             </h2>
             <p className="mt-4">
               Parcels dispatch within two working days of order confirmation. Delivery occurs in three to seven working days depending on pincode. Because alcohol-based fine fragrances cannot be transported by passenger aircraft, parcels travel via dedicated surface logistics.
@@ -105,7 +102,7 @@ export default function TermsPage() {
               8. Governing law
             </h2>
             <p className="mt-4">
-              These terms are governed by Indian law. Any disputes that cannot be settled amicably fall under the exclusive jurisdiction of the competent courts of India.
+              These terms are governed by applicable law. Any disputes that cannot be settled amicably fall under the exclusive jurisdiction of the competent courts.
             </p>
           </section>
         </div>

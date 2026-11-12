@@ -1,43 +1,48 @@
 import Link from "next/link";
 
 /**
- * Site footer (site-blueprint.md §2). Noctis dark, unbleached silk text,
- * four columns, one legal line. The Correspondence is the promise column.
+ * Site footer (site-blueprint.md §2).
+ * Dark espresso (#1c140e), unbleached silk text (#f3ede3), warm bronze accents.
+ * Four columns: Explore, Maison, Help, The Correspondence.
+ * Legal line at the bottom with entity details and mandatory Indian disclosures.
  */
 const EXPLORE = [
   { label: "Home", href: "/" },
   { label: "The Collection", href: "/collection" },
+  { label: "The Discovery Set", href: "/discovery-set" },
+  { label: "Car Perfume", href: "/objects/en-route" },
   { label: "Objects", href: "/objects" },
-  { label: "The Journal", href: "/journal" },
 ];
 
-const CONCIERGE = [
-  { label: "Concierge", href: "/contact" },
-  { label: "Private Appointment", href: "/contact" },
+const HELP = [
+  { label: "Help", href: "/help" },
+  { label: "Shipping and Returns", href: "/legal/shipping-returns" },
+  { label: "Grievance Officer", href: "/legal/grievance" },
 ];
 
 const LEGAL = [
   { label: "Privacy Policy", href: "/legal/privacy" },
   { label: "Terms of Sale", href: "/legal/terms" },
   { label: "Shipping and Returns", href: "/legal/shipping-returns" },
-  { label: "Grievance Officer", href: "/legal/compliance-checklist" },
+  { label: "Grievance Officer", href: "/legal/grievance" },
 ];
 
 export default function SiteFooter() {
   return (
-    <footer className="bg-[#101418] px-6 pb-10 pt-20 text-[#EAE6DC] sm:px-10 lg:px-16">
+    <footer className="bg-[#1c140e] border-t border-[#382a20] px-6 pt-20 pb-[max(3rem,calc(env(safe-area-inset-bottom)+2rem))] text-noctis-text sm:px-10 lg:px-16">
       <div className="mx-auto max-w-6xl">
-        <div className="grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-12">
+        <div className="grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-10">
+          {/* Column 1: Explore */}
           <nav aria-label="Explore">
-            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#EAE6DC]/55">
+            <p className="font-body text-[11px] font-medium uppercase tracking-[0.22em] text-noctis-accent">
               Explore
             </p>
-            <ul className="mt-4 flex flex-col gap-2.5">
+            <ul className="mt-4 flex flex-col gap-1">
               {EXPLORE.map((link) => (
-                <li key={link.label}>
+                <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="font-display text-lg font-light text-[#EAE6DC] transition-colors hover:text-noctis-accent"
+                    className="inline-flex min-h-11 items-center font-display text-lg font-light text-noctis-text transition-colors hover:text-noctis-accent"
                   >
                     {link.label}
                   </Link>
@@ -46,16 +51,17 @@ export default function SiteFooter() {
             </ul>
           </nav>
 
-          <nav aria-label="Concierge">
-            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#EAE6DC]/55">
-              Concierge
+          {/* Column 2: Help */}
+          <nav aria-label="Help">
+            <p className="font-body text-[11px] font-medium uppercase tracking-[0.22em] text-noctis-accent">
+              Help
             </p>
-            <ul className="mt-4 flex flex-col gap-2.5">
-              {CONCIERGE.map((link) => (
-                <li key={link.label}>
+            <ul className="mt-4 flex flex-col gap-1">
+              {HELP.map((link) => (
+                <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="font-display text-lg font-light text-[#EAE6DC] transition-colors hover:text-noctis-accent"
+                    className="inline-flex min-h-11 items-center font-display text-lg font-light text-noctis-text transition-colors hover:text-noctis-accent"
                   >
                     {link.label}
                   </Link>
@@ -64,41 +70,50 @@ export default function SiteFooter() {
             </ul>
           </nav>
 
+          {/* Column 3: The Correspondence */}
           <div>
-            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#EAE6DC]/55">
-              The Private Salon
+            <p className="font-body text-[11px] font-medium uppercase tracking-[0.22em] text-noctis-accent">
+              The Correspondence
             </p>
-            <p className="mt-4 font-display text-lg font-light italic text-[#EAE6DC]">
-              Private allocations and olfactory previews.
+            <p className="mt-4 font-display text-lg font-light italic text-noctis-text">
+              Four letters a year. Nothing else.
             </p>
-            <div className="mt-6">
+            <div className="mt-4">
+              <a
+                href="mailto:sales@ligeroparfums.com"
+                className="inline-flex min-h-11 items-center font-body text-xs text-noctis-text underline underline-offset-4 transition-colors hover:text-noctis-accent"
+              >
+                sales@ligeroparfums.com
+              </a>
+            </div>
+            <div className="mt-2">
               <a
                 href="https://www.instagram.com/ligeroparfums"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Ligero Parfum on Instagram"
-                className="group inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 text-xs uppercase tracking-[0.2em] text-[#EAE6DC]/70 transition-colors hover:text-noctis-accent"
+                className="inline-flex min-h-11 items-center font-body gap-2 text-xs uppercase tracking-[0.2em] text-noctis-text-muted transition-colors hover:text-noctis-accent"
               >
                 <span>Instagram</span>
-                <span className="text-[11px] text-noctis-accent transition-transform group-hover:translate-x-0.5">@ligeroparfums ↗</span>
+                <span className="text-noctis-accent">@ligeroparfums ↗</span>
               </a>
             </div>
           </div>
         </div>
 
-        <div className="mt-16 border-t border-[#EAE6DC]/10 pt-6">
-          <p className="font-display text-xl font-light italic text-[#EAE6DC]">
-            Worn close. Remembered longer.
+        <div className="mt-16 border-t border-[#382a20] pt-8">
+          <p className="font-display text-xl font-light italic text-noctis-text">
+            Scent, worn like silk.
           </p>
-          <p className="mt-4 text-xs leading-relaxed text-[#EAE6DC]/55">
-            Ligero Parfum. Mumbai, India. Registered address and GSTIN to be confirmed.
+          <p className="font-body mt-3 text-xs leading-relaxed text-noctis-text-muted">
+            Ligero Parfum Private Limited · Registered office: Mumbai, Maharashtra, India · All prices in rupees, inclusive of all taxes.
           </p>
-          <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+          <ul className="mt-4 flex flex-col gap-y-1 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-2">
             {LEGAL.map((link) => (
-              <li key={link.label}>
+              <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="text-xs text-[#EAE6DC]/60 transition-colors hover:text-noctis-accent"
+                  className="inline-flex min-h-11 items-center font-body text-xs text-noctis-text-muted transition-colors hover:text-noctis-accent"
                 >
                   {link.label}
                 </Link>

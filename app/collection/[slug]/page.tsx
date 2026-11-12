@@ -4,226 +4,312 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
+import ProductGallery from "@/components/product-gallery";
 import ProductOrderPanel from "@/components/product-order-panel";
-import { PERFUMES, getProductBySlug } from "@/lib/products";
+import ProductScentArchitecture from "@/components/product-scent-architecture";
+import ProductManifestoBand from "@/components/product-manifesto-band";
+import ProductRitual from "@/components/product-ritual";
+import ProductReviews from "@/components/product-reviews";
+import ProductStickyBar from "@/components/product-sticky-bar";
+import PrivateSalon from "@/components/private-salon";
+import {
+  getLivePerfumes,
+  getLivePerfumeBySlug,
+  getApprovedReviews,
+} from "@/lib/sanity/data";
+import { summarizeReviews } from "@/lib/reviews";
+import type { Product } from "@/lib/products";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  return PERFUMES.map((p) => ({
+  const perfumes = await getLivePerfumes();
+  return perfumes.map((p) => ({
     slug: p.slug,
   }));
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getLivePerfumeBySlug(slug);
 
-  if (!product) return { title: "Product Not Found — Ligero Parfum" };
+  if (!product) return { title: "Not Found | Ligero Parfum" };
 
   return {
-    title: `${product.name} — Ligero Parfum`,
-    description: `${product.oneLiner} ${product.volume}. Rested ninety days.`,
+    title: `${product.name} | Eau de Parfum — Ligero Parfum`,
+    description: `${product.oneLiner} ${product.volume}.`,
   };
 }
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const [product, allPerfumes, reviews] = await Promise.all([
+    getLivePerfumeBySlug(slug),
+    getLivePerfumes(),
+    getApprovedReviews(slug),
+  ]);
 
   if (!product) {
     notFound();
   }
 
-  const isDark = Boolean(product.isDark);
-  const relatedProducts = product.relatedSlugs
-    .map((s) => getProductBySlug(s))
-    .filter(Boolean);
+  const reviewSummary = summarizeReviews(reviews);
 
-  const containerBg = isDark ? "bg-[#101418] text-[#EAE6DC]" : "bg-aube-base text-aube-text";
-  const mutedText = isDark ? "text-[#A9A69C]" : "text-aube-text-muted";
-  const hairlineBorder = isDark ? "border-[#3A3F45]" : "border-aube-hairline";
-  const accentColor = isDark ? "text-noctis-accent" : "text-aube-accent";
-  const surfaceBg = isDark ? "bg-[#1A1F24]" : "bg-aube-surface";
+  // Build 3 companion bottles for the "You Might Also Like" row
+  const relatedSet = new Set<string>(product.relatedSlugs || []);
+  for (const p of allPerfumes) {
+    if (p.slug !== product.slug && relatedSet.size < 3) {
+      relatedSet.add(p.slug);
+    }
+  }
+  const relatedProducts: Product[] = Array.from(relatedSet)
+    .map((s) => allPerfumes.find((p) => p.slug === s))
+    .filter((p): p is Product => Boolean(p))
+    .slice(0, 3);
+
+  const galleryImages =
+    product.gallery && product.gallery.length > 0
+      ? product.gallery
+      : [product.image];
+
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: `${product.oneLiner} ${product.volume}.`,
+    image: galleryImages,
+    brand: {
+      "@type": "Brand",
+      name: "Ligero Parfum",
+    },
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "INR",
+      price: product.price,
+      availability: "https://schema.org/InStock",
+      url: `https://ligeroparfums.com/collection/${product.slug}`,
+    },
+  };
+
+  if (reviewSummary && typeof reviewSummary.average === "number") {
+    jsonLd.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: Number((reviewSummary.average ?? 0).toFixed(2)),
+      reviewCount: reviewSummary.count,
+    };
+  }
+
+  const faqs = [
+    {
+      question: `What is ${product.name}'s concentration and maceration process?`,
+      answer: `${product.name} is bottled as an Eau de Parfum using food-grade grain alcohol and natural botanical extracts. Every batch is cold-rested in stainless vessels before a single bottle is filled.`,
+    },
+    {
+      question: `How long does ${product.name} last on skin and fabric?`,
+      answer: `${
+        product.scentProfile.longevity ||
+        "12+ hours on warm skin and over 24 hours on natural fibres"
+      }. Sillage profile: ${
+        product.scentProfile.sillage ||
+        "Refined, enduring aura that unfolds across top, heart, and base notes"
+      }.`,
+    },
+    {
+      question: `Can I sample ${product.name} before ordering the 50 ml flacon?`,
+      answer: `The house presents The Discovery Set containing ten-millilitre travel atomizers of all seven perfumes in the collection, available on our Objects shelf.`,
+    },
+    {
+      question: `Which fragrance pairs best when layering with ${product.name}?`,
+      answer: `${product.name} is formulated to wear alone as a signature or layered with ${
+        relatedProducts[0]?.name || "Blanc"
+      } — apply two presses of the deeper base to pulse points first, then mist the brighter top across the collar.`,
+    },
+  ];
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 ${containerBg}`}>
-      <SiteHeader isDark={isDark} />
+    <div
+      data-pdp-theme={product.slug}
+      className="relative min-h-screen bg-pdp-base text-pdp-text transition-colors duration-300"
+    >
+      {/* Ambient background mesh gradients for atmospheric depth */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_75%_50%_at_50%_-10%,var(--pdp-glow)_0%,transparent_75%)] opacity-70"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed -bottom-32 -right-32 z-0 h-[600px] w-[600px] rounded-full bg-[radial-gradient(circle,var(--pdp-accent)_0%,transparent_75%)] opacity-[0.06] blur-3xl"
+      />
 
-      <main className="pt-28 sm:pt-36">
-        <div className="mx-auto max-w-[112rem] px-6 pb-24 sm:px-10 lg:px-16">
-          {/* Breadcrumb link */}
-          <nav aria-label="Breadcrumb" className="pb-8">
-            <Link
-              href="/collection"
-              className={`text-xs uppercase tracking-[0.2em] ${mutedText} transition-colors hover:${accentColor}`}
-            >
-              ← The Collection
-            </Link>
-          </nav>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
-          {/* Two-Column Asymmetric Layout (Blueprint §7) */}
-          <div className="grid grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-20">
-            {/* Left Column: Sticky Product Presentation & Ordering */}
-            <div className="lg:col-span-6 xl:col-span-5">
-              <div className="lg:sticky lg:top-28">
-                <p className={`text-xs font-medium uppercase tracking-[0.22em] ${mutedText}`}>
-                  {product.subtitle}
-                </p>
+      <SiteHeader />
 
-                <h1 className={`mt-3 font-display text-6xl font-light italic tracking-[-0.01em] sm:text-7xl lg:text-8xl ${isDark ? "font-bodoni" : ""}`}>
-                  {product.name}
-                </h1>
-
-                <p className="mt-3 text-base italic opacity-85 sm:text-lg">
-                  {product.oneLiner}
-                </p>
-
-                {/* Bottle Photography Panel */}
-                <div className={`relative mt-8 aspect-[4/5] w-full overflow-hidden border ${hairlineBorder} ${surfaceBg}`}>
-                  <Image
-                    src={product.image}
-                    alt={`${product.name} flacon`}
-                    fill
-                    priority
-                    sizes="(max-width: 1024px) 100vw, 45vw"
-                    className="object-contain p-8 sm:p-12"
-                  />
-                </div>
-
-                {/* Interactive Order & Case Controls */}
-                <ProductOrderPanel product={product} isDark={isDark} />
-              </div>
+      <main className="relative z-10 pt-[var(--header-offset)]">
+        {/* 1. Top 50/50 Split Fold: Left Studio Plinth & Staggered Collage, Right Sticky Order Panel */}
+        <section
+          aria-label={`${product.name} overview`}
+          className="mx-auto max-w-[112rem] pb-16 lg:pb-24"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-12">
+            {/* Left 6 Columns: Flush Studio Bottle Plinth + 2-Col Staggered Collage + 3-Col Notes Table */}
+            <div className="lg:col-span-6">
+              <ProductGallery
+                product={product}
+                images={galleryImages}
+                productName={product.name}
+              />
             </div>
 
-            {/* Right Column: Scent Story, Material & Provenance */}
-            <div className="lg:col-span-6 xl:col-span-7 lg:pt-16">
-              <div className="max-w-2xl flex flex-col gap-16 lg:gap-20">
-                {/* 1. Scent Notes as Poem */}
-                <section aria-labelledby="notes-heading" className={`border-b ${hairlineBorder}/60 pb-12`}>
-                  <h2 id="notes-heading" className={`text-xs font-medium uppercase tracking-[0.24em] ${accentColor}`}>
-                    The Scent Notes
-                  </h2>
-                  <div className="mt-6 font-display text-3xl font-light italic leading-relaxed sm:text-4xl">
-                    {product.notesPoem.map((line, idx) => (
-                      <p key={idx}>{line}</p>
-                    ))}
-                  </div>
-                  <p className={`mt-6 text-xs uppercase tracking-[0.2em] ${mutedText}`}>
-                    {product.notesUppercase}
-                  </p>
-                </section>
-
-                {/* Scent Architecture / Pyramid (when available) */}
-                {product.scentProfile && (
-                  <section aria-labelledby="profile-heading" className={`border-b ${hairlineBorder}/60 pb-12`}>
-                    <h2 id="profile-heading" className={`text-xs font-medium uppercase tracking-[0.24em] ${accentColor}`}>
-                      Scent Architecture
-                    </h2>
-                    <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
-                      {product.scentProfile.top && (
-                        <div>
-                          <p className={`text-[10px] uppercase tracking-[0.22em] ${mutedText}`}>Top Notes</p>
-                          <p className="mt-1.5 text-sm font-medium">{product.scentProfile.top}</p>
-                        </div>
-                      )}
-                      {product.scentProfile.heart && (
-                        <div>
-                          <p className={`text-[10px] uppercase tracking-[0.22em] ${mutedText}`}>Heart Notes</p>
-                          <p className="mt-1.5 text-sm font-medium">{product.scentProfile.heart}</p>
-                        </div>
-                      )}
-                      {product.scentProfile.base && (
-                        <div>
-                          <p className={`text-[10px] uppercase tracking-[0.22em] ${mutedText}`}>Base Notes</p>
-                          <p className="mt-1.5 text-sm font-medium">{product.scentProfile.base}</p>
-                        </div>
-                      )}
-                    </div>
-                    {(product.scentProfile.family || product.scentProfile.longevity) && (
-                      <div className="mt-6 flex flex-wrap items-center gap-4 pt-2">
-                        {product.scentProfile.family && (
-                          <span className={`text-[11px] uppercase tracking-[0.2em] ${accentColor}`}>
-                            Family: {product.scentProfile.family}
-                          </span>
-                        )}
-                        {product.scentProfile.longevity && (
-                          <span className={`text-[11px] uppercase tracking-[0.2em] ${mutedText}`}>
-                            • {product.scentProfile.longevity}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </section>
-                )}
-
-                {/* 2. The Ritual */}
-                <section aria-labelledby="ritual-heading" className={`border-b ${hairlineBorder}/60 pb-12`}>
-                  <h2 id="ritual-heading" className={`text-xs font-medium uppercase tracking-[0.24em] ${accentColor}`}>
-                    The Ritual
-                  </h2>
-                  <p className="mt-4 text-lg leading-relaxed sm:text-xl font-normal opacity-90">
-                    {product.ritual}
-                  </p>
-                </section>
-
-                {/* 3. The Material */}
-                <section aria-labelledby="material-heading" className={`border-b ${hairlineBorder}/60 pb-12`}>
-                  <h2 id="material-heading" className={`text-xs font-medium uppercase tracking-[0.24em] ${accentColor}`}>
-                    The Material
-                  </h2>
-                  <p className="mt-4 text-lg leading-relaxed sm:text-xl font-normal opacity-90">
-                    {product.material}
-                  </p>
-                </section>
-
-                {/* 4. Provenance & Batch */}
-                <section aria-labelledby="provenance-heading" className={`border-b ${hairlineBorder}/60 pb-12`}>
-                  <h2 id="provenance-heading" className={`text-xs font-medium uppercase tracking-[0.24em] ${accentColor}`}>
-                    Provenance
-                  </h2>
-                  <p className="mt-4 text-2xl font-display font-light italic">
-                    {product.provenance}
-                  </p>
-                  <p className={`mt-2 text-xs uppercase tracking-[0.18em] ${mutedText}`}>
-                    Zero synthetic fixatives. Zero shortcuts.
-                  </p>
-                </section>
-
-                {/* 5. Continue the Story */}
-                <section aria-labelledby="related-heading" className="pt-2">
-                  <h2 id="related-heading" className={`text-xs font-medium uppercase tracking-[0.24em] ${accentColor}`}>
-                    Continue the Story
-                  </h2>
-                  <div className="mt-6 flex flex-col divide-y divide-current/15">
-                    {relatedProducts.map((rel) => (
-                      <Link
-                        key={rel!.slug}
-                        href={`/collection/${rel!.slug}`}
-                        className="group flex items-center justify-between gap-6 py-6 transition-colors"
-                      >
-                        <div className="min-w-0">
-                          <p className="font-display text-3xl font-light italic transition-colors group-hover:opacity-75">
-                            {rel!.name}
-                          </p>
-                          <p className={`mt-1 text-sm ${mutedText}`}>
-                            {rel!.oneLiner}
-                          </p>
-                        </div>
-                        <span className={`flex-none whitespace-nowrap text-xs uppercase tracking-[0.2em] ${accentColor} transition-transform group-hover:translate-x-1`}>
-                          Open {rel!.name} →
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                </section>
+            {/* Right 6 Columns: Sticky Centered Order Panel */}
+            <div className="relative px-6 pt-8 sm:px-12 lg:col-span-6 lg:px-16 lg:pt-0 xl:px-24">
+              <div className="lg:sticky lg:top-[calc(var(--header-offset)+1.5rem)] lg:max-h-[calc(100vh-var(--header-offset)-2.5rem)] lg:overflow-y-auto lg:py-6 no-scrollbar">
+                <ProductOrderPanel
+                  product={product}
+                  reviewSummary={reviewSummary}
+                />
               </div>
             </div>
           </div>
+        </section>
+
+        {/* 2. Transitional Atelier Manifesto Band with Atmospheric Horizon Gradient */}
+        <ProductManifestoBand product={product} />
+
+        {/* 3. Full-Width "Olfactory Notes" Horizontal Showcase */}
+        <ProductScentArchitecture product={product} />
+
+        {/* 4. The Sensory Ritual (How to Wear Extrait de Parfum) */}
+        <ProductRitual product={product} />
+
+        {/* 5. "You Might Also Like" 3-Column Studio Cutout Bottles Row */}
+        {relatedProducts.length > 0 && (
+          <section
+            aria-labelledby="you-might-also-like-heading"
+            className="mx-auto max-w-[96rem] px-6 pt-16 pb-12 sm:px-10 sm:pt-24 lg:px-16"
+          >
+            <h2
+              id="you-might-also-like-heading"
+              className="font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-pdp-text"
+            >
+              You Might Also Like
+            </h2>
+
+            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3 lg:gap-8">
+              {relatedProducts.map((rel) => {
+                const relNotes = rel.notesUppercase
+                  .toLowerCase()
+                  .replace(/\s*·\s*/g, ", ");
+                return (
+                  <article
+                    key={rel.slug}
+                    className="group flex flex-col justify-between bg-transparent"
+                  >
+                    <Link
+                      href={`/collection/${rel.slug}`}
+                      className="relative block aspect-[4/5] w-full focus-visible:outline-2 focus-visible:outline-pdp-text"
+                    >
+                      <div className="relative flex h-full w-full items-center justify-center p-9 sm:p-11">
+                        <div
+                          aria-hidden="true"
+                          className="pointer-events-none absolute bottom-7 left-1/2 h-4 w-[44%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.32)_0%,rgba(28,20,14,0.13)_52%,transparent_78%)] blur-[3px] transition-all duration-700 group-hover:scale-x-90 group-hover:opacity-75"
+                        />
+                        <div className="relative h-full w-full max-w-[160px] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-1.5 group-hover:scale-[1.03]">
+                          <Image
+                            src={`/images/perfumes/cutouts/${rel.slug}.webp?v=2`}
+                            alt={`${rel.name} bottle`}
+                            fill
+                            sizes="(max-width: 640px) 70vw, 24vw"
+                            className="object-contain object-center [filter:drop-shadow(-14px_18px_20px_rgba(28,20,14,0.26))_drop-shadow(0_6px_10px_rgba(28,20,14,0.16))]"
+                          />
+                        </div>
+                      </div>
+                    </Link>
+
+                    <div className="flex flex-col items-center px-3 pt-4 pb-4 text-center">
+                      <p className="font-body text-[9px] uppercase tracking-[0.2em] text-pdp-muted">
+                        Eau de Parfum
+                      </p>
+                      <h3 className="mt-1 font-body text-xs font-semibold uppercase tracking-[0.16em] text-pdp-text">
+                        <Link
+                          href={`/collection/${rel.slug}`}
+                          className="transition-colors hover:text-pdp-accent"
+                        >
+                          {rel.name}
+                        </Link>
+                      </h3>
+                      <p className="mt-1 max-w-[26ch] font-body text-[11px] leading-snug text-pdp-muted">
+                        {relNotes}
+                      </p>
+                      <p className="mt-2 font-body text-xs tabular-nums text-pdp-text">
+                        ₹{rel.price.toLocaleString("en-IN")}
+                      </p>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* 4. "Frequently Asked Questions" 2-Column Split Accordion Section */}
+        <section
+          aria-labelledby="faq-heading"
+          className="mx-auto max-w-[96rem] px-6 py-16 sm:px-10 sm:py-20 lg:px-16"
+        >
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:col-span-5">
+              <h2
+                id="faq-heading"
+                className="font-display text-3xl font-normal tracking-[-0.01em] text-pdp-text sm:text-4xl lg:text-[2.65rem] leading-[1.08]"
+              >
+                Frequently Asked Questions
+              </h2>
+            </div>
+
+            <div className="divide-y divide-pdp-text/20 border-t border-b border-pdp-text/20 lg:col-span-7">
+              {faqs.map((faq) => (
+                <details key={faq.question} className="group py-4">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-body text-xs font-normal text-pdp-text sm:text-[13px]">
+                    <span>{faq.question}</span>
+                    <span
+                      aria-hidden="true"
+                      className="shrink-0 text-sm text-pdp-muted transition-transform duration-200 group-open:rotate-45"
+                    >
+                      +
+                    </span>
+                  </summary>
+                  <p className="mt-3 max-w-[62ch] font-body text-xs leading-relaxed text-pdp-muted">
+                    {faq.answer}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 5. Verified Collector Reviews */}
+        <div className="mx-auto max-w-[96rem] border-t border-pdp-hairline px-6 pb-20 sm:px-10 lg:px-16">
+          <ProductReviews
+            productSlug={product.slug}
+            productName={product.name}
+            reviews={reviews}
+            isDark={false}
+          />
         </div>
+
+        {/* 6. Horizontal Correspondence Strip */}
+        <PrivateSalon variant="strip" />
       </main>
+
+      <ProductStickyBar product={product} isDark={false} />
 
       <SiteFooter />
     </div>

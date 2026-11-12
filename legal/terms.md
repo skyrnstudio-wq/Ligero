@@ -6,7 +6,7 @@ These terms govern orders through this website and use of it. Plain language, co
 
 ## 1. Who we are
 
-Ligero Parfum, a fragrance house registered in India. Registered office: [full address]. GSTIN: [number]. Contact: concierge@ligeroparfums.com.
+Ligero Parfum, a niche fragrance house. Registered office: [full address]. GSTIN: [number]. Contact: sales@ligeroparfums.com.
 
 ## 2. What the house makes
 
@@ -18,19 +18,19 @@ An order is an offer to buy. The sale exists when we confirm dispatch, not befor
 
 ## 4. Prices and payment
 
-- Prices in Indian Rupees, inclusive of GST. Numerals only, no currency symbols in display type.
+- Prices inclusive of GST. Numerals only, no currency symbols in display type.
 - Prepaid online only. No cash on delivery.
 - A price marked wrong is not an offer we must honor. We will say so plainly and refund anyone who ordered at the error price.
 
-## 5. Delivery, India
+## 5. Delivery
 
-- Dispatch from [city] within [2] working days of order. Delivery in [3 to 7] working days depending on pincode.
+- Dispatch within [2] working days of order. Delivery in [3 to 7] working days depending on postal code.
 - Courier attempts delivery three times before the parcel returns to us. We refund the product value minus two-way freight on courier-failed deliveries.
-- If a parcel arrives damaged, photograph the outer packaging and the bottle within 48 hours of delivery and write to concierge@ligeroparfums.com. We replace or refund.
+- If a parcel arrives damaged, photograph the outer packaging and the bottle within 48 hours of delivery and write to sales@ligeroparfums.com. We replace or refund.
 
 ## 6. Returns, what the law gives and what we add
 
-- Law: you may cancel an order before dispatch. After dispatch, the Consumer Protection (E-commerce) Rules and our policy are what govern, since fragrance is sealed for hygiene-sensitivity and degrades once opened.
+- Law: you may cancel an order before dispatch. After dispatch, applicable rules and our policy are what govern, since fragrance is sealed for hygiene-sensitivity and degrades once opened.
 - Our promise: unopened, sealed bottles returned within 7 days of delivery get a refund minus two-way freight. Opened bottles are not returnable. The nose must decide before the seal breaks: that is what the Discovery Set is for.
 - The Discovery Set: sealed, unopened sets returned within 7 days, refund minus two-way freight. Opened vials end the return.
 - En Route: sealed returns within 7 days, same terms.
@@ -39,7 +39,7 @@ An order is an offer to buy. The sale exists when we confirm dispatch, not befor
 
 ## 6a. The Discovery Set
 
-Every perfume the house makes, ten millilitres each, seven vials, one box. 999, shipped across India. The set exists so the nose can decide before a bottle is opened. The set price is the price of trying; it is not a coupon and carries no credit against a full bottle unless the maison announces otherwise in the Correspondence.
+Every perfume the house makes, ten millilitres each, seven vials, one box. 999, shipped. The set exists so the nose can decide before a bottle is opened. The set price is the price of trying; it is not a coupon and carries no credit against a full bottle unless the maison announces otherwise in the Correspondence.
 
 ## 6b. Private commissions
 
@@ -57,11 +57,11 @@ There are no customer accounts on this site. Orders are placed as a guest. Fewer
 
 ## 9. Grievance redressal
 
-Under the Consumer Protection (E-commerce) Rules, 2020, we name a Grievance Officer: name, email, and phone as published in the Privacy Policy, section 11. Acknowledged in 72 hours, resolved in 30 days. Unresolved disputes settle under Indian law, jurisdiction of the courts at [city].
+Under applicable consumer protection rules, we name a Grievance Officer: name, email, and phone as published in the Privacy Policy, section 11. Acknowledged in 72 hours, resolved in 30 days. Unresolved disputes settle under applicable law.
 
 ## 10. Governing law
 
-Indian law. Courts at [city].
+Applicable law and competent courts.
 
 ---
 

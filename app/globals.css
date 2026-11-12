@@ -7,14 +7,23 @@
   --color-aube-text: #2b2118; /* espresso ink */
   --color-aube-text-muted: #6f6154; /* warm taupe — secondary text */
   --color-aube-accent: #a64b24; /* burnt apricot — the one accent. 4.9:1 on raw silk (WCAG AA) */
-  --color-aube-secondary: #8fa6b2; /* dawn grey-blue — tags, secondary */
+  --color-aube-secondary: #4a6270; /* slate-dawn for text (5.5:1 on raw silk) */
+  --color-aube-secondary-muted: #8fa6b2; /* dawn grey-blue — background fills, tags */
   --color-aube-gold: #c6a15b; /* soft gold — hairlines only */
   --color-aube-hairline: #e0d7c7; /* 1px borders, dividers on raw silk */
+  --color-aube-error: #8c2d19; /* venetian carmine — 7.2:1 on raw silk */
+  --color-aube-success: #3b5238; /* pressed olive leaf — 7.3:1 on raw silk */
 
   /* Noctis dark-theme tokens (footer, editorial bands, dark PDP) */
   --color-noctis-base: #101418; /* smoke-black base */
   --color-noctis-surface: #1a1f24; /* raised panels on dark */
-  --color-noctis-accent: #b9975b; /* antique brass — 6.7:1 on noctis base */
+  --color-noctis-text: #eae6dc; /* unbleached silk white — 14.8:1 on base */
+  --color-noctis-text-muted: #a9a69c; /* muted silk grey — 7.6:1 on base */
+  --color-noctis-accent: #b9975b; /* antique brass — 6.7:1 on base */
+  --color-noctis-accent-hover: #c9a76b; /* antique brass hover */
+  --color-noctis-hairline: #3a3f45; /* dividers on dark */
+  --color-noctis-secondary: #5c2528; /* deep oxblood badge fill */
+  --color-noctis-error: #e59882; /* terracotta clay — 8.0:1 on base */
 
   /* Header bar tints — a half-step deeper than the page so the bar reads as its own layer */
   --color-nav-silk: #ece3d3; /* warm silk shadow, light mode */
@@ -26,15 +35,62 @@
 }
 
 @layer base {
+  :root {
+    --header-offset: 67px;
+    --sat: env(safe-area-inset-top, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+  }
+
+  @media (min-width: 640px) {
+    :root {
+      --header-offset: 73px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --header-offset: 72px;
+    }
+  }
+
+  html,
   body {
     background-color: var(--color-aube-base);
     color: var(--color-aube-text);
+    overflow-x: clip;
+    width: 100%;
+    max-width: 100%;
   }
 
   ::placeholder {
     color: var(--color-aube-text-muted);
     opacity: 1;
   }
+}
+
+/* Eradicate unwanted scrollbars cross-browser while preserving scroll functionality */
+.no-scrollbar::-webkit-scrollbar,
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+}
+
+.no-scrollbar::-webkit-scrollbar-thumb,
+.no-scrollbar::-webkit-scrollbar-track,
+::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-track {
+  display: none !important;
+  background: transparent !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
 }
 
 /* Staggered reveal for The Collection. Collapsed under reduced motion. */
@@ -55,4 +111,152 @@
       transition: none;
     }
   }
+}
+
+/* ------------------------------------------------------------------
+   Product page themes (PDP). Each perfume gets its own palette via
+   data-pdp-theme on the page wrapper. Defaults below = AUBE.
+   Dark themes use the accent for the primary button, light themes
+   use the ink colour, so contrast stays AA in both.
+------------------------------------------------------------------- */
+@theme inline {
+  --color-pdp-base: var(--pdp-base);
+  --color-pdp-surface: var(--pdp-surface);
+  --color-pdp-surface2: var(--pdp-surface2);
+  --color-pdp-text: var(--pdp-text);
+  --color-pdp-muted: var(--pdp-muted);
+  --color-pdp-accent: var(--pdp-accent);
+  --color-pdp-hairline: var(--pdp-hairline);
+  --color-pdp-btn: var(--pdp-btn);
+  --color-pdp-btn-text: var(--pdp-btn-text);
+  --color-pdp-btn-hover: var(--pdp-btn-hover);
+  --color-pdp-chip: var(--pdp-chip);
+  --color-pdp-chip-hover: var(--pdp-chip-hover);
+  --color-pdp-error: var(--pdp-error);
+}
+
+:root,
+[data-pdp-theme="aube"] {
+  --pdp-base: #fbf8f2;
+  --pdp-surface: #f6f1e7;
+  --pdp-surface2: #f5efe4;
+  --pdp-text: #1c140e;
+  --pdp-muted: #6f6154;
+  --pdp-accent: #a64b24;
+  --pdp-hairline: #e0d7c7;
+  --pdp-btn: #1c140e;
+  --pdp-btn-text: #f3ede3;
+  --pdp-btn-hover: #a64b24;
+  --pdp-chip: #ebe4d6;
+  --pdp-chip-hover: #e2d9c8;
+  --pdp-error: #8c2d19;
+  --pdp-glow: rgba(255, 253, 249, 0.9);
+}
+
+/* NOCTIS: ink and antique brass */
+[data-pdp-theme="noctis"] {
+  --pdp-base: #101418;
+  --pdp-surface: #1a1f24;
+  --pdp-surface2: #1a1f24;
+  --pdp-text: #eae6dc;
+  --pdp-muted: #a9a69c;
+  --pdp-accent: #b9975b;
+  --pdp-hairline: #3a3f45;
+  --pdp-btn: #b9975b;
+  --pdp-btn-text: #101418;
+  --pdp-btn-hover: #c9a76b;
+  --pdp-chip: #1f252b;
+  --pdp-chip-hover: #2a3138;
+  --pdp-error: #e59882;
+  --pdp-glow: rgba(185, 151, 91, 0.2);
+}
+
+/* MAREE: coastal sea mist and deep marine ink (light blue theme) */
+[data-pdp-theme="maree"] {
+  --pdp-base: #f0f6f9;
+  --pdp-surface: #e5f0f5;
+  --pdp-surface2: #dae8f0;
+  --pdp-text: #112530;
+  --pdp-muted: #557280;
+  --pdp-accent: #197293;
+  --pdp-hairline: #cee0e9;
+  --pdp-btn: #112530;
+  --pdp-btn-text: #f0f6f9;
+  --pdp-btn-hover: #197293;
+  --pdp-chip: #e0edf4;
+  --pdp-chip-hover: #d2e4ed;
+  --pdp-error: #962828;
+  --pdp-glow: rgba(215, 238, 248, 0.95);
+}
+
+/* AMBRE DOUX: tobacco and amber */
+[data-pdp-theme="ambre-doux"] {
+  --pdp-base: #201510;
+  --pdp-surface: #2b1d15;
+  --pdp-surface2: #2b1d15;
+  --pdp-text: #f1e4d3;
+  --pdp-muted: #bfa88e;
+  --pdp-accent: #d08c3c;
+  --pdp-hairline: #4a3426;
+  --pdp-btn: #d08c3c;
+  --pdp-btn-text: #201510;
+  --pdp-btn-hover: #e0a050;
+  --pdp-chip: #33231a;
+  --pdp-chip-hover: #42302a;
+  --pdp-error: #e59882;
+  --pdp-glow: rgba(208, 140, 60, 0.24);
+}
+
+/* BLANC: porcelain and a single amber drop */
+[data-pdp-theme="blanc"] {
+  --pdp-base: #fafaf7;
+  --pdp-surface: #f1f0eb;
+  --pdp-surface2: #f1f0eb;
+  --pdp-text: #1f1e1c;
+  --pdp-muted: #66635b;
+  --pdp-accent: #9e5818;
+  --pdp-hairline: #e3e1db;
+  --pdp-btn: #1f1e1c;
+  --pdp-btn-text: #fafaf7;
+  --pdp-btn-hover: #9e5818;
+  --pdp-chip: #ebeae4;
+  --pdp-chip-hover: #e0dfd8;
+  --pdp-error: #8c2d19;
+  --pdp-glow: rgba(255, 255, 255, 0.95);
+}
+
+/* FLEUR: rose petal and velvet */
+[data-pdp-theme="fleur"] {
+  --pdp-base: #f8eeea;
+  --pdp-surface: #f3e4df;
+  --pdp-surface2: #f1e0da;
+  --pdp-text: #3a1f26;
+  --pdp-muted: #7a5a60;
+  --pdp-accent: #a63a55;
+  --pdp-hairline: #e6cfc9;
+  --pdp-btn: #3a1f26;
+  --pdp-btn-text: #fbeee9;
+  --pdp-btn-hover: #a63a55;
+  --pdp-chip: #efd9d3;
+  --pdp-chip-hover: #e6c9c2;
+  --pdp-error: #8c2d19;
+  --pdp-glow: rgba(255, 244, 240, 0.92);
+}
+
+/* NOIR CACAO: dark cocoa and smoked spice */
+[data-pdp-theme="noir-cacao"] {
+  --pdp-base: #170f10;
+  --pdp-surface: #231619;
+  --pdp-surface2: #231619;
+  --pdp-text: #eedfd6;
+  --pdp-muted: #b49e96;
+  --pdp-accent: #c7956b;
+  --pdp-hairline: #3d2b2d;
+  --pdp-btn: #c7956b;
+  --pdp-btn-text: #170f10;
+  --pdp-btn-hover: #d8a77c;
+  --pdp-chip: #2b1b1e;
+  --pdp-chip-hover: #3a2629;
+  --pdp-error: #e59882;
+  --pdp-glow: rgba(199, 149, 107, 0.2);
 }

@@ -1,34 +1,73 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import { PERFUMES } from "@/lib/products";
+
+declare global {
+  interface Window {
+    __lenis?: {
+      stop: () => void;
+      start: () => void;
+    };
+  }
+}
 
 interface NavDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  isDark?: boolean;
 }
 
 const HOUSE_LINKS = [
-  { label: "The Journal", href: "/journal", desc: "Long pieces, no SKUs" },
-  { label: "Objects", href: "/objects", desc: "Discovery Set & En Route" },
-  { label: "Concierge", href: "/contact", desc: "Private appointments" },
+  { label: "The Collection", href: "/collection" },
+  { label: "The Discovery Set", href: "/discovery-set" },
+  { label: "Car Perfume", href: "/objects/en-route" },
+  { label: "Objects", href: "/objects" },
+  { label: "Help", href: "/help" },
 ];
 
-export default function NavDrawer({ isOpen, onClose }: NavDrawerProps) {
+export default function NavDrawer({ isOpen, onClose, isDark = false }: NavDrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const triggerElRef = useRef<HTMLElement | null>(null);
 
-  // Close on Escape key press & body scroll locking
   useEffect(() => {
     if (!isOpen) return;
+
+    triggerElRef.current = document.activeElement as HTMLElement;
 
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
+    window.__lenis?.stop();
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose();
+        return;
+      }
+
+      if (e.key === "Tab") {
+        const focusableElements = drawerRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusableElements || focusableElements.length === 0) return;
+
+        const firstEl = focusableElements[0];
+        const lastEl = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstEl) {
+            e.preventDefault();
+            lastEl.focus();
+          }
+        } else {
+          if (document.activeElement === lastEl) {
+            e.preventDefault();
+            firstEl.focus();
+          }
+        }
       }
     };
 
@@ -38,6 +77,8 @@ export default function NavDrawer({ isOpen, onClose }: NavDrawerProps) {
     return () => {
       document.body.style.overflow = originalOverflow;
       window.removeEventListener("keydown", handleKeyDown);
+      window.__lenis?.start();
+      triggerElRef.current?.focus();
     };
   }, [isOpen, onClose]);
 
@@ -48,130 +89,82 @@ export default function NavDrawer({ isOpen, onClose }: NavDrawerProps) {
       }`}
       aria-hidden={!isOpen}
     >
-      {/* Backdrop overlay */}
       <div
         onClick={onClose}
-        className={`absolute inset-0 bg-[#101418]/40 backdrop-blur-[2px] transition-opacity duration-300 ${
+        className={`absolute inset-0 bg-[#0d1013]/55 backdrop-blur-sm transition-opacity duration-400 ${
           isOpen ? "opacity-100" : "opacity-0"
         }`}
         aria-label="Close navigation overlay"
       />
 
-      {/* Slide-over sheet */}
       <aside
         ref={drawerRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Site Navigation"
-        className={`absolute inset-y-0 left-0 flex w-full max-w-md flex-col justify-between overflow-y-auto border-r border-aube-hairline bg-aube-surface px-6 py-6 shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] sm:px-10 sm:py-8 ${
+        aria-label="Navigation Menu"
+        data-lenis-prevent
+        className={`absolute inset-y-0 left-0 flex w-full max-w-md flex-col justify-between overflow-y-auto border-r border-[#382a20] bg-[#1c140e] px-6 pt-6 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+1rem))] text-[#f3ede3] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] sm:px-10 sm:pt-10 sm:pb-[max(2.5rem,calc(env(safe-area-inset-bottom)+1.5rem))] ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Drawer Header */}
-        <div className="flex items-center justify-between border-b border-aube-hairline/60 pb-5">
-          <span className="text-[11px] font-medium uppercase tracking-[0.24em] text-aube-text-muted">
-            Ligero Parfum
-          </span>
+        <div className="flex items-center justify-between border-b border-[#382a20] pb-6">
+          <Link href="/" onClick={onClose} className="flex flex-col transition-opacity hover:opacity-85">
+            <span className="font-display text-lg font-medium uppercase leading-tight tracking-[0.24em] pl-[0.24em] text-[#FDFBF7]">
+              Ligéro
+            </span>
+            <span className="mt-0.5 font-display text-[11px] font-semibold uppercase leading-none tracking-[0.36em] pl-[0.36em] text-[#d89f68]">
+              Parfums
+            </span>
+          </Link>
+
           <button
             ref={closeBtnRef}
             type="button"
             onClick={onClose}
             aria-label="Close navigation drawer"
-            className="group flex items-center gap-2 text-aube-text transition-colors hover:text-aube-accent"
+            className="group flex min-h-11 items-center gap-2 text-[#FDFBF7] transition-colors hover:text-[#d89f68]"
           >
-            <span className="text-[11px] uppercase tracking-[0.2em] text-aube-text-muted group-hover:text-aube-accent">
+            <span className="text-[12px] uppercase tracking-[0.22em] text-[#E6DDD0] group-hover:text-[#d89f68]">
               Close
             </span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-aube-hairline transition-colors group-hover:border-aube-accent">
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 14 14"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="1" y1="1" x2="13" y2="13" />
-                <line x1="13" y1="1" x2="1" y2="13" />
-              </svg>
+            <span className="flex h-8 w-8 items-center justify-center border border-[#382a20] text-xs transition-colors group-hover:border-[#d89f68]">
+              ✕
             </span>
           </button>
         </div>
 
-        {/* Drawer Navigation Links */}
         <div className="my-8 flex flex-col gap-10">
-          {/* Main Collection Link */}
-          <div>
-            <div className="flex items-baseline justify-between">
+          <nav aria-label="House Directory" className="flex flex-col gap-3">
+            {HOUSE_LINKS.map((item) => (
               <Link
-                href="/collection"
+                key={item.href}
+                href={item.href}
                 onClick={onClose}
-                className="font-display text-3xl font-light tracking-[-0.01em] text-aube-text transition-colors hover:text-aube-accent sm:text-4xl"
+                className="inline-flex min-h-11 items-center font-display text-3xl font-light italic tracking-tight text-[#f3ede3] transition-colors hover:text-[#d89f68] sm:text-4xl"
               >
-                The Collection
+                {item.label}
               </Link>
-              <Link
-                href="/collection"
-                onClick={onClose}
-                className="text-[11px] uppercase tracking-[0.2em] text-aube-accent transition-opacity hover:opacity-80"
-              >
-                View All →
-              </Link>
-            </div>
+            ))}
+          </nav>
 
-            {/* The 7 Perfumes */}
-            <div className="mt-5">
-              <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-aube-text-muted/80">
-                Seven Perfumes
-              </p>
-              <ul className="mt-3 flex flex-col gap-3">
-                {PERFUMES.map((perfume) => (
-                  <li key={perfume.slug}>
-                    <Link
-                      href={`/collection/${perfume.slug}`}
-                      onClick={onClose}
-                      className="group block transition-colors"
-                    >
-                      {/* Stacked rows: name + price on one line, the poetic one-liner
-                          below — legible at the drawer's 448px max width on phones */}
-                      <div className="flex items-baseline justify-between gap-3">
-                        <span className="font-display text-xl font-normal text-aube-text transition-colors group-hover:text-aube-accent">
-                          {perfume.name}
-                        </span>
-                        <span className="flex-none font-body text-xs text-aube-text-muted transition-colors group-hover:text-aube-text">
-                          {perfume.price}
-                        </span>
-                      </div>
-                      <span className="mt-0.5 block font-display text-xs italic leading-snug text-aube-text-muted/80 transition-colors group-hover:text-aube-text">
-                        {perfume.oneLiner}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Maison & Other Routes */}
-          <div className="border-t border-aube-hairline/60 pt-6">
-            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-aube-text-muted/80">
-              The House
+          <div className="border-t border-[#382a20] pt-8">
+            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#b09f8f]">
+              Seven Perfumes
             </p>
-            <ul className="mt-3 grid grid-cols-1 gap-4">
-              {HOUSE_LINKS.map((link) => (
-                <li key={link.href}>
+
+            <ul className="mt-4 flex flex-col gap-2">
+              {PERFUMES.map((perfume) => (
+                <li key={perfume.slug}>
                   <Link
-                    href={link.href}
+                    href={`/collection/${perfume.slug}`}
                     onClick={onClose}
-                    className="group block transition-colors"
+                    className="group flex min-h-11 items-center justify-between py-2 transition-colors"
                   >
-                    <span className="block font-display text-2xl font-light text-aube-text transition-colors group-hover:text-aube-accent">
-                      {link.label}
+                    <span className="font-display text-xl font-normal italic text-[#f3ede3] transition-colors group-hover:text-[#d89f68]">
+                      {perfume.name}
                     </span>
-                    <span className="mt-0.5 block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted transition-colors group-hover:text-aube-accent">
-                      {link.desc}
+                    <span className="text-[11px] text-[#b09f8f] transition-colors group-hover:text-[#f3ede3]">
+                      {perfume.scentProfile.family}
                     </span>
                   </Link>
                 </li>
@@ -180,30 +173,21 @@ export default function NavDrawer({ isOpen, onClose }: NavDrawerProps) {
           </div>
         </div>
 
-        {/* Drawer Footer */}
-        <div className="border-t border-aube-hairline/60 pt-6">
-          <p className="font-display text-sm italic text-aube-text-muted">
-            Seven perfumes, rested ninety days.
+        <div className="border-t border-[#382a20] pt-6">
+          <p className="text-xs leading-relaxed text-[#b09f8f]">
+            Handcrafted with pure botanical extraits.
           </p>
-          <div className="mt-3 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-aube-text-muted">
-            <span>Rested ninety days</span>
-            <Link
-              href="/contact"
-              onClick={onClose}
-              className="text-aube-accent hover:underline"
-            >
-              Private Appointment
+          <div className="mt-3 flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-[#b09f8f]">
+            <Link href="/help" onClick={onClose} className="inline-flex min-h-11 items-center hover:text-[#d89f68]">
+              Help
             </Link>
-          </div>
-          <div className="mt-4 pt-3 border-t border-aube-hairline/40">
             <a
               href="https://www.instagram.com/ligeroparfums"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-aube-text-muted transition-colors hover:text-aube-accent"
+              className="inline-flex min-h-11 items-center text-[#d89f68] transition-opacity hover:opacity-80"
             >
-              <span>Instagram</span>
-              <span className="text-aube-accent">@ligeroparfums ↗</span>
+              @ligeroparfums ↗
             </a>
           </div>
         </div>

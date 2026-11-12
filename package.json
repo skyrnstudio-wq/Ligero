@@ -4,16 +4,34 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "build": "node scripts/build.mjs",
+    "start": "next start",
+    "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test tests/e2e/routes-smoke.spec.ts",
+    "test:e2e:tier1": "playwright test tests/e2e/tier1-features.spec.ts",
+    "test:e2e:tier2": "playwright test tests/e2e/tier2-boundaries.spec.ts",
+    "test:e2e:tier3": "playwright test tests/e2e/tier3-combinations.spec.ts",
+    "test:e2e:tier4": "playwright test tests/e2e/tier4-scenarios.spec.ts",
+    "sanity:migrate": "npx tsx scripts/migrate-to-sanity.ts",
+    "sanity:webhook": "node --env-file=.env.local scripts/setup-webhook.mjs"
   },
   "dependencies": {
+    "@sanity/client": "^8.9.0",
+    "@sanity/image-url": "^2.1.1",
+    "@sanity/vision": "^3.99.0",
+    "lenis": "^1.3.26",
     "motion": "^13.4.0",
     "next": "^15.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "next-sanity": "^9.12.3",
+    "ogl": "^1.0.11",
+    "razorpay": "^2.9.8",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "sanity": "^3.99.0",
+    "styled-components": "^6.6.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.0",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^20",
     "@types/react": "^19",

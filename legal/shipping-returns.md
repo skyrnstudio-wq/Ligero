@@ -2,9 +2,9 @@
 
 The short version, as the law requires us to publish it.
 
-## Shipping, India
+## Shipping
 
-- We ship to all serviceable pincodes in India.
+- We ship to all serviceable postal codes.
 - Dispatch within [2] working days. Delivery in [3 to 7] working days depending on pincode.
 - Free shipping above [2,500]. Below that, [150] flat.
 - Every parcel is tracked. The tracking link arrives by email the moment the parcel leaves.
@@ -24,7 +24,7 @@ The short version, as the law requires us to publish it.
 
 ## The alternative
 
-Unsure between two bottles? Write to the Concierge at concierge@ligeroparfums.com. Describe what you wear now and when you wear it. A person answers within a day with an honest recommendation, including the honest recommendation to sample first.
+Unsure between two bottles? Write to the Concierge at sales@ligeroparfums.com. Describe what you wear now and when you wear it. A person answers within a day with an honest recommendation, including the honest recommendation to sample first.
 
 ---
 

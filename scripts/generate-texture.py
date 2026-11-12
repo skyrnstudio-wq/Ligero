@@ -45,9 +45,8 @@ def generate_raw_silk_texture():
     img_array = np.stack([r, g, b], axis=-1)
     img = Image.fromarray(img_array)
     
-    # Save both WebP and PNG
+    # Save WebP
     img.save("public/images/textures/raw-silk-canvas.webp", "WEBP", quality=95)
-    img.save("public/images/textures/raw-silk-canvas.png", "PNG")
     print(f"Generated raw silk canvas texture: {width}x{height} (WebP size: {os.path.getsize('public/images/textures/raw-silk-canvas.webp')} bytes)")
 
 if __name__ == "__main__":

@@ -10,8 +10,8 @@
     "slug": "fleur",
     "name": "Fleur",
     "imageName": "fleur_notes",
-    "notes": "Magnolia · Bulgarian Rose · Luxury Musk",
-    "prompt": "Luxury perfume advertising editorial still life. Soft velvety pink Bulgarian rose petals and open blooms, elegant creamy white magnolia flower, subtle draped natural silk suggesting skin-soft musk, diffused warm morning atelier light, Hasselblad medium format camera, exquisite floral detail."
+    "notes": "Magnolia · Rose · Luxury Musk",
+    "prompt": "Luxury perfume advertising editorial still life. Soft velvety pink rose petals and open blooms, elegant creamy white magnolia flower, subtle draped natural silk suggesting skin-soft musk, diffused warm morning atelier light, Hasselblad medium format camera, exquisite floral detail."
   },
   {
     "slug": "ambre-doux",
@@ -31,8 +31,8 @@
     "slug": "blanc",
     "name": "Blanc",
     "imageName": "blanc_notes",
-    "notes": "Wild Strawberry · Whipped Cream · Madagascar Vanilla",
-    "prompt": "Ultra-luxurious editorial still life of fragrance raw gourmand materials. Lush deep red wild strawberries (Fragaria vesca) with green calyxes, opulent billowy swirls of fresh whipped cream, whole dark oily Madagascar vanilla bean pods split open showing tiny seeds, ivory marble surface, soft natural daylight, high-fashion perfume campaign."
+    "notes": "Wild Strawberry · Whipped Cream · Rich Vanilla",
+    "prompt": "Ultra-luxurious editorial still life of fragrance raw gourmand materials. Lush deep red wild strawberries (Fragaria vesca) with green calyxes, opulent billowy swirls of fresh whipped cream, whole dark oily vanilla bean pods split open showing tiny seeds, ivory marble surface, soft natural daylight, high-fashion perfume campaign."
   },
   {
     "slug": "maree",
@@ -45,7 +45,7 @@
     "slug": "noir-cacao",
     "name": "Noir Cacao",
     "imageName": "noircacao_notes",
-    "notes": "Cacao Absolute · Dark Chocolate · Madagascar Vanilla",
-    "prompt": "Dark decadence luxury fragrance editorial still life. Hand-broken shards of 85% dark artisan chocolate, raw roasted cacao beans spilling from a rustic surface, whole Madagascar vanilla pods tied with natural twine, warm spice dust, rich moody studio lighting, indulgent gourmand atmosphere."
+    "notes": "Cacao Absolute · Dark Chocolate · Rich Vanilla",
+    "prompt": "Dark decadence luxury fragrance editorial still life. Hand-broken shards of 85% dark artisan chocolate, raw roasted cacao beans spilling from a rustic surface, whole vanilla pods tied with natural twine, warm spice dust, rich moody studio lighting, indulgent gourmand atmosphere."
   }
 ]

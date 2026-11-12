@@ -12,18 +12,15 @@ export default function PrivacyPolicyPage() {
     <div className="min-h-screen bg-aube-base text-aube-text">
       <SiteHeader />
 
-      <main className="mx-auto max-w-3xl px-6 pb-28 pt-36 sm:px-10 sm:pt-44">
+      <main className="mx-auto max-w-3xl px-6 pb-28 pt-[calc(var(--header-offset)+2rem)] sm:px-10 sm:pt-[calc(var(--header-offset)+3rem)]">
         <Link
           href="/legal"
-          className="text-xs uppercase tracking-[0.2em] text-aube-text-muted transition-colors hover:text-aube-accent"
+          className="inline-flex min-h-11 items-center text-xs uppercase tracking-[0.2em] text-aube-text-muted transition-colors hover:text-aube-accent"
         >
           ← Legal Policies
         </Link>
 
-        <p className="mt-8 text-xs font-medium uppercase tracking-[0.24em] text-aube-text-muted">
-          DPDP Act, 2023 Compliance
-        </p>
-        <h1 className="mt-3 font-display text-5xl font-light italic tracking-[-0.01em] text-aube-text sm:text-6xl">
+        <h1 className="mt-8 font-display text-5xl font-light italic tracking-[-0.01em] text-aube-text sm:text-6xl">
           Privacy Policy
         </h1>
         <p className="mt-4 text-sm text-aube-text-muted">
@@ -108,7 +105,7 @@ export default function PrivacyPolicyPage() {
               6. Data retention
             </h2>
             <ul className="mt-4 flex flex-col gap-2 pl-4 list-disc marker:text-aube-accent">
-              <li>Invoices and order records: Eight years, as Indian tax law requires.</li>
+              <li>Invoices and order records: Eight years, as applicable tax law requires.</li>
               <li>Correspondence: Up to three years after the last exchange.</li>
               <li>The Correspondence list: Until you unsubscribe, deleted within thirty days.</li>
               <li>Everything else: Deleted or anonymized when the purpose concludes.</li>

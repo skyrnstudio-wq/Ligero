@@ -12,18 +12,15 @@ export default function ShippingReturnsPage() {
     <div className="min-h-screen bg-aube-base text-aube-text">
       <SiteHeader />
 
-      <main className="mx-auto max-w-3xl px-6 pb-28 pt-36 sm:px-10 sm:pt-44">
+      <main className="mx-auto max-w-3xl px-6 pb-28 pt-[calc(var(--header-offset)+2rem)] sm:px-10 sm:pt-[calc(var(--header-offset)+3rem)]">
         <Link
           href="/legal"
-          className="text-xs uppercase tracking-[0.2em] text-aube-text-muted transition-colors hover:text-aube-accent"
+          className="inline-flex min-h-11 items-center text-xs uppercase tracking-[0.2em] text-aube-text-muted transition-colors hover:text-aube-accent"
         >
           ← Legal Policies
         </Link>
 
-        <p className="mt-8 text-xs font-medium uppercase tracking-[0.24em] text-aube-text-muted">
-          Logistics & Policy
-        </p>
-        <h1 className="mt-3 font-display text-5xl font-light italic tracking-[-0.01em] text-aube-text sm:text-6xl">
+        <h1 className="mt-8 font-display text-5xl font-light italic tracking-[-0.01em] text-aube-text sm:text-6xl">
           Shipping and Returns
         </h1>
         <p className="mt-4 text-sm text-aube-text-muted">
@@ -33,10 +30,10 @@ export default function ShippingReturnsPage() {
         <div className="mt-12 flex flex-col gap-12 text-base leading-relaxed text-aube-text/90">
           <section>
             <h2 className="font-display text-2xl font-light italic text-aube-text sm:text-3xl">
-              1. Shipping across India
+              1. Shipping
             </h2>
             <ul className="mt-4 flex flex-col gap-3 pl-4 list-disc marker:text-aube-accent">
-              <li>We ship to all serviceable postal codes across India.</li>
+              <li>We ship to all serviceable postal codes.</li>
               <li>Orders dispatch within two working days of placement.</li>
               <li>Delivery takes three to seven working days depending on distance and regional logistics.</li>
               <li>Free standard domestic shipping on every case order.</li>
@@ -66,7 +63,7 @@ export default function ShippingReturnsPage() {
                 <strong>Opened bottles:</strong> Not returnable. Break the seal only when the nose has decided.
               </li>
               <li>
-                <strong>Damaged in transit:</strong> Photograph the outer packaging and bottle within 48 hours of delivery and email concierge@ligeroparfums.com. We replace or refund immediately, freight covered by us.
+                <strong>Damaged in transit:</strong> Photograph the outer packaging and bottle within 48 hours of delivery and email sales@ligeroparfums.com. We replace or refund immediately, freight covered by us.
               </li>
               <li>
                 <strong>Refund processing:</strong> Credited to your original payment method within seven working days of the inspected return reaching us.
@@ -80,8 +77,8 @@ export default function ShippingReturnsPage() {
             </h2>
             <p className="mt-4">
               Unsure between two bottles? Write to the Concierge at{" "}
-              <a href="mailto:concierge@ligeroparfums.com" className="text-aube-accent underline">
-                concierge@ligeroparfums.com
+              <a href="mailto:sales@ligeroparfums.com" className="text-aube-accent underline">
+                sales@ligeroparfums.com
               </a>
               . Describe what you wear now and when you wear it. A person answers within a day with an honest recommendation, including the advice to sample first with the Discovery Set.
             </p>

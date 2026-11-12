@@ -1,8 +1,8 @@
-# India Compliance Checklist (internal)
+# E-Commerce Compliance Checklist (internal)
 
 Working doc for launch. Not legal advice. Counsel reviews the final drafts.
 
-## Statutes that bite for a perfume e-commerce site in India
+## Statutory declarations and compliance guidelines
 
 - **DPDP Act, 2023**: consent notice at collection, purpose limitation, grievance officer, breach notification, children's data. Privacy policy drafted accordingly.
 - **Consumer Protection (E-commerce) Rules, 2020**: grievance officer published with name and contact, marketplaces vs inventory model disclosures, country of origin, resolutions in 30 days.

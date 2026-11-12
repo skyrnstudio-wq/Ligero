@@ -35,11 +35,8 @@ export default function LegalIndexPage() {
     <div className="min-h-screen bg-aube-base text-aube-text">
       <SiteHeader />
 
-      <main className="mx-auto max-w-4xl px-6 pb-28 pt-36 sm:px-10 sm:pt-44">
-        <p className="text-xs font-medium uppercase tracking-[0.24em] text-aube-text-muted">
-          Statutory Disclosures
-        </p>
-        <h1 className="mt-4 font-display text-5xl font-light italic tracking-[-0.01em] text-aube-text sm:text-6xl lg:text-7xl">
+      <main className="mx-auto max-w-4xl px-6 pb-28 pt-[calc(var(--header-offset)+2rem)] sm:px-10 sm:pt-[calc(var(--header-offset)+3rem)]">
+        <h1 className="font-display text-5xl font-light italic tracking-[-0.01em] text-aube-text sm:text-6xl lg:text-7xl">
           Legal Policies
         </h1>
         <p className="mt-4 text-base text-aube-text-muted sm:text-lg">

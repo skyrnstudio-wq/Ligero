@@ -16,6 +16,9 @@ interface CaseContextType {
   addToCase: (item: Omit<CaseItem, "quantity">, qty?: number) => void;
   removeFromCase: (slug: string) => void;
   updateQuantity: (slug: string, delta: number) => void;
+  clearCase: () => void;
+  giftNote: string;
+  setGiftNote: (note: string) => void;
   totalCount: number;
   subtotal: number;
   isCaseOpen: boolean;
@@ -26,19 +29,20 @@ const CaseContext = createContext<CaseContextType | undefined>(undefined);
 
 export function CaseProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CaseItem[]>([]);
+  const [giftNote, setGiftNoteState] = useState("");
   const [isCaseOpen, setIsCaseOpen] = useState(false);
 
-  // Load from localStorage on client mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem("ligero_case");
       if (saved) setItems(JSON.parse(saved));
+      const savedNote = localStorage.getItem("ligero_case_gift_note");
+      if (savedNote) setGiftNoteState(savedNote);
     } catch {
       // LocalStorage unavailable
     }
   }, []);
 
-  // Sync to localStorage
   useEffect(() => {
     try {
       localStorage.setItem("ligero_case", JSON.stringify(items));
@@ -46,6 +50,15 @@ export function CaseProvider({ children }: { children: React.ReactNode }) {
       // Ignore
     }
   }, [items]);
+
+  const setGiftNote = (note: string) => {
+    setGiftNoteState(note);
+    try {
+      localStorage.setItem("ligero_case_gift_note", note);
+    } catch {
+      // Ignore
+    }
+  };
 
   const addToCase = (item: Omit<CaseItem, "quantity">, qty: number = 1) => {
     setItems((prev) => {
@@ -78,6 +91,17 @@ export function CaseProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const clearCase = () => {
+    setItems([]);
+    setGiftNoteState("");
+    try {
+      localStorage.removeItem("ligero_case");
+      localStorage.removeItem("ligero_case_gift_note");
+    } catch {
+      // Ignore
+    }
+  };
+
   const totalCount = items.reduce((acc, i) => acc + i.quantity, 0);
   const subtotal = items.reduce((acc, i) => acc + i.price * i.quantity, 0);
 
@@ -88,6 +112,9 @@ export function CaseProvider({ children }: { children: React.ReactNode }) {
         addToCase,
         removeFromCase,
         updateQuantity,
+        clearCase,
+        giftNote,
+        setGiftNote,
         totalCount,
         subtotal,
         isCaseOpen,

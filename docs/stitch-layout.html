@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LIGERO PARFUM — Éditions d'Olfaction</title>
+<!-- Google Fonts: Bodoni Moda (Headings/Display), Newsreader (Editorial Body), Hanken Grotesk (Labels/Caps) -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&amp;family=Hanken+Grotesk:wght@300;400;500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "primary-container": "#a64b24",
+            "primary-fixed-dim": "#ffb599",
+            "background": "#fff8f5",
+            "inverse-primary": "#ffb599",
+            "surface-bright": "#fff8f5",
+            "on-error-container": "#93000a",
+            "on-primary-fixed-variant": "#7d2d06",
+            "tertiary": "#4a4e53",
+            "outline-variant": "#dcc1b7",
+            "on-surface-variant": "#56423b",
+            "on-surface": "#231a11",
+            "secondary-container": "#fed489",
+            "on-tertiary-fixed-variant": "#43474c",
+            "tertiary-fixed": "#e0e3e8",
+            "error-container": "#ffdad6",
+            "on-secondary-fixed": "#271900",
+            "inverse-surface": "#392e25",
+            "on-tertiary-fixed": "#181c20",
+            "primary-fixed": "#ffdbce",
+            "secondary-fixed": "#ffdea5",
+            "primary": "#87340e",
+            "on-primary": "#ffffff",
+            "surface": "#fff8f5",
+            "outline": "#89726a",
+            "surface-container-lowest": "#ffffff",
+            "tertiary-container": "#62666b",
+            "on-background": "#231a11",
+            "on-primary-container": "#ffded2",
+            "surface-tint": "#9c441d",
+            "on-tertiary-container": "#e2e5ea",
+            "secondary-fixed-dim": "#e9c178",
+            "on-error": "#ffffff",
+            "surface-container-highest": "#f2dfd1",
+            "on-tertiary": "#ffffff",
+            "surface-container": "#feeadc",
+            "on-secondary-fixed-variant": "#5d4202",
+            "on-secondary-container": "#785a1b",
+            "error": "#ba1a1a",
+            "secondary": "#775a1a",
+            "surface-container-high": "#f8e5d6",
+            "on-primary-fixed": "#370e00",
+            "surface-dim": "#e9d7c8",
+            "tertiary-fixed-dim": "#c3c7cc",
+            "surface-variant": "#f2dfd1",
+            "on-secondary": "#ffffff",
+            "inverse-on-surface": "#ffeee1",
+            "surface-container-low": "#fff1e8"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin-desktop": "4rem",
+            "margin": "1.25rem",
+            "gutter-desktop": "2.5rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "space-lg": "2rem",
+            "gutter": "1.5rem",
+            "space-xs": "0.25rem",
+            "space-xl": "3.5rem"
+          },
+          "fontFamily": {
+            "body-sm": ["Newsreader", "serif"],
+            "headline-sm": ["Bodoni Moda", "serif"],
+            "caption": ["Hanken Grotesk", "sans-serif"],
+            "label-caps-lg": ["Hanken Grotesk", "sans-serif"],
+            "display-hero": ["Bodoni Moda", "serif"],
+            "label-caps-sm": ["Hanken Grotesk", "sans-serif"],
+            "body-md": ["Newsreader", "serif"],
+            "headline-md": ["Bodoni Moda", "serif"],
+            "body-lg": ["Newsreader", "serif"],
+            "label-caps-md": ["Hanken Grotesk", "sans-serif"],
+            "headline-lg": ["Bodoni Moda", "serif"],
+            "headline-lg-mobile": ["Bodoni Moda", "serif"],
+            "display-hero-mobile": ["Bodoni Moda", "serif"]
+          },
+          "fontSize": {
+            "body-sm": ["0.875rem", { "lineHeight": "1.45rem", "fontWeight": "400" }],
+            "headline-sm": ["1.5rem", { "lineHeight": "2rem", "fontWeight": "500" }],
+            "caption": ["0.75rem", { "lineHeight": "1.15rem", "letterSpacing": "0.04em", "fontWeight": "400" }],
+            "label-caps-lg": ["0.8125rem", { "lineHeight": "1.2rem", "letterSpacing": "0.18em", "fontWeight": "600" }],
+            "display-hero": ["4.5rem", { "lineHeight": "5rem", "letterSpacing": "-0.02em", "fontWeight": "400" }],
+            "label-caps-sm": ["0.5625rem", { "lineHeight": "0.85rem", "letterSpacing": "0.2em", "fontWeight": "600" }],
+            "body-md": ["1rem", { "lineHeight": "1.65rem", "fontWeight": "400" }],
+            "headline-md": ["2rem", { "lineHeight": "2.5rem", "letterSpacing": "0", "fontWeight": "400" }],
+            "body-lg": ["1.125rem", { "lineHeight": "1.875rem", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "label-caps-md": ["0.6875rem", { "lineHeight": "1rem", "letterSpacing": "0.18em", "fontWeight": "600" }],
+            "headline-lg": ["3rem", { "lineHeight": "3.5rem", "letterSpacing": "-0.015em", "fontWeight": "400" }],
+            "headline-lg-mobile": ["2rem", { "lineHeight": "2.5rem", "letterSpacing": "0", "fontWeight": "400" }],
+            "display-hero-mobile": ["2.75rem", { "lineHeight": "3.25rem", "letterSpacing": "-0.01em", "fontWeight": "400" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+      font-size: 1.15rem;
+      vertical-align: middle;
+    }
+    ::selection {
+      background-color: #FED489;
+      color: #231A11;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-container min-h-screen flex flex-col">
+<!-- ================= 1. NAVIGATION HEADER ================= -->
+<header class="bg-surface/90 backdrop-blur-sm docked full-width top-0 sticky z-50 border-b border-outline-variant/40">
+<div class="w-full max-w-[1440px] mx-auto px-6 md:px-margin-desktop py-4 flex items-center justify-between">
+<!-- Brand Wordmark & Anchor -->
+<a class="group flex flex-col justify-start" href="#">
+<span class="font-headline-sm text-headline-sm tracking-[0.15em] text-on-surface uppercase font-medium">LIGERO PARFUM</span>
+<span class="font-label-caps-sm text-label-caps-sm tracking-[0.2em] text-outline uppercase">ÉDITIONS D'OLFACTION</span>
+</a>
+<!-- Desktop Nav Links -->
+<nav class="hidden md:flex items-center space-x-8">
+<a class="text-primary border-b border-primary pb-1 font-label-caps-md text-label-caps-md tracking-[0.18em] uppercase" href="#collection">FORMULATIONS</a>
+<a class="text-on-surface-variant hover:text-primary font-label-caps-md text-label-caps-md tracking-[0.18em] uppercase transition-colors duration-200" href="#manifesto">MANIFESTO</a>
+<a class="text-on-surface-variant hover:text-primary font-label-caps-md text-label-caps-md tracking-[0.18em] uppercase transition-colors duration-200" href="#craft">ATELIER</a>
+<a class="text-on-surface-variant hover:text-primary font-label-caps-md text-label-caps-md tracking-[0.18em] uppercase transition-colors duration-200" href="#archive">ARCHIVE</a>
+</nav>
+<!-- Trailing Actions -->
+<div class="flex items-center space-x-6">
+<a class="hidden lg:inline-flex items-center text-primary font-label-caps-md text-label-caps-md tracking-[0.18em] uppercase hover:text-on-surface transition-colors duration-200 border-b border-outline-variant pb-0.5" href="#salon">
+          PRIVATE SALON
+        </a>
+<div class="flex items-center space-x-4 text-on-surface-variant">
+<button aria-label="Account Access" class="hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+</button>
+<button aria-label="Shopping Bag" class="relative hover:text-primary transition-colors flex items-center space-x-1.5">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+<span class="font-label-caps-sm text-label-caps-sm tracking-widest text-on-surface">Case (0)</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary inline-block"></span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-grow">
+<!-- ================= 2. HERO SECTION (ASYMMETRIC 40/60) ================= -->
+<section class="w-full max-w-[1440px] mx-auto px-6 md:px-margin-desktop py-12 md:py-20">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-gutter-desktop items-center">
+<!-- Left: 40% (approx 5 cols) Editorial Text -->
+<div class="md:col-span-5 flex flex-col justify-center space-y-6">
+<div class="flex items-center space-x-3">
+<span class="w-6 h-[1px] bg-primary"></span>
+<span class="font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase text-primary font-semibold">
+              LIGERO PARFUM — EXTRAIT D'ÉMOTION
+            </span>
+</div>
+<h1 class="font-display-hero text-display-hero text-on-surface font-normal leading-[1.08] tracking-tight">
+            Scent, worn <br/><span class="italic font-normal">like silk.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md pt-2">
+            Seven permanent extraits de parfum, crafted with natural botanical extracts.
+          </p>
+<div class="pt-4 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+<a class="bg-primary-container text-surface-container-lowest px-8 py-4 font-label-caps-md text-label-caps-md tracking-[0.18em] uppercase hover:bg-inverse-surface transition-colors duration-300 inline-flex items-center space-x-3" href="#collection">
+<span>Explore the Collection</span>
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</a>
+<div class="border-l border-outline-variant pl-4 py-1">
+<span class="block font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase text-outline">EDITION</span>
+<span class="font-caption text-caption text-on-surface">Small Batch Extraction No. 04</span>
+</div>
+</div>
+</div>
+<!-- Right: 60% (7 cols) Hero Studio Flacon Container -->
+<div class="md:col-span-7 relative">
+<div class="p-3 md:p-6 bg-surface-container-low border border-outline-variant/60 relative group">
+<!-- Metadata Chips Inside Framing -->
+<div class="flex justify-between items-center pb-4 px-2 border-b border-outline-variant/30">
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-[0.2em] text-on-surface-variant">FLACON REF. LG-01</span>
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-[0.2em] text-outline">ARTISANAL EXTRAIT</span>
+</div>
+<!-- Packshot Image Plate -->
+<div class="relative overflow-hidden aspect-[4/3] md:aspect-[16/11] bg-surface-dim mt-4">
+<img alt="Studio portrait of Ligero flacon nestled in raw linen folds" class="w-full h-full object-cover object-center grayscale-[10%] hover:scale-[1.02] transition-transform duration-700 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5U94KSIDajzGmRWhr0bbncTZH_NlZort8yBK6CCAGBBfZyiNSFF22JShj95LrBPgDBFptRFKqv5LbGZc5uzee8p6_mCb_J65e81KeuC4F0neDxEYIPAoKMRvsjGG-ahBL37255qDSdd3K9Oj5tXZH7lGyN2UnCn6PSrEfI-3H2T75cIeasUqMpNZuQgTovTExXVineP9vBQYHl6UA19YI4R3dbqOXKbVlq4Em9ilKOchA0XzbvOGT4Z4XzYRtSMl1Yd67aE0Wf5T1"/>
+</div>
+<div class="flex justify-between items-center pt-4 px-2">
+<span class="font-body-sm text-body-sm italic text-on-surface-variant">50ml Eau de Parfum Reserve</span>
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-widest text-primary">Hand-Poured Lot 24</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= 3. MANIFESTO STATEMENT ================= -->
+<section class="border-y border-outline-variant/40 bg-surface-container-lowest/60 py-24 md:py-32" id="manifesto">
+<div class="w-full max-w-[960px] mx-auto px-6 text-center space-y-8">
+<span class="font-label-caps-md text-label-caps-md tracking-[0.22em] uppercase text-primary font-medium block">
+          THE PHILOSOPHY OF PATIENCE
+        </span>
+<blockquote class="font-headline-md text-headline-md md:text-headline-lg md:font-headline-lg italic font-normal text-on-surface leading-snug md:leading-relaxed">
+          “We do not formulate for seasons or crowds. Each extraction is cold rested in dark glass until the raw materials settle into intimacy with skin.”
+        </blockquote>
+<div class="pt-4 flex flex-col items-center justify-center space-y-1">
+<div class="w-12 h-[1px] bg-secondary-fixed-dim mb-3"></div>
+<cite class="font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase not-italic text-on-surface-variant">
+            — Master Parfumeur, Atelier Ligero
+          </cite>
+<span class="font-caption text-caption text-outline">Private Atelier</span>
+</div>
+</div>
+</section>
+<!-- ================= 4. THE COLLECTION ('SEVEN OLFACTIVE EMOTIONS') ================= -->
+<section class="w-full max-w-[1440px] mx-auto px-6 md:px-margin-desktop py-24" id="collection">
+<!-- Section Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-16 pb-6 border-b border-outline-variant/40">
+<div>
+<span class="font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase text-primary block mb-2">CURATED FORMULATIONS</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">The Archive</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md mt-4 md:mt-0">
+          Four of seven archival extractions available for private acquisition. Produced in small seasonal distillations.
+        </p>
+</div>
+<!-- 4-Column Fragrance Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="archive">
+<!-- CARD 1: Noctis -->
+<article class="bg-surface-container-lowest border border-outline-variant/60 flex flex-col group hover:border-secondary transition-colors duration-300">
+<div class="p-4 border-b border-outline-variant/30 flex justify-between items-center text-outline">
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-widest">N° 01</span>
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-widest">EXTRAIT</span>
+</div>
+<div class="aspect-[4/5] bg-surface-dim/40 overflow-hidden relative">
+<img alt="Noctis artisanal parfum flacon on black stone plinth" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEJ1FlJnvxzRwZtOV2HFWwV__idr92POw_yv04WOkIolOrGHENdJxBSrxtLK5MhIO_nKDn8ucGZkc5y-O_38n8tHdP0ViB1jwFj3nVMv6vU8may__lSSrK4SFs1WJ96k2Q4QBPlRlkBnXkxlmCEQLkI5YUQO7CJSa8nUi_byN4JDErCYYNQ1xorBS_xJa6QAdZB3nrsWJ1LvfWESJ_vrGYIyVHMNUJxvDf9zAcJDcE9SJknKfXzoKVeScPr2fa97jRVLPNFyGFBkj0"/>
+</div>
+<div class="p-6 flex flex-col flex-grow justify-between space-y-6">
+<div class="space-y-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal">Noctis</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">Smoke, leather, the hour after midnight.</p>
+</div>
+<!-- Accord Tag -->
+<div>
+<div class="py-1.5 px-2.5 bg-surface-container border border-outline-variant/50 inline-block">
+<span class="font-label-caps-sm text-label-caps-sm tracking-widest text-on-surface uppercase block">
+                  Birch Tar · Black Tea · Amber
+                </span>
+</div>
+</div>
+<div class="pt-4 border-t border-outline-variant/40 flex items-center justify-between">
+<span class="font-caption text-caption font-semibold text-on-surface">€240 / 50ml</span>
+<a class="font-label-caps-sm text-label-caps-sm tracking-[0.18em] uppercase text-primary group-hover:text-on-surface flex items-center space-x-1" href="#salon">
+<span>Open Noctis</span>
+<span>→</span>
+</a>
+</div>
+</div>
+</article>
+<!-- CARD 2: Aube -->
+<article class="bg-surface-container-lowest border border-outline-variant/60 flex flex-col group hover:border-secondary transition-colors duration-300">
+<div class="p-4 border-b border-outline-variant/30 flex justify-between items-center text-outline">
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-widest">N° 02</span>
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-widest">PARFUM</span>
+</div>
+<div class="aspect-[4/5] bg-surface-dim/40 overflow-hidden relative">
+<img alt="Aube flacon reflecting morning golden hour light on wood and raw silk" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDBqmFpkZY9vmyPHrzpCRAO5lcscZQRH8EWCJLm_zqrnIkQrLf0KqyNPn_nMDx3uon9zLS6gP-tnCpDMF3uB7sTiJr8Z-T9HDPFdQaUMI7yaVMmFg7A56gHtMqth_H8CaCYxZuxBL5LiJf_9IULYALqLN_aN6x3ALH5zvsel6qjZhjyvjQEJjOo6lN9vAhN5li3U9O6a2gDXNeQzu_pi478nYJN3Kt0A85oQslWSaVt2xb_mlgYhqD6jPdIkVL6oDRkUd36V6UG3dZ"/>
+</div>
+<div class="p-6 flex flex-col flex-grow justify-between space-y-6">
+<div class="space-y-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal">AUBE</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">Warm skin, citrus peel, first light.</p>
+</div>
+<div>
+<div class="py-1.5 px-2.5 bg-surface-container border border-outline-variant/50 inline-block">
+<span class="font-label-caps-sm text-label-caps-sm tracking-widest text-on-surface uppercase block">
+                  Bergamot · Bitter Orange · Raw Silk
+                </span>
+</div>
+</div>
+<div class="pt-4 border-t border-outline-variant/40 flex items-center justify-between">
+<span class="font-caption text-caption font-semibold text-on-surface">€220 / 50ml</span>
+<a class="font-label-caps-sm text-label-caps-sm tracking-[0.18em] uppercase text-primary group-hover:text-on-surface flex items-center space-x-1" href="#salon">
+<span>Open AUBE</span>
+<span>→</span>
+</a>
+</div>
+</div>
+</article>
+<!-- CARD 3: Marée -->
+<article class="bg-surface-container-lowest border border-outline-variant/60 flex flex-col group hover:border-secondary transition-colors duration-300">
+<div class="p-4 border-b border-outline-variant/30 flex justify-between items-center text-outline">
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-widest">N° 03</span>
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-widest">EAU DE PARFUM</span>
+</div>
+<div class="aspect-[4/5] bg-surface-dim/40 overflow-hidden relative">
+<img alt="Marée glass flacon bathed in atmospheric coastal light on weathered sandstone" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5U94KSIDajzGmRWhr0bbncTZH_NlZort8yBK6CCAGBBfZyiNSFF22JShj95LrBPgDBFptRFKqv5LbGZc5uzee8p6_mCb_J65e81KeuC4F0neDxEYIPAoKMRvsjGG-ahBL37255qDSdd3K9Oj5tXZH7lGyN2UnCn6PSrEfI-3H2T75cIeasUqMpNZuQgTovTExXVineP9vBQYHl6UA19YI4R3dbqOXKbVlq4Em9ilKOchA0XzbvOGT4Z4XzYRtSMl1Yd67aE0Wf5T1"/>
+</div>
+<div class="p-6 flex flex-col flex-grow justify-between space-y-6">
+<div class="space-y-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal">Marée</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">Salt, kelp, the sea at dusk.</p>
+</div>
+<div>
+<div class="py-1.5 px-2.5 bg-surface-container border border-outline-variant/50 inline-block">
+<span class="font-label-caps-sm text-label-caps-sm tracking-widest text-on-surface uppercase block">
+                  Sea Salt · Driftwood · Grey Amber
+                </span>
+</div>
+</div>
+<div class="pt-4 border-t border-outline-variant/40 flex items-center justify-between">
+<span class="font-caption text-caption font-semibold text-on-surface">€230 / 50ml</span>
+<a class="font-label-caps-sm text-label-caps-sm tracking-[0.18em] uppercase text-primary group-hover:text-on-surface flex items-center space-x-1" href="#salon">
+<span>Open Marée</span>
+<span>→</span>
+</a>
+</div>
+</div>
+</article>
+<!-- CARD 4: Blanc -->
+<article class="bg-surface-container-lowest border border-outline-variant/60 flex flex-col group hover:border-secondary transition-colors duration-300">
+<div class="p-4 border-b border-outline-variant/30 flex justify-between items-center text-outline">
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-widest">N° 04</span>
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-widest">RESERVE</span>
+</div>
+<!-- Architectural Bottle Silhouette Placeholder on Raw Silk -->
+<div class="aspect-[4/5] bg-surface-container-low overflow-hidden relative flex flex-col items-center justify-center p-8">
+<div class="w-28 h-40 border border-outline/40 flex flex-col items-center justify-between p-3 relative bg-surface/50 group-hover:border-secondary transition-colors duration-300">
+<div class="w-10 h-6 border-b border-outline/30 bg-surface-dim"></div>
+<div class="text-center">
+<span class="font-headline-sm text-[1rem] tracking-wider text-outline block">BLANC</span>
+<span class="font-label-caps-sm text-[0.5rem] tracking-widest text-outline-variant uppercase">PARFUM PUR</span>
+</div>
+<div class="w-full text-center border-t border-outline/20 pt-1">
+<span class="font-caption text-[0.55rem] text-outline">50 ML</span>
+</div>
+</div>
+<span class="font-label-caps-sm text-[0.6rem] tracking-[0.25em] text-outline mt-4 uppercase">RESERVED BATCH</span>
+</div>
+<div class="p-6 flex flex-col flex-grow justify-between space-y-6">
+<div class="space-y-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal">Blanc</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">Linen, iris, the pause before speech.</p>
+</div>
+<div>
+<div class="py-1.5 px-2.5 bg-surface-container border border-outline-variant/50 inline-block">
+<span class="font-label-caps-sm text-label-caps-sm tracking-widest text-on-surface uppercase block">
+                  White Orris · Rice Steam · Clean Musks
+                </span>
+</div>
+</div>
+<div class="pt-4 border-t border-outline-variant/40 flex items-center justify-between">
+<span class="font-caption text-caption font-semibold text-on-surface">€250 / 50ml</span>
+<a class="font-label-caps-sm text-label-caps-sm tracking-[0.18em] uppercase text-primary group-hover:text-on-surface flex items-center space-x-1" href="#salon">
+<span>Open Blanc</span>
+<span>→</span>
+</a>
+</div>
+</div>
+</article>
+</div>
+</section>
+<!-- ================= 5. CRAFT TRIPTYCH (HAIRLINE 3-COLUMN) ================= -->
+<section class="border-y border-outline-variant/50 bg-surface-container-low" id="craft">
+<div class="w-full max-w-[1440px] mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-outline-variant/50">
+<!-- Column 1: Sourcing -->
+<div class="p-8 md:p-14 flex flex-col justify-between space-y-8">
+<div class="space-y-4">
+<span class="font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase text-primary font-semibold block">
+                01 / SOURCING
+              </span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal leading-snug">
+                Raw materials come from four farms. We can name them.
+              </h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+              We hold direct generational pacts with selected bergamot groves and wild orris rhizome harvesters. No commodity intermediates, no wholesale compromises.
+            </p>
+<div class="pt-4 border-t border-outline-variant/30 flex items-center space-x-2 text-outline">
+<span class="material-symbols-outlined text-sm" data-icon="pin_drop">pin_drop</span>
+<span class="font-caption text-caption uppercase tracking-wider">Single-Origin Harvest</span>
+</div>
+</div>
+<!-- Column 2: Blending -->
+<div class="p-8 md:p-14 flex flex-col justify-between space-y-8">
+<div class="space-y-4">
+<span class="font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase text-primary font-semibold block">
+                02 / BLENDING
+              </span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal leading-snug">
+                Each blend is cold rested before a single bottle is filled.
+              </h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+              Time is our primary solvent. Slow cold-maceration in glass demijohns permits volatility to soften naturally, giving the wood notes their peculiar, tactile weight on human skin.
+            </p>
+<div class="pt-4 border-t border-outline-variant/30 flex items-center space-x-2 text-outline">
+<span class="material-symbols-outlined text-sm" data-icon="hourglass_top">hourglass_top</span>
+<span class="font-caption text-caption uppercase tracking-wider">Cold Rested Maceration</span>
+</div>
+</div>
+<!-- Column 3: Purity -->
+<div class="p-8 md:p-14 flex flex-col justify-between space-y-8">
+<div class="space-y-4">
+<span class="font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase text-primary font-semibold block">
+                03 / PURITY
+              </span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-normal leading-snug">
+                Nothing added to preserve. Nothing added to shine.
+              </h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+              Unfiltered, unbleached, and free from synthetic UV stabilisers or lab-derived fixatives. The amber gold of the elixir is purely the natural tone of pressed plant matter and distilled petals.
+            </p>
+<div class="pt-4 border-t border-outline-variant/30 flex items-center space-x-2 text-outline">
+<span class="material-symbols-outlined text-sm" data-icon="spa">spa</span>
+<span class="font-caption text-caption uppercase tracking-wider">100% Raw Botanical Concentration</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= 6. EDITORIAL BREAK (NOCTIS MIDNIGHT) ================= -->
+<section class="bg-inverse-surface text-inverse-on-surface py-28 md:py-36 relative overflow-hidden">
+<div class="w-full max-w-[1080px] mx-auto px-6 text-center space-y-8 relative z-10">
+<!-- Monogram / Seal -->
+<div class="inline-flex items-center justify-center w-14 h-14 border border-secondary-fixed-dim/40 rounded-full mb-2">
+<span class="font-headline-sm text-secondary-fixed text-xl italic font-normal">L</span>
+</div>
+<blockquote class="font-headline-lg text-headline-lg text-surface-bright font-normal italic tracking-tight max-w-2xl mx-auto leading-tight">
+          “Perfume is memory, made wearable.”
+        </blockquote>
+<p class="font-label-caps-md text-label-caps-md tracking-[0.22em] text-secondary-fixed uppercase pt-4">
+          ATELIER LIGERO · ÉDITIONS LIMITÉES
+        </p>
+<div class="w-8 h-[1px] bg-secondary-fixed/40 mx-auto mt-6"></div>
+</div>
+</section>
+<!-- ================= 7. THE CORRESPONDENCE (PRIVATE SALON) ================= -->
+<section class="w-full max-w-[1440px] mx-auto px-6 md:px-margin-desktop py-24" id="salon">
+<div class="bg-surface-container-lowest border border-outline-variant/60 p-8 md:p-16 max-w-3xl mx-auto">
+<div class="text-center space-y-4 mb-10">
+<span class="font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase text-primary font-semibold block">
+            CONFIDENTIAL ARCHIVES
+          </span>
+<h2 class="font-headline-md text-headline-md text-on-surface">THE PRIVATE SALON</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-lg mx-auto">
+            Four letters a year. Nothing else. Dispatches on harvest variations, reserve extractions, and private salon appointments.
+          </p>
+</div>
+<form class="space-y-6 max-w-md mx-auto" onsubmit="event.preventDefault();">
+<div class="relative">
+<label class="block font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase text-outline mb-2" for="salon-email">
+              YOUR DISPATCH ADDRESS
+            </label>
+<input class="w-full bg-transparent border-0 border-b border-outline-variant px-0 py-3 font-body-md text-body-md text-on-surface placeholder:text-outline-variant/80 focus:ring-0 focus:border-primary transition-colors" id="salon-email" placeholder="atelier@domain.com" required="" type="email"/>
+</div>
+<div class="pt-2">
+<button class="w-full bg-primary-container text-surface-container-lowest py-4 font-label-caps-md text-label-caps-md tracking-[0.2em] uppercase hover:bg-inverse-surface transition-colors duration-200" type="submit">
+              Join the Salon
+            </button>
+</div>
+<p class="font-caption text-[0.6875rem] text-center text-outline">
+            Protected by our strict non-disclosure covenant. Resign at any moment.
+          </p>
+</form>
+</div>
+</section>
+</main>
+<!-- ================= 8. FOOTER ================= -->
+<footer class="bg-inverse-surface text-inverse-on-surface border-t border-outline/30 full-width relative">
+<div class="w-full max-w-[1440px] mx-auto px-6 md:px-margin-desktop py-16 flex flex-col gap-12">
+<!-- Top Grid: Brand & Link Pillars -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-10">
+<div class="md:col-span-4 space-y-4">
+<span class="font-headline-md text-headline-md tracking-[0.1em] text-inverse-on-surface uppercase font-normal block">
+            ÉDITIONS D'OLFACTION
+          </span>
+<p class="font-body-sm text-body-sm text-surface-dim max-w-xs leading-relaxed">
+            High-editorial artisanal perfumery conditioned under deliberate cold-rest until structural purity is achieved.
+          </p>
+</div>
+<div class="md:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-8">
+<div class="space-y-4">
+<span class="font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase text-secondary-fixed block">
+              COLLECTION
+            </span>
+<ul class="space-y-2.5">
+<li><a class="text-surface-dim hover:text-inverse-on-surface font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase transition-colors duration-200" href="#archive">Noctis (50ml)</a></li>
+<li><a class="text-surface-dim hover:text-inverse-on-surface font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase transition-colors duration-200" href="#archive">AUBE (50ml)</a></li>
+<li><a class="text-surface-dim hover:text-inverse-on-surface font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase transition-colors duration-200" href="#archive">Marée (50ml)</a></li>
+<li><a class="text-surface-dim hover:text-inverse-on-surface font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase transition-colors duration-200" href="#archive">Blanc (Reserve)</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<span class="font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase text-secondary-fixed block">
+              MAISON &amp; ATELIER
+            </span>
+<ul class="space-y-2.5">
+<li><a class="text-surface-dim hover:text-inverse-on-surface font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase transition-colors duration-200" href="#craft">RAW EXTRACTION LEDGER</a></li>
+<li><a class="text-surface-dim hover:text-inverse-on-surface font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase transition-colors duration-200" href="#manifesto">OLFACTORY ETHICS</a></li>
+<li><a class="text-surface-dim hover:text-inverse-on-surface font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase transition-colors duration-200" href="#salon">CONCIERGE &amp; APPOINTMENTS</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<span class="font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase text-secondary-fixed block">
+              PROTOCOLS
+            </span>
+<ul class="space-y-2.5">
+<li><a class="text-surface-dim hover:text-inverse-on-surface font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase transition-colors duration-200" href="#">SHIPPING &amp; TERMS</a></li>
+<li><a class="text-surface-dim hover:text-inverse-on-surface font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase transition-colors duration-200" href="#">PRIVACY DISCLOSURE</a></li>
+<li><a class="text-surface-dim hover:text-inverse-on-surface font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase transition-colors duration-200" href="#">BATCH VERIFICATION</a></li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Bottom Hairline & Legal -->
+<div class="border-t border-outline/30 pt-8 flex flex-col md:flex-row items-center justify-between text-center md:text-left gap-4">
+<p class="font-body-sm text-body-sm text-surface-dim">
+          © MMXXIV ÉDITIONS D'OLFACTION. ALL ARCHIVAL FORMULATIONS RESERVED. CRAFTED UNDER COLD-REST MACERATION.
+        </p>
+<div class="flex items-center space-x-6 text-surface-dim font-label-caps-sm text-label-caps-sm tracking-[0.2em] uppercase">
+<span>ATELIER</span>
+<span>·</span>
+<span>MACERATION</span>
+<span>·</span>
+<span>EXTRAITS</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>
