@@ -142,7 +142,7 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
         onMouseLeave={scheduleCloseCollection}
         className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${headerBg} ${borderRule} ${shadowRule} ${blurRule}`}
       >
-        <div className="relative mx-auto flex h-16 w-full max-w-[112rem] items-center justify-between px-4 sm:h-[70px] sm:px-10 lg:h-[72px] lg:px-14 xl:px-20">
+        <div className="relative mx-auto flex h-16 w-full max-w-[112rem] items-center justify-between px-2.5 sm:h-[70px] sm:px-10 lg:h-[72px] lg:px-14 xl:px-20">
           {/* Left: Mobile Menu trigger OR Desktop "Collection · Discovery Set" */}
           <div className="flex flex-1 items-center gap-6 lg:gap-9">
             <button
@@ -217,7 +217,7 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
           </Link>
 
           {/* Right: Search + Case */}
-          <div className="flex flex-1 items-center justify-end gap-2 sm:gap-6 lg:gap-8">
+          <div className="flex flex-1 items-center justify-end gap-1 sm:gap-6 lg:gap-8">
             <button
               type="button"
               onClick={() => {
@@ -227,7 +227,7 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
               aria-expanded={searchOpen}
               aria-controls="maison-search-panel"
               aria-label="Search fragrances and objects"
-              className={`group inline-flex min-h-11 min-w-11 items-center justify-center gap-2 px-1.5 text-[#E6DDD0] hover:text-[#E5B285] transition-colors`}
+              className={`group inline-flex min-h-11 min-w-11 items-center justify-center gap-2 px-1.5 sm:px-2 text-[#E6DDD0] hover:text-[#E5B285] transition-colors`}
             >
               <svg
                 width="18"
@@ -252,7 +252,7 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
               type="button"
               onClick={() => setIsCaseOpen(true)}
               aria-label={`Open Case (${totalCount} items)`}
-              className={`group relative inline-flex min-h-11 min-w-11 items-center justify-center gap-2 px-2 text-[#E6DDD0] hover:text-[#E5B285] transition-colors`}
+              className={`group relative inline-flex min-h-11 min-w-11 items-center justify-center gap-2 px-1.5 sm:px-2 text-[#E6DDD0] hover:text-[#E5B285] transition-colors`}
             >
               <svg
                 width="19"
@@ -273,7 +273,8 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
               </span>
               {totalCount > 0 && (
                 <span
-                  className={`flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9.5px] font-bold leading-none tabular-nums ${badgeClasses}`}
+                  aria-hidden="true"
+                  className={`absolute -top-1 -right-1 sm:static sm:top-auto sm:right-auto flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9.5px] font-bold leading-none tabular-nums ${badgeClasses}`}
                 >
                   {totalCount}
                 </span>
