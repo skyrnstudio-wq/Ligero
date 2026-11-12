@@ -52,10 +52,24 @@ export default function NavDrawer({ isOpen, onClose, isDark = false }: NavDrawer
         const focusableElements = drawerRef.current?.querySelectorAll<HTMLElement>(
           'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
         );
-        if (!focusableElements || focusableElements.length === 0) return;
+        if (!focusableElements || focusableElements.length === 0) {
+          e.preventDefault();
+          return;
+        }
 
         const firstEl = focusableElements[0];
         const lastEl = focusableElements[focusableElements.length - 1];
+
+        // Guard against background leakage: pull focus into the drawer if currently outside
+        if (!drawerRef.current?.contains(document.activeElement)) {
+          e.preventDefault();
+          if (e.shiftKey) {
+            lastEl.focus();
+          } else {
+            firstEl.focus();
+          }
+          return;
+        }
 
         if (e.shiftKey) {
           if (document.activeElement === firstEl) {
@@ -72,9 +86,26 @@ export default function NavDrawer({ isOpen, onClose, isDark = false }: NavDrawer
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    closeBtnRef.current?.focus();
+
+    // Initial focus: immediate attempt + rAF + timeout fallback after style recalculation
+    const focusTarget = () => {
+      if (closeBtnRef.current) {
+        closeBtnRef.current.focus();
+      } else {
+        const firstFocusable = drawerRef.current?.querySelector<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        );
+        firstFocusable?.focus();
+      }
+    };
+
+    focusTarget();
+    const rafId = requestAnimationFrame(focusTarget);
+    const timerId = setTimeout(focusTarget, 50);
 
     return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timerId);
       document.body.style.overflow = originalOverflow;
       window.removeEventListener("keydown", handleKeyDown);
       window.__lenis?.start();
@@ -84,8 +115,10 @@ export default function NavDrawer({ isOpen, onClose, isDark = false }: NavDrawer
 
   return (
     <div
-      className={`fixed inset-0 z-50 transition-visibility duration-300 ${
-        isOpen ? "visible pointer-events-auto" : "invisible pointer-events-none delay-300"
+      className={`fixed inset-0 z-50 ${
+        isOpen
+          ? "visible pointer-events-auto"
+          : "invisible pointer-events-none transition-[visibility] duration-0 delay-500"
       }`}
       aria-hidden={!isOpen}
     >

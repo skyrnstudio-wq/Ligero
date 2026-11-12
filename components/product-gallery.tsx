@@ -37,21 +37,21 @@ export default function ProductGallery({
 
   const cutoutImage = `/images/perfumes/cutouts/${slug}.webp?v=2`;
   const botanicalImage = `/images/perfumes/notes/${slug}.webp`;
-  const editorialImage = product?.image || `/images/perfumes/${slug}.jpeg`;
-  const atelierImage = "/images/objects/discovery-set-atelier.webp";
-  const collectionTrayImage =
-    slug === "fleur"
-      ? "/images/perfumes/fleur-tray.jpeg"
-      : "/images/perfumes/tray.jpeg";
+  const editorialImage = product?.image || `/images/perfumes/${slug}-scene.webp`;
+  const inHandImage = `/images/perfumes/${slug}-in-hand.webp`;
+  const boxImage = "/images/perfumes/box.webp";
 
   const initialList =
     images && images.length > 0
-      ? [cutoutImage, botanicalImage, editorialImage, ...images]
+      ? images
+      : (product?.gallery && product.gallery.length > 0)
+      ? product.gallery
       : [
           cutoutImage,
-          botanicalImage,
           editorialImage,
-          collectionTrayImage,
+          inHandImage,
+          botanicalImage,
+          boxImage,
           primaryImage,
           ...(galleryImages || []),
         ].filter(Boolean) as string[];
@@ -145,21 +145,21 @@ export default function ProductGallery({
       {/* 2. Staggered 2-Column Editorial Collage Grid (matching D.S. & DURGA left column) */}
       <div className="mx-auto w-full max-w-[640px] px-4 pt-4 sm:px-8">
         <div className="grid grid-cols-2 gap-3 sm:gap-4 items-start">
-          {/* Left Sub-Column: Atelier Story Card (3:4) + Editorial Mood Portrait (3:4) */}
+          {/* Left Sub-Column: In-Hand Tactile Scale (3:4) + Editorial Mood Portrait (3:4) */}
           <div className="flex flex-col gap-3 sm:gap-4">
-            {/* Tile 1: Atelier Story Plate with subtle video-style HUD */}
+            {/* Tile 1: In-Hand Tactile Scale Plate with subtle video-style HUD */}
             <button
               type="button"
-              onClick={() => openLightboxAt(atelierImage)}
+              onClick={() => openLightboxAt(inHandImage)}
               className="group relative aspect-[3/4] w-full overflow-hidden bg-pdp-surface2 text-left focus-visible:outline-2 focus-visible:outline-pdp-text"
-              aria-label={`View ${displayName} atelier formulation plate`}
+              aria-label={`View ${displayName} tactile scale in hand`}
             >
               <Image
-                src={atelierImage}
-                alt={`Artisanal botanical formulation and vials for ${displayName}`}
+                src={inHandImage}
+                alt={`${displayName} 50ml flacon held in hand`}
                 fill
                 sizes="(max-width: 1024px) 45vw, 24vw"
-                className="object-cover object-center opacity-85 transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                className="object-cover object-center opacity-90 transition-transform duration-700 ease-out group-hover:scale-[1.04]"
               />
               <div
                 aria-hidden="true"
@@ -172,9 +172,9 @@ export default function ProductGallery({
                 <div className="flex items-center justify-between border-t border-[#EAE6DC]/25 pt-1.5 font-body text-[9.5px] uppercase tracking-[0.16em] text-[#EAE6DC]/80">
                   <span className="inline-flex items-center gap-1.5">
                     <span aria-hidden="true" className="text-[8px]">▶</span>
-                    <span>Atelier Note</span>
+                    <span>In-Hand Scale</span>
                   </span>
-                  <span>Eau de Parfum</span>
+                  <span>50 ml Flacon</span>
                 </div>
               </div>
             </button>
@@ -196,7 +196,7 @@ export default function ProductGallery({
             </button>
           </div>
 
-          {/* Right Sub-Column: Raw Botanical Landscape (1:1) + Close-up Material Study (1:1) */}
+          {/* Right Sub-Column: Raw Botanical Landscape (1:1) + Presentation Box (1:1) */}
           <div className="flex flex-col gap-3 sm:gap-4">
             {/* Tile 3: Botanical Field / Raw Ingredients (1:1) */}
             <button
@@ -214,20 +214,27 @@ export default function ProductGallery({
               />
             </button>
 
-            {/* Tile 4: Macro Botanical / Tray Detail (1:1) */}
+            {/* Tile 4: Presentation Rigid Box (1:1) */}
             <button
               type="button"
-              onClick={() => openLightboxAt(collectionTrayImage)}
+              onClick={() => openLightboxAt(boxImage)}
               className="group relative aspect-square w-full overflow-hidden bg-pdp-surface2 focus-visible:outline-2 focus-visible:outline-pdp-text"
-              aria-label={`View ${displayName} flacon detail on marble tray`}
+              aria-label={`View ${displayName} presentation box`}
             >
               <Image
-                src={collectionTrayImage}
-                alt={`${displayName} arranged on stone tray`}
+                src={boxImage}
+                alt={`Ligéro rigid presentation box, 50ml case`}
                 fill
                 sizes="(max-width: 1024px) 45vw, 24vw"
                 className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
               />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#101418]/70 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              />
+              <div className="absolute inset-x-3 bottom-3 z-10 hidden font-body text-[9.5px] uppercase tracking-[0.16em] text-[#EAE6DC] transition-all group-hover:block">
+                Presentation Box
+              </div>
             </button>
           </div>
         </div>
