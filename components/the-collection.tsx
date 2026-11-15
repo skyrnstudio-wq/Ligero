@@ -268,9 +268,11 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                       }}
                       aria-pressed={isTouchRevealed}
                       aria-label={`Toggle ingredients view for ${fragrance.name}`}
-                      className="absolute bottom-2 right-2 z-30 flex min-h-11 min-w-11 items-center justify-center border border-aube-hairline bg-white/95 px-2.5 font-body text-[9.5px] uppercase tracking-[0.14em] text-aube-text shadow-sm lg:hidden"
+                      className="group/pill absolute right-0 bottom-0 z-30 flex min-h-11 min-w-11 items-end justify-end p-1.5 lg:hidden focus-visible:outline-none"
                     >
-                      {isTouchRevealed ? "Bottle" : "Ingredients"}
+                      <span className="inline-flex items-center border border-aube-hairline/80 bg-[#FAFAF7]/90 px-2 py-1 font-body text-[8px] uppercase tracking-[0.12em] leading-none text-aube-text backdrop-blur-xs transition-colors group-focus-visible/pill:outline-2 group-focus-visible/pill:outline-aube-text sm:px-2.5 sm:py-1.5 sm:text-[9px]">
+                        {isTouchRevealed ? "Bottle" : "Ingredients"}
+                      </span>
                     </button>
                   )}
                 </div>
