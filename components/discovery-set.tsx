@@ -14,19 +14,27 @@ export const DISCOVERY_FLOATING_IMAGE =
 export function OrderDiscoverySetButton({
   className = "",
   label = "Add to Case",
+  name = "The Discovery Set",
+  price = 999,
+  volume = "7 × 10 ml",
+  image = DISCOVERY_FLOATING_IMAGE,
 }: {
   className?: string;
   label?: string;
+  name?: string;
+  price?: number;
+  volume?: string;
+  image?: string;
 }) {
   const { addToCase, setIsCaseOpen } = useCase();
 
   const handleOrder = () => {
     addToCase({
       slug: "discovery-set",
-      name: "The Discovery Set",
-      price: 999,
-      volume: "7 × 10 ml",
-      image: DISCOVERY_FLOATING_IMAGE,
+      name,
+      price,
+      volume,
+      image,
     });
     setIsCaseOpen(true);
   };

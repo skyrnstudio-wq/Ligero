@@ -8,15 +8,15 @@ web
 
 ## Users
 
-Design-conscious urban Indians, roughly 22 to 38, buying a signature scent for themselves and as gifts. They follow global fashion and beauty, recognise niche-house codes, and dislike being sold to. They arrive mostly on mobile, often from Instagram (@ligeroparfums).
+Design-conscious fragrance patrons, roughly 22 to 38, buying a signature scent for themselves and as gifts. They follow global fashion and beauty, recognise niche-house codes, and dislike being sold to. They arrive mostly on mobile, often from Instagram (@ligeroparfums).
 
 ## Product Purpose
 
-Ligero Parfum is an Indian perfume house selling seven perfumes and two Objects direct to the wearer. The home page does the desiring; the collection and product pages do the selling. Success: a visitor feels the house is worth more than its price, opens a perfume, and adds it (or the Discovery Set) to their Case.
+Ligero Parfum is an independent perfume house selling seven perfumes and two Objects direct to the wearer. The home page does the desiring; the collection and product pages do the selling. Success: a visitor feels the house is worth more than its price, opens a perfume, and adds it (or the Discovery Set) to their Case.
 
 ## Positioning
 
-An Indian house with niche-perfumery restraint at an accessible price (499 to 1699 rupees). Seven perfumes, each rested ninety days, blended in India. Seven distinct worlds (dawn, night, sea, amber, cream, flower, cacao) under one quiet house. Never claim French or Grasse provenance.
+An independent house with niche-perfumery restraint at an accessible price (499 to 1699 rupees). Seven perfumes handcrafted in small batches. Seven distinct worlds (dawn, night, sea, amber, cream, flower, cacao) under one quiet house.
 
 ## Operating Context
 
@@ -28,7 +28,7 @@ Next.js 15 App Router, Tailwind v4, Motion. Case (cart) drawer via React context
 - Objects: The Discovery Set (999, seven 10 ml vials), En Route car diffuser (499).
 - Prices (client-confirmed): Discovery Set 999, Aube 1099, Blanc 1099, Fleur 1299, Noctis 1299, Noir Cacao 1599, Ambre Doux 1699, Marée 1699, En Route 499.
 - Home carries no prices per the brand voice rules (Objects excepted where already shown).
-- Legal pages required by Indian law live in the footer only.
+- Statutory legal pages live in the footer only.
 
 ## Brand Commitments
 

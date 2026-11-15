@@ -86,7 +86,7 @@ test.describe("Tier 2: Boundary & Corner Cases Suite (Edge Viewports & Limits)",
         });
         return maxRight;
       });
-      expect(maxContainerRight).toBeLessThanOrEqual(window.innerWidth + 2);
+      expect(maxContainerRight).toBeLessThanOrEqual((page.viewportSize()?.width ?? 1440) + 2);
     });
 
     test("B2.5: Zero horizontal overflow during rapid full-page height transitions", async ({ page }) => {
@@ -140,7 +140,7 @@ test.describe("Tier 2: Boundary & Corner Cases Suite (Edge Viewports & Limits)",
       const caseTrigger = page.locator("button[aria-label^='Open Case']");
       await expect(caseTrigger).toBeVisible();
       const box = await caseTrigger.boundingBox();
-      expect(box?.x).toBeLessThan(window.innerWidth);
+      expect(box?.x).toBeLessThan(page.viewportSize()?.width ?? 1024);
     });
 
     test("B3.5: Header bounding box remains valid during downward scroll hide/reveal", async ({ page }) => {
@@ -193,7 +193,7 @@ test.describe("Tier 2: Boundary & Corner Cases Suite (Edge Viewports & Limits)",
       await expect(drawer).toBeVisible();
 
       // Click outside drawer on backdrop (right side of viewport)
-      await page.mouse.click(window.innerWidth - 10, 200);
+      await page.mouse.click((page.viewportSize()?.width ?? 390) - 10, 200);
       await expect(drawer).not.toBeVisible();
     });
 

@@ -4,12 +4,36 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import AddEnRouteButton from "@/components/add-en-route-button";
 import ProductReviews from "@/components/product-reviews";
-import { getApprovedReviews } from "@/lib/sanity/data";
+import { getApprovedReviews, getLiveObjectBySlug } from "@/lib/sanity/data";
 import { summarizeReviews } from "@/lib/reviews";
 
+import {
+  buildBreadcrumbSchema,
+  buildGraph,
+  buildProductSchema,
+} from "@/lib/seo/schema";
+
 export const metadata = {
-  title: "En Route | Ligero Parfum",
-  description: "For the drive.",
+  title: "En Route Car Perfume",
+  description:
+    "En Route cabin diffuser by Ligero Parfum, formulated for the drive at INR 499 with complimentary domestic surface shipping across India.",
+  alternates: {
+    canonical: "/objects/en-route",
+  },
+  openGraph: {
+    title: "En Route Car Perfume | Ligero Parfum",
+    description:
+      "En Route cabin diffuser formulated for the drive at INR 499.",
+    url: "/objects/en-route",
+    images: ["/images/objects/car-perfume-floating.webp"],
+  },
+  twitter: {
+    card: "summary_large_image" as const,
+    title: "En Route Car Perfume | Ligero Parfum",
+    description:
+      "En Route cabin diffuser formulated for the drive at INR 499.",
+    images: ["/images/objects/car-perfume-floating.webp"],
+  },
 };
 
 /**
@@ -18,35 +42,38 @@ export const metadata = {
  * and verified collector reviews.
  */
 export default async function EnRoutePage() {
-  const reviews = await getApprovedReviews("en-route");
+  const [reviews, enRoute] = await Promise.all([
+    getApprovedReviews("en-route"),
+    getLiveObjectBySlug("en-route"),
+  ]);
   const reviewSummary = summarizeReviews(reviews);
 
-  const jsonLd: Record<string, unknown> = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: "En Route",
-    description: "For the drive.",
-    image: ["/images/objects/car-perfume-floating.webp"],
-    brand: {
-      "@type": "Brand",
-      name: "Ligero Parfum",
-    },
-    offers: {
-      "@type": "Offer",
-      priceCurrency: "INR",
-      price: 499,
-      availability: "https://schema.org/InStock",
-      url: "https://ligeroparfums.com/objects/en-route",
-    },
-  };
+  const objectName = enRoute?.name || "En Route";
+  const objectDescription = enRoute?.description || "For the drive.";
+  const objectPrice = enRoute?.price ?? 499;
+  const objectVolume = enRoute?.volume || "Car Perfume · Cabin Diffuser";
+  const objectImage =
+    enRoute?.image || "/images/objects/car-perfume-floating.webp";
 
-  if (reviewSummary) {
-    jsonLd.aggregateRating = {
-      "@type": "AggregateRating",
-      ratingValue: Number(reviewSummary.average.toFixed(2)),
-      reviewCount: reviewSummary.count,
-    };
-  }
+  const jsonLd = buildGraph([
+    buildProductSchema({
+      name: objectName,
+      slug: "en-route",
+      path: "/objects/en-route",
+      description: `${objectDescription} ${objectVolume}.`,
+      images: [objectImage],
+      price: objectPrice,
+      category: "Car Fragrance Diffuser",
+      size: objectVolume,
+      reviewSummary,
+      reviews,
+    }),
+    buildBreadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Objects", path: "/objects" },
+      { name: objectName, path: "/objects/en-route" },
+    ]),
+  ]);
 
   return (
     <div className="min-h-screen bg-aube-base text-aube-text">
@@ -58,25 +85,26 @@ export default async function EnRoutePage() {
       <SiteHeader />
 
       <main className="pt-[var(--header-offset)]">
-        <div className="mx-auto max-w-[112rem] px-6 pb-28 pt-8 sm:px-10 sm:pt-12 lg:px-16">
-          <nav aria-label="Breadcrumb" className="pb-8">
+        <div className="mx-auto max-w-[112rem] px-5 pb-16 pt-4 sm:px-10 sm:pb-28 sm:pt-12 lg:px-16">
+          <nav aria-label="Breadcrumb" className="pb-4 sm:pb-8">
             <Link
               href="/objects"
-              className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-aube-text-muted transition-colors hover:text-aube-accent"
+              className="inline-flex min-h-11 items-center gap-2 text-xs uppercase tracking-[0.22em] text-aube-text-muted transition-colors hover:text-aube-accent"
             >
               <span aria-hidden="true">←</span>
               <span>Objects</span>
             </Link>
           </nav>
 
-          <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12 lg:gap-16">
+          <div className="grid grid-cols-1 items-start gap-6 sm:gap-10 lg:grid-cols-12 lg:gap-16">
             <div className="lg:col-span-7">
-              <div className="relative aspect-[16/10] w-full overflow-hidden border border-aube-hairline bg-gradient-to-br from-[#ece8e0] via-[#f6f4ef] to-[#fdfcfa] p-6 sm:p-10">
+              <div className="relative aspect-[16/10] max-h-[240px] w-full overflow-hidden border border-aube-hairline bg-gradient-to-br from-[#ece8e0] via-[#f6f4ef] to-[#fdfcfa] p-4 sm:max-h-none sm:p-10">
                 <Image
-                  src="/images/objects/car-perfume-floating.webp"
-                  alt="En Route car perfume"
+                  src={objectImage}
+                  alt={`${objectName} car perfume`}
                   fill
                   priority
+                  fetchPriority="high"
                   sizes="(max-width: 1024px) 100vw, 58vw"
                   className="object-contain object-center drop-shadow-[0_20px_30px_rgba(28,20,14,0.16)]"
                 />
@@ -84,17 +112,17 @@ export default async function EnRoutePage() {
             </div>
 
             <div className="flex flex-col items-start lg:col-span-5">
-              <h1 className="font-display text-6xl font-light italic leading-[0.98] text-aube-text sm:text-7xl">
-                En Route
+              <h1 className="font-display text-4xl font-light italic leading-[1.02] text-aube-text sm:text-6xl lg:text-7xl">
+                {objectName}
               </h1>
 
-              <p className="mt-4 font-display text-2xl font-light italic text-aube-text">
-                For the drive.
+              <p className="mt-2.5 font-display text-lg font-light italic text-aube-text sm:mt-4 sm:text-2xl">
+                {objectDescription}
               </p>
 
-              <div className="mt-6 flex w-full items-baseline gap-3 border-t border-b border-aube-hairline py-4">
-                <span className="font-display text-4xl font-light tabular-nums">
-                  499
+              <div className="mt-4 flex w-full items-baseline gap-3 border-t border-b border-aube-hairline py-3 sm:mt-6 sm:py-4">
+                <span className="font-display text-3xl font-light tabular-nums sm:text-4xl">
+                  {objectPrice}
                 </span>
                 <span className="text-xs text-aube-text-muted">
                   Inclusive of all taxes.
@@ -104,7 +132,7 @@ export default async function EnRoutePage() {
               {reviewSummary && reviewSummary.count > 0 ? (
                 <a
                   href="#reviews-section"
-                  className="mt-3 inline-flex items-center gap-1.5 font-body text-xs text-aube-text transition-opacity hover:opacity-75"
+                  className="mt-2 inline-flex min-h-11 items-center gap-1.5 font-body text-xs text-aube-text transition-opacity hover:opacity-75 sm:mt-3"
                 >
                   <span aria-hidden="true" className="tracking-[0.12em] text-[11px] text-[#C6A15B]">
                     {"★".repeat(Math.round(reviewSummary.average))}
@@ -116,17 +144,24 @@ export default async function EnRoutePage() {
               ) : (
                 <a
                   href="#reviews-section"
-                  className="mt-3 inline-block font-body text-[11px] text-aube-text-muted underline-offset-4 hover:underline"
+                  className="mt-2 inline-flex min-h-11 items-center font-body text-[11px] text-aube-text-muted underline-offset-4 hover:underline sm:mt-3"
                 >
                   Write a review
                 </a>
               )}
 
-              <AddEnRouteButton className="mt-6 w-full text-center" />
+              <AddEnRouteButton
+                className="mt-4 min-h-11 w-full text-center sm:mt-6"
+                slug="en-route"
+                name={objectName}
+                price={objectPrice}
+                volume={objectVolume}
+                image={objectImage}
+              />
 
-              <div className="mt-8 w-full divide-y divide-aube-hairline border-t border-b border-aube-hairline">
-                <details className="group py-4">
-                  <summary className="flex cursor-pointer list-none items-center justify-between text-xs uppercase tracking-[0.2em]">
+              <div className="mt-5 w-full divide-y divide-aube-hairline border-t border-b border-aube-hairline sm:mt-8">
+                <details className="group py-2 sm:py-4">
+                  <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-xs uppercase tracking-[0.2em]">
                     <span>Declarations</span>
                     <span aria-hidden="true" className="text-aube-text-muted transition-transform duration-200 group-open:rotate-45">
                       +
@@ -143,7 +178,7 @@ export default async function EnRoutePage() {
                     </div>
                     <div>
                       <dt className="inline font-medium">MRP:</dt>{" "}
-                      <dd className="inline">₹499, inclusive of all taxes</dd>
+                      <dd className="inline">₹{objectPrice}, inclusive of all taxes</dd>
                     </div>
                     <div>
                       <dt className="inline font-medium">Marketed and customer care by:</dt>{" "}

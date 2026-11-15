@@ -14,7 +14,6 @@ const LEGAL_ROUTES = [
   "/legal/terms",
   "/legal/shipping-returns",
   "/legal/compliance-checklist",
-  "/legal/grievance",
 ];
 
 async function run() {

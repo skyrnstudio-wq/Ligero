@@ -37,7 +37,7 @@ export default function PrivateSalon({
       <section
         id="correspondence"
         aria-labelledby="correspondence-strip-heading"
-        className="border-t border-pdp-hairline bg-pdp-surface py-12 text-pdp-text sm:py-16"
+        className="border-t border-pdp-hairline bg-pdp-surface py-9 text-pdp-text sm:py-16"
       >
         <div className="mx-auto flex max-w-[96rem] flex-col justify-between gap-8 px-6 sm:px-10 lg:flex-row lg:items-end lg:px-16">
           <div className="max-w-md">
@@ -79,6 +79,7 @@ export default function PrivateSalon({
                   <input
                     id="correspondence-strip-email"
                     type="email"
+                    required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     autoComplete="email"
@@ -87,12 +88,12 @@ export default function PrivateSalon({
                     aria-describedby={
                       error ? "correspondence-strip-error" : undefined
                     }
-                    className="w-full bg-transparent font-body text-sm text-pdp-text placeholder:text-pdp-muted/60 focus:outline-none"
+                    className="w-full min-h-11 bg-transparent font-body text-base text-pdp-text placeholder:text-pdp-muted/60 focus:outline-none sm:text-sm"
                   />
                   <button
                     type="submit"
                     aria-label="Subscribe to the Correspondence"
-                    className="ml-3 inline-flex h-8 w-8 shrink-0 items-center justify-center text-pdp-text transition-transform duration-200 hover:translate-x-1 hover:text-pdp-accent"
+                    className="ml-2 inline-flex h-11 w-11 min-h-11 min-w-11 shrink-0 items-center justify-center text-pdp-text transition-transform duration-200 hover:translate-x-1 hover:text-pdp-accent"
                   >
                     <span aria-hidden="true" className="text-base leading-none">
                       →
@@ -120,7 +121,7 @@ export default function PrivateSalon({
     <section
       id="correspondence"
       aria-labelledby="correspondence-heading"
-      className="border-t border-aube-hairline bg-aube-surface py-20 text-aube-text sm:py-24 lg:py-28"
+      className="border-t border-aube-hairline bg-aube-surface py-12 text-aube-text sm:py-24 lg:py-28"
     >
       <div className="mx-auto max-w-2xl px-6 sm:px-10">
         <h2

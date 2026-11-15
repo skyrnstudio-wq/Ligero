@@ -4,10 +4,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { motion, useMotionValueEvent, useScroll } from "motion/react";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
 import { useCase } from "@/context/case-context";
-import { PERFUMES, OBJECTS } from "@/lib/products";
-import NavDrawer from "./nav-drawer";
+import { useCatalog } from "@/context/catalog-context";
+import {
+  SEARCH_OCCASIONS,
+  normalizeSearchText,
+  getSearchKeywordsForOccasions,
+  getPerfumeCutoutImage,
+} from "@/lib/products";
+import NavDrawer from "./lazy-nav-drawer";
 
 interface SiteHeaderProps {
   isDark?: boolean;
@@ -30,11 +36,42 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { totalCount, setIsCaseOpen } = useCase();
+  const { perfumes, objects } = useCatalog();
   const lastY = useRef(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { scrollY } = useScroll();
+
+  // Intro loader completion state
+  const isHome = pathname === "/";
+  const [introDone, setIntroDone] = useState(() => {
+    if (typeof window !== "undefined") {
+      if (window.location.pathname !== "/") return true;
+      if (window.__ligeroIntroDone) return true;
+    }
+    return !isHome;
+  });
+
+  useEffect(() => {
+    if (!isHome) {
+      setIntroDone(true);
+      return;
+    }
+
+    if (
+      typeof window !== "undefined" &&
+      (window.__ligeroIntroDone ||
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    ) {
+      setIntroDone(true);
+      return;
+    }
+
+    const onIntroDone = () => setIntroDone(true);
+    window.addEventListener("ligero:intro-done", onIntroDone);
+    return () => window.removeEventListener("ligero:intro-done", onIntroDone);
+  }, [isHome]);
 
   useMotionValueEvent(scrollY, "change", (y) => {
     const prev = lastY.current;
@@ -44,12 +81,37 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
 
     if (y < 96) {
       setHidden(false);
-    } else if (delta > 5 && !searchOpen && !collectionOpen) {
+    } else if (delta > 5 && !(prev === 0 && y >= 750) && !searchOpen && !collectionOpen) {
       setHidden(true);
     } else if (delta < -4) {
       setHidden(false);
     }
   });
+
+  useEffect(() => {
+    const y = window.scrollY;
+    lastY.current = y;
+    if (y > 8) setScrolled(true);
+  }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onChange = (e: MediaQueryListEvent) => {
+      if (e.matches) setDrawerOpen(false);
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--sticky-top",
+      hidden ? "0px" : "var(--header-offset)"
+    );
+    return () => {
+      document.documentElement.style.removeProperty("--sticky-top");
+    };
+  }, [hidden]);
 
   useEffect(() => {
     if (searchOpen) {
@@ -77,35 +139,45 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
 
   const scheduleCloseCollection = () => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-    closeTimerRef.current = setTimeout(() => setCollectionOpen(false), 140);
+    closeTimerRef.current = setTimeout(() => setCollectionOpen(false), 280);
   };
 
   const searchResults = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
+    const q = normalizeSearchText(searchQuery);
     const allItems = [
-      ...PERFUMES.map((p) => ({
+      ...perfumes.map((p) => ({
         name: p.name,
         subtitle: p.scentProfile.family,
-        notes: p.notesUppercase,
+        notes: `${p.notesUppercase} ${p.oneLiner} ${p.scentProfile.top} ${p.scentProfile.heart} ${p.scentProfile.base}`,
+        occasions: p.occasions ?? [],
+        occasionKeywords: getSearchKeywordsForOccasions(p.occasions),
         href: `/collection/${p.slug}`,
-        image: `/images/perfumes/cutouts/${p.slug}.webp?v=2`,
+        image: getPerfumeCutoutImage(p),
       })),
-      ...OBJECTS.map((o) => ({
+      ...objects.map((o) => ({
         name: o.name,
         subtitle: o.spec,
         notes: o.description,
-        href: o.slug === "discovery-set" ? "/discovery-set" : "/objects/en-route",
+        occasions: o.occasions ?? [],
+        occasionKeywords: getSearchKeywordsForOccasions(o.occasions),
+        href:
+          o.slug === "discovery-set"
+            ? "/discovery-set"
+            : o.slug === "en-route"
+              ? "/objects/en-route"
+              : `/objects#${o.slug}`,
         image: o.image,
       })),
     ];
     if (!q) return allItems.slice(0, 5);
     return allItems.filter(
       (item) =>
-        item.name.toLowerCase().includes(q) ||
-        item.subtitle.toLowerCase().includes(q) ||
-        item.notes.toLowerCase().includes(q)
+        normalizeSearchText(item.name).includes(q) ||
+        normalizeSearchText(item.subtitle).includes(q) ||
+        normalizeSearchText(item.notes).includes(q) ||
+        item.occasionKeywords.some((kw) => kw.includes(q) || q.includes(kw))
     );
-  }, [searchQuery]);
+  }, [searchQuery, perfumes, objects]);
 
   const headerBg = "bg-[#1c140e]/95 text-[#f3ede3]";
   const borderRule = "border-b border-[#382a20]/90";
@@ -140,11 +212,15 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
         animate={{ y: hidden ? "-100%" : "0%" }}
         transition={{ duration: 0.42, ease: [0.32, 0.72, 0, 1] }}
         onMouseLeave={scheduleCloseCollection}
-        className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${headerBg} ${borderRule} ${shadowRule} ${blurRule}`}
+        className={`fixed inset-x-0 top-0 z-40 transition-colors duration-300 ${headerBg} ${borderRule} ${shadowRule} ${blurRule}`}
       >
         <div className="relative mx-auto flex h-16 w-full max-w-[112rem] items-center justify-between px-2.5 sm:h-[70px] sm:px-10 lg:h-[72px] lg:px-14 xl:px-20">
           {/* Left: Mobile Menu trigger OR Desktop "Collection · Discovery Set" */}
-          <div className="flex flex-1 items-center gap-6 lg:gap-9">
+          <div
+            className={`flex flex-1 items-center gap-6 lg:gap-9 transition-opacity duration-700 ${
+              introDone ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
+          >
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
@@ -176,6 +252,11 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
                 >
                   Collection
                 </Link>
+                <span
+                  className={`pointer-events-none absolute -bottom-1 left-0 right-0 h-[1.5px] bg-[#d89f68] origin-left transition-all duration-500 ease-out ${
+                    collectionOpen ? "scale-x-100 opacity-100" : "scale-x-0 opacity-0"
+                  }`}
+                />
               </div>
 
               <Link
@@ -191,12 +272,14 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
           {/* Center: Maison Crest */}
           <Link
             href="/"
-            aria-label="Ligero Parfum, home"
+            aria-label="Ligéro Parfums — Home"
             onClick={() => {
               setCollectionOpen(false);
               setSearchOpen(false);
             }}
-            className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center transition-opacity duration-300 hover:opacity-85"
+            className={`absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center hover:opacity-85 ${
+              introDone ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
           >
             <div
               id="site-header-logo-target"
@@ -217,7 +300,11 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
           </Link>
 
           {/* Right: Search + Case */}
-          <div className="flex flex-1 items-center justify-end gap-1 sm:gap-6 lg:gap-8">
+          <div
+            className={`flex flex-1 items-center justify-end gap-1 sm:gap-6 lg:gap-8 transition-opacity duration-700 ${
+              introDone ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
+          >
             <button
               type="button"
               onClick={() => {
@@ -284,130 +371,198 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
         </div>
 
         {/* Collection Hover Panel: Seven bottle cutouts, name under each, no prices */}
-        {collectionOpen && (
-          <div
-            id="collection-cutout-panel"
-            role="region"
-            aria-label="The seven perfumes"
-            onMouseEnter={openCollection}
-            onMouseLeave={scheduleCloseCollection}
-            className={`hidden lg:block px-10 py-8 xl:px-20 ${panelSurface}`}
-          >
-            <div className="mx-auto max-w-[112rem]">
-              <ul className="grid grid-cols-7 gap-6">
-                {PERFUMES.map((perfume) => {
-                  const cutout = `/images/perfumes/cutouts/${perfume.slug}.webp?v=2`;
-                  return (
-                    <li key={perfume.slug}>
-                      <Link
-                        href={`/collection/${perfume.slug}`}
-                        onClick={() => setCollectionOpen(false)}
-                        className="group flex flex-col items-center text-center"
-                      >
-                        <div className="relative aspect-[3/4] w-full max-w-[130px] overflow-hidden">
-                          <Image
-                            src={cutout}
-                            alt={`${perfume.name} bottle`}
-                            fill
-                            sizes="130px"
-                            className="object-contain p-2 [filter:drop-shadow(-8px_12px_16px_rgba(0,0,0,0.55))_drop-shadow(0_4px_8px_rgba(0,0,0,0.35))] transition-transform duration-500 group-hover:-translate-y-1"
-                          />
-                        </div>
-                        <span className="mt-2 font-display text-xl font-light italic transition-colors group-hover:text-[#d89f68]">
-                          {perfume.name}
-                        </span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {collectionOpen && (
+            <motion.div
+              id="collection-cutout-panel"
+              role="region"
+              aria-label="The seven perfumes"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{
+                duration: 0.45,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              onMouseEnter={openCollection}
+              onMouseLeave={scheduleCloseCollection}
+              className={`absolute top-full left-0 right-0 hidden lg:block px-10 py-8 xl:px-20 ${panelSurface} shadow-[0_24px_48px_rgba(0,0,0,0.5)]`}
+            >
+              <div className="mx-auto max-w-[112rem]">
+                <ul
+                  className={
+                    perfumes.length <= 7
+                      ? "grid grid-cols-7 gap-6"
+                      : "grid grid-cols-4 gap-6 xl:grid-cols-8"
+                  }
+                >
+                  {perfumes.map((perfume) => {
+                    const cutout = getPerfumeCutoutImage(perfume);
+                    return (
+                      <li key={perfume.slug}>
+                        <Link
+                          href={`/collection/${perfume.slug}`}
+                          onClick={() => setCollectionOpen(false)}
+                          className="group flex flex-col items-center text-center"
+                        >
+                          <div className="relative aspect-[3/4] w-full max-w-[130px] overflow-hidden">
+                            <Image
+                              src={cutout}
+                              alt={`${perfume.name} bottle`}
+                              fill
+                              sizes="130px"
+                              className="object-contain p-2 [filter:drop-shadow(-8px_12px_16px_rgba(0,0,0,0.55))_drop-shadow(0_4px_8px_rgba(0,0,0,0.35))] transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105"
+                            />
+                          </div>
+                          <span className="mt-2 font-display text-xl font-light italic transition-colors duration-300 group-hover:text-[#d89f68]">
+                            {perfume.name}
+                          </span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Search Panel */}
-        {searchOpen && (
-          <div
-            id="maison-search-panel"
-            role="region"
-            aria-label="Search Ligero creations"
-            className={`px-6 py-6 sm:px-10 lg:px-20 ${panelSurface}`}
-          >
-            <div className="mx-auto max-w-4xl">
-              <div className="flex items-center gap-3 border-b border-[#382a20] pb-3">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  aria-hidden="true"
-                  className={textMuted}
-                >
-                  <circle cx="11" cy="11" r="7.5" />
-                  <line x1="20" y1="20" x2="16.35" y2="16.35" />
-                </svg>
-                <label htmlFor="maison-search-input" className="sr-only">
-                  Search perfumes, notes, or objects
-                </label>
-                <input
-                  id="maison-search-input"
-                  ref={searchInputRef}
-                  type="search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by perfume, note (jasmine, cacao, bergamot), or object..."
-                  className={`w-full bg-transparent text-base ${textPrimary} placeholder:text-[#b09f8f]/60 focus:outline-none sm:text-sm`}
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchOpen(false);
-                    setSearchQuery("");
-                  }}
-                  className={`min-h-11 px-2 text-[11px] uppercase tracking-[0.18em] ${textMuted} ${hoverAccent}`}
-                >
-                  Close
-                </button>
-              </div>
-
-              <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                {searchResults.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setSearchOpen(false)}
-                    className="group flex items-center gap-3 border border-[#382a20] bg-[#251b14]/70 p-2.5 transition-colors hover:border-[#d89f68]"
+        <AnimatePresence>
+          {searchOpen && (
+            <motion.div
+              id="maison-search-panel"
+              role="region"
+              aria-label="Search Ligero creations"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className={`absolute top-full left-0 right-0 max-h-[calc(100dvh-var(--header-offset))] overflow-y-auto px-4 py-4 sm:px-10 sm:py-6 lg:px-20 ${panelSurface} shadow-[0_24px_48px_rgba(0,0,0,0.5)]`}
+            >
+              <div className="mx-auto max-w-4xl">
+                <div className="flex items-center gap-3 border-b border-[#382a20] pb-3">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    aria-hidden="true"
+                    className={textMuted}
                   >
-                    <div className="relative h-12 w-12 shrink-0 overflow-hidden">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        sizes="48px"
-                        className="object-contain p-1"
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate font-display text-lg font-light italic">
-                        {item.name}
-                      </p>
-                      <p className={`truncate text-[10px] uppercase tracking-[0.14em] ${textMuted}`}>
-                        {item.subtitle}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-                {searchResults.length === 0 && (
-                  <p className={`col-span-full py-2 text-xs ${textMuted}`}>
-                    Nothing matched &ldquo;{searchQuery}&rdquo;. Try Noctis, AUBE, Fleur, or the Discovery Set.
-                  </p>
-                )}
+                    <circle cx="11" cy="11" r="7.5" />
+                    <line x1="20" y1="20" x2="16.35" y2="16.35" />
+                  </svg>
+                  <label htmlFor="maison-search-input" className="sr-only">
+                    Search perfumes, notes, occasions, or objects
+                  </label>
+                  <input
+                    id="maison-search-input"
+                    ref={searchInputRef}
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by perfume, note (jasmine, cacao), occasion (party, sports, gym), or object..."
+                    className={`w-full bg-transparent text-base ${textPrimary} placeholder:text-[#b09f8f]/60 focus:outline-none sm:text-sm`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchOpen(false);
+                      setSearchQuery("");
+                    }}
+                    className={`min-h-11 px-2 text-[11px] uppercase tracking-[0.18em] ${textMuted} ${hoverAccent}`}
+                  >
+                    Close
+                  </button>
+                </div>
+
+                {/* Occasion Quick Filters */}
+                <div
+                  className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar touch-pan-x sm:flex-wrap sm:overflow-visible sm:pb-0"
+                  role="group"
+                  aria-label="Filter search by occasion"
+                >
+                  <span className="mr-1 shrink-0 text-[10px] uppercase tracking-[0.18em] text-[#b09f8f]">
+                    Occasions
+                  </span>
+                  {SEARCH_OCCASIONS.map((occasion) => {
+                    const isActive =
+                      normalizeSearchText(searchQuery) === normalizeSearchText(occasion);
+                    return (
+                      <button
+                        key={occasion}
+                        type="button"
+                        aria-pressed={isActive}
+                        onClick={() => setSearchQuery(isActive ? "" : occasion)}
+                        className={`inline-flex min-h-11 shrink-0 items-center border px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] transition-colors ${
+                          isActive
+                            ? "border-[#d89f68] bg-[#d89f68]/20 text-[#E5B285]"
+                            : "border-[#382a20] bg-[#251b14]/50 text-[#E6DDD0] hover:border-[#d89f68]/70 hover:text-[#FDFBF7]"
+                        }`}
+                      >
+                        {occasion}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-5">
+                  {searchResults.map((item) => {
+                    const normalizedQ = normalizeSearchText(searchQuery);
+                    const sortedOccasions = normalizedQ
+                      ? [...item.occasions].sort((a, b) => {
+                          const aMatch = normalizeSearchText(a).includes(normalizedQ) ? 0 : 1;
+                          const bMatch = normalizeSearchText(b).includes(normalizedQ) ? 0 : 1;
+                          return aMatch - bMatch;
+                        })
+                      : item.occasions;
+                    const occasionLabel = sortedOccasions.slice(0, 3).join(" · ");
+
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        onClick={() => setSearchOpen(false)}
+                        className="group flex items-center gap-3 border border-[#382a20] bg-[#251b14]/70 p-2.5 transition-colors hover:border-[#d89f68]"
+                      >
+                        <div className="relative h-12 w-12 shrink-0 overflow-hidden">
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            fill
+                            sizes="48px"
+                            className="object-contain p-1"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate font-display text-lg font-light italic">
+                            {item.name}
+                          </p>
+                          <p className={`truncate text-[10px] uppercase tracking-[0.14em] ${textMuted}`}>
+                            {item.subtitle}
+                          </p>
+                          {occasionLabel && (
+                            <p className="mt-0.5 truncate text-[10px] tracking-[0.06em] text-[#d89f68]/85">
+                              {occasionLabel}
+                            </p>
+                          )}
+                        </div>
+                      </Link>
+                    );
+                  })}
+                  {searchResults.length === 0 && (
+                    <p className={`col-span-full py-2 text-xs ${textMuted}`}>
+                      Nothing matched &ldquo;{searchQuery}&rdquo;. Try Noctis, Aubé, or an occasion like Party, Sports, Gym, or Wedding.
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.header>
 
       <NavDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} isDark={true} />

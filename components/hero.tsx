@@ -24,6 +24,10 @@ export default function Hero() {
     if (!section) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    const supportsScrollTimeline = CSS.supports(
+      "(animation-timeline: view()) and (animation-range: entry)"
+    );
+
     let rafId = 0;
     let targetPointerX = 0;
     let targetPointerY = 0;
@@ -50,7 +54,9 @@ export default function Hero() {
 
       const bottleY = scrollProgress * -18 + currentPointerY * 18;
       const bottleX = currentPointerX * 22;
-      const bottleRotate = scrollProgress * -1.8 + currentPointerX * 2.2;
+      const straightenProgress = Math.min(scrollProgress / 0.75, 1);
+      const scrollBottleRotate = supportsScrollTimeline ? 0 : straightenProgress * 16.4;
+      const bottleRotate = scrollBottleRotate + currentPointerX * 2.2;
       const bottleScale = 1 - scrollProgress * 0.04;
 
       const topRightY = scrollProgress * -16 + currentPointerY * 8;
@@ -111,19 +117,25 @@ export default function Hero() {
       scheduleTick();
     };
 
+    const supportsHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
     readScroll();
     scheduleTick();
 
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
-    section.addEventListener("pointermove", onPointerMove, { passive: true });
-    section.addEventListener("pointerleave", onPointerLeave, { passive: true });
+    if (supportsHover) {
+      section.addEventListener("pointermove", onPointerMove, { passive: true });
+      section.addEventListener("pointerleave", onPointerLeave, { passive: true });
+    }
 
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
-      section.removeEventListener("pointermove", onPointerMove);
-      section.removeEventListener("pointerleave", onPointerLeave);
+      if (supportsHover) {
+        section.removeEventListener("pointermove", onPointerMove);
+        section.removeEventListener("pointerleave", onPointerLeave);
+      }
       if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
@@ -131,7 +143,7 @@ export default function Hero() {
   return (
     <section
       ref={sectionRef}
-      aria-label="Ligero Parfum Campaign"
+      aria-label="Hero"
       className="relative flex min-h-svh flex-col justify-between overflow-hidden bg-aube-base"
       style={{
         backgroundImage: `
@@ -158,18 +170,19 @@ export default function Hero() {
       </div>
 
       {/* Centered Ligéro Parfum Cutout */}
-      <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center px-6 pt-16 pb-8 sm:pt-20 lg:py-16">
+      <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center px-6 pt-20 pb-6 sm:pt-20 sm:pb-8 lg:py-16">
         <div
           ref={bottleRef}
-          className="relative h-[52%] w-full max-w-[400px] sm:h-[60%] sm:max-w-[460px] lg:h-[70%] lg:max-h-[600px] lg:max-w-[520px] will-change-transform"
+          className="relative h-[40%] w-full max-w-[260px] sm:h-[60%] sm:max-w-[460px] lg:h-[70%] lg:max-h-[600px] lg:max-w-[520px] will-change-transform"
         >
           <Image
             src={HERO_IMAGE}
             alt="Ligéro Parfums signature amber flacon"
             fill
             priority
+            fetchPriority="high"
             sizes="(max-width: 1024px) 85vw, 50vw"
-            className="object-contain object-center select-none [filter:drop-shadow(-22px_32px_42px_rgba(44,30,18,0.28))_drop-shadow(0_10px_18px_rgba(44,30,18,0.16))]"
+            className="hero-bottle-straighten object-contain object-center select-none [filter:drop-shadow(-22px_32px_42px_rgba(44,30,18,0.28))_drop-shadow(0_10px_18px_rgba(44,30,18,0.16))]"
           />
         </div>
       </div>
@@ -194,13 +207,13 @@ export default function Hero() {
       />
 
       {/* Diagonal editorial layout: Top-Right & Bottom-Left framing the centered flacon */}
-      <div className="relative z-10 flex flex-1 flex-col justify-between px-6 pb-12 pt-28 sm:px-10 sm:pt-32 lg:px-16 lg:pb-16 lg:pt-32 xl:px-24">
+      <div className="relative z-10 flex flex-1 flex-col justify-between px-5 pb-6 pt-[4.5rem] sm:px-10 sm:pb-12 sm:pt-32 lg:px-16 lg:pb-16 lg:pt-32 xl:px-24">
         {/* Top-Right Text Block */}
         <div
           ref={topRightRef}
-          className="ml-auto max-w-[19rem] text-right sm:max-w-[23rem] lg:max-w-[25rem] xl:max-w-[27rem] will-change-transform"
+          className="ml-auto max-w-[16rem] text-right sm:max-w-[23rem] lg:max-w-[25rem] xl:max-w-[27rem] will-change-transform"
         >
-          <p className="font-body text-sm leading-relaxed text-aube-text/85 sm:text-base lg:text-[1.05rem]">
+          <p className="font-body text-[13px] leading-[1.45] text-aube-text/85 sm:text-base lg:text-[1.05rem]">
             Rare botanicals, slow-cured resins, and an intoxicating sillage designed to become your second skin. Indulge in an olfactory statement that lingers long after you leave.
           </p>
         </div>
@@ -210,17 +223,18 @@ export default function Hero() {
           ref={bottomLeftRef}
           className="mr-auto mt-auto max-w-[21rem] text-left sm:max-w-[28rem] lg:max-w-[31rem] xl:max-w-[35rem] will-change-transform"
         >
-          <h1 className="font-display text-4xl font-light leading-[1.1] tracking-[-0.01em] text-aube-text sm:text-5xl lg:text-[3.5rem] xl:text-[4rem]">
+          <h1 className="font-display text-[1.85rem] font-light leading-[1.08] tracking-[-0.01em] text-aube-text sm:text-5xl lg:text-[3.5rem] xl:text-[4rem]">
+            <span className="sr-only">Ligéro Parfums — </span>
             An intimate obsession.
             <span className="mt-1.5 block italic font-light text-aube-text">
               Crafted to be unforgettable.
             </span>
           </h1>
 
-          <div className="mt-7 flex flex-wrap items-center gap-6">
+          <div className="mt-4 flex flex-wrap items-center gap-6 sm:mt-7">
             <a
               href="/collection"
-              className="group font-body inline-flex items-center gap-3 border-b border-aube-accent pb-1.5 text-xs font-medium uppercase tracking-[0.22em] text-aube-text transition-all hover:text-aube-accent hover:border-aube-text"
+              className="group font-body inline-flex min-h-11 items-center gap-3 border-b border-aube-accent py-2 text-xs font-medium uppercase tracking-[0.22em] text-aube-text transition-all hover:text-aube-accent hover:border-aube-text"
             >
               <span>Discover Your Signature</span>
               <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>

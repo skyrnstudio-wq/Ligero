@@ -29,7 +29,7 @@ export default function ProductRitual({ product }: ProductRitualProps) {
   return (
     <section
       aria-labelledby="application-ritual-heading"
-      className="relative mx-auto max-w-[96rem] px-6 py-16 sm:px-10 sm:py-24 lg:px-16"
+      className="relative mx-auto max-w-[96rem] overflow-hidden px-6 py-10 sm:px-10 sm:py-24 lg:px-16"
     >
       {/* Soft gradient ambient glow in empty background */}
       <div
@@ -41,28 +41,28 @@ export default function ProductRitual({ product }: ProductRitualProps) {
         className="pointer-events-none absolute right-10 bottom-10 h-64 w-64 rounded-full bg-gradient-to-tl from-pdp-accent/10 to-transparent blur-2xl"
       />
 
-      <div className="relative flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b border-pdp-hairline pb-8">
+      <div className="relative flex flex-col gap-3 border-b border-pdp-hairline pb-5 sm:pb-8 md:flex-row md:items-end md:justify-between md:gap-4">
         <div>
           <p className="font-body text-[9.5px] font-semibold uppercase tracking-[0.24em] text-pdp-accent">
             The Sensory Ritual
           </p>
           <h2
             id="application-ritual-heading"
-            className="mt-2 font-display text-3xl font-normal tracking-[-0.01em] text-pdp-text sm:text-4xl lg:text-[2.65rem] leading-[1.08]"
+            className="mt-1.5 font-display text-2xl font-normal tracking-[-0.01em] text-pdp-text sm:mt-2 sm:text-4xl lg:text-[2.65rem] leading-[1.08]"
           >
             How to Wear {product.name}
           </h2>
         </div>
         <p className="max-w-md font-body text-xs leading-relaxed text-pdp-muted">
-          Extrait de Parfum possesses three times the oil density of conventional Eau de Parfum. A measured ritual unlocks its full dimensional sillage.
+          Formulated with high-grade perfume absolutes and botanical oils. A measured ritual unlocks its full dimensional sillage.
         </p>
       </div>
 
-      <div className="relative mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3 lg:gap-8">
+      <div className="relative -mx-6 mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 no-scrollbar touch-pan-x sm:mx-0 sm:mt-10 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 lg:gap-8">
         {steps.map((s) => (
           <article
             key={s.num}
-            className="group relative flex flex-col justify-between overflow-hidden border border-pdp-hairline bg-gradient-to-b from-pdp-surface/80 via-pdp-surface2/40 to-pdp-base p-6 sm:p-7 backdrop-blur-sm transition-all duration-300 hover:border-pdp-accent/40 hover:shadow-lg"
+            className="group relative flex w-[80vw] shrink-0 snap-start flex-col justify-between overflow-hidden border border-pdp-hairline bg-gradient-to-b from-pdp-surface/80 via-pdp-surface2/40 to-pdp-base p-5 backdrop-blur-sm transition-all duration-300 hover:border-pdp-accent/40 hover:shadow-lg sm:w-auto sm:p-7"
           >
             {/* Top gradient highlight on hover */}
             <div

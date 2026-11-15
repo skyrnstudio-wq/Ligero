@@ -129,6 +129,13 @@ export const perfume = defineType({
       type: 'array',
       of: [defineArrayMember({ type: 'reference', to: [{ type: 'perfume' }] })],
     }),
+    defineField({
+      name: 'occasions',
+      title: 'Wear Occasions',
+      type: 'array',
+      of: [{ type: 'string' }],
+      description: 'Occasions where this fragrance shines (e.g. Party, Sports, Gym, Date Night, Office, Wedding)',
+    }),
   ],
   preview: {
     select: {

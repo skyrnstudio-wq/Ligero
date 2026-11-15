@@ -41,7 +41,7 @@ export const keyIngredient = defineType({
   preview: {
     select: {
       title: 'name',
-      subtitle: 'origin',
+      subtitle: 'note',
       media: 'image',
     },
   },

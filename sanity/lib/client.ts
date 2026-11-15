@@ -5,7 +5,7 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: false, // With Next.js 15 App Router caching & ISR, CDN is bypassed to leverage Next.js fetch tags
+  useCdn: true, // Leverage Sanity Edge CDN for public storefront reads alongside Next.js ISR tags
 })
 
 export async function sanityFetch<T = any, const QueryString extends string = string>({

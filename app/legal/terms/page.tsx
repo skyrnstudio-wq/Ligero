@@ -3,8 +3,11 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 
 export const metadata = {
-  title: "Terms of Sale and Use — Ligero Parfum",
+  title: "Terms of Sale and Use",
   description: "Terms governing orders and website usage for Ligero Parfum.",
+  alternates: {
+    canonical: "/legal/terms",
+  },
 };
 
 export default function TermsPage() {

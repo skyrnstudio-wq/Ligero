@@ -68,6 +68,16 @@
     color: var(--color-aube-text-muted);
     opacity: 1;
   }
+
+  a,
+  button,
+  summary,
+  input,
+  select,
+  textarea,
+  [role="button"] {
+    touch-action: manipulation;
+  }
 }
 
 /* Eradicate unwanted scrollbars cross-browser while preserving scroll functionality */
@@ -86,6 +96,19 @@
 ::-webkit-scrollbar-track {
   display: none !important;
   background: transparent !important;
+}
+
+.touch-pan-x {
+  touch-action: pan-x pan-y;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (hover: none) {
+  .hover-reveal-touch {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+  }
 }
 
 .no-scrollbar {
@@ -109,6 +132,89 @@
       opacity: 1;
       transform: none;
       transition: none;
+    }
+  }
+
+  /* Intro loader: deterministic scale from first paint, compositor-only collapse to navbar */
+  .intro-loader-veil {
+    transform: translate3d(0, 0, 0);
+  }
+
+  .intro-loader-veil[data-flying="true"] {
+    transform: translate3d(0, var(--intro-veil-ty, calc(-100% + 72px)), 0);
+  }
+
+  .intro-loader-logo {
+    --intro-start-scale: 2;
+    transform: translate3d(0, 0, 0) scale(var(--intro-start-scale));
+    transform-origin: center center;
+  }
+
+  @media (min-width: 640px) {
+    .intro-loader-logo {
+      --intro-start-scale: 2.3;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .intro-loader-logo {
+      --intro-start-scale: 2.6;
+    }
+  }
+
+  .intro-loader-logo[data-flying="true"] {
+    transform: translate3d(var(--intro-tx, 0px), var(--intro-ty, 0px), 0) scale(1);
+  }
+
+  .intro-loader-tagline {
+    opacity: 0.75;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .intro-loader-tagline[data-flying="true"] {
+    opacity: 0;
+    transform: translate3d(0, -6px, 0);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .intro-loader-veil[data-flying="true"],
+    .intro-loader-logo[data-flying="true"] {
+      transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+
+    .intro-loader-tagline[data-flying="true"] {
+      transition:
+        opacity 0.28s ease-out,
+        transform 0.28s ease-out;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intro-loader-root {
+      display: none;
+    }
+  }
+}
+
+@keyframes hero-bottle-straighten {
+  from {
+    rotate: 0deg;
+  }
+  to {
+    rotate: 16.4deg;
+  }
+}
+
+@supports ((animation-timeline: view()) and (animation-range: entry)) {
+  .hero-bottle-straighten {
+    animation: hero-bottle-straighten linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0px 75svh;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-bottle-straighten {
+      animation: none;
     }
   }
 }

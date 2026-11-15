@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@sanity/client";
 import { apiVersion, dataset, projectId } from "@/sanity/env";
-import { PERFUMES } from "@/lib/products";
+import { getLiveObjects, getLivePerfumes } from "@/lib/sanity/data";
 import { REVIEW_LIMITS, WORN_FOR_OPTIONS } from "@/lib/reviews";
 
 export const runtime = "nodejs";
@@ -71,7 +71,14 @@ export async function POST(req: NextRequest) {
   }
 
   const slug = clean(payload.perfumeSlug, 80);
-  if (!PERFUMES.some((p) => p.slug === slug)) {
+  const [perfumes, objects] = await Promise.all([
+    getLivePerfumes(),
+    getLiveObjects(),
+  ]);
+  const validSlug =
+    perfumes.some((p) => p.slug === slug) ||
+    objects.some((o) => o.slug === slug);
+  if (!validSlug) {
     return fail(400, { form: "This perfume could not be found." });
   }
 

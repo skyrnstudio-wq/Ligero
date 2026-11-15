@@ -49,7 +49,8 @@ const client = createClient({
 
 // Helper to upload a local image to Sanity Asset pipeline
 async function uploadImageIfFileExists(relativePath: string, filenameLabel: string) {
-  const cleanPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath
+  const noQuery = relativePath.split('?')[0]
+  const cleanPath = noQuery.startsWith('/') ? noQuery.slice(1) : noQuery
   const fullPath = path.resolve(process.cwd(), 'public', cleanPath)
 
   if (!fs.existsSync(fullPath)) {
@@ -106,7 +107,12 @@ async function migrate() {
     if (p.gallery && p.gallery.length > 0) {
       for (let i = 0; i < p.gallery.length; i++) {
         const gal = await uploadImageIfFileExists(p.gallery[i], `${p.name} Gallery ${i + 1}`)
-        if (gal) galleryAssets.push(gal)
+        if (gal) {
+          galleryAssets.push({
+            ...gal,
+            _key: `gallery-${i + 1}`,
+          })
+        }
       }
     }
 
@@ -128,7 +134,11 @@ async function migrate() {
       provenance: p.provenance,
       isDark: Boolean(p.isDark),
       scentProfile: p.scentProfile,
-      keyIngredients: p.keyIngredients,
+      keyIngredients: p.keyIngredients?.map((ing, i) => ({
+        ...ing,
+        _type: 'keyIngredient',
+        _key: `ingredient-${i + 1}`,
+      })),
       ...(cutoutAsset ? { image: cutoutAsset } : {}),
       ...(notesAsset ? { notesImage: notesAsset } : {}),
       ...(galleryAssets.length > 0 ? { gallery: galleryAssets } : {}),

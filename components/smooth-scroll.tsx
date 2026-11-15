@@ -24,10 +24,17 @@ export default function SmoothScrollProvider({
 }) {
   const lenisRef = useRef<Lenis | null>(null);
   const pathname = usePathname();
+  const prevPathnameRef = useRef(pathname);
 
   useEffect(() => {
-    // Respect user's reduced motion preferences
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    // Skip smooth scrolling inside Sanity Studio, on touch devices, and when reduced motion is preferred
+    if (
+      pathname?.startsWith("/studio") ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      window.matchMedia("(hover: none), (pointer: coarse)").matches ||
+      navigator.maxTouchPoints > 0 ||
+      !window.matchMedia("(pointer: fine)").matches
+    ) {
       return;
     }
 
@@ -38,6 +45,7 @@ export default function SmoothScrollProvider({
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
+      syncTouch: false,
       wheelMultiplier: 1,
       touchMultiplier: 1.2,
       anchors: {
@@ -56,12 +64,15 @@ export default function SmoothScrollProvider({
       lenisRef.current = null;
       (window as unknown as { __lenis?: unknown }).__lenis = undefined;
     };
-  }, []);
+  }, [pathname]);
 
-  // Reset scroll to top on page change
+  // Reset scroll to top only on actual client route changes
   useEffect(() => {
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(0, { immediate: true });
+    if (prevPathnameRef.current !== pathname) {
+      prevPathnameRef.current = pathname;
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(0, { immediate: true });
+      }
     }
   }, [pathname]);
 

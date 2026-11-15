@@ -30,7 +30,14 @@ export async function POST(req: NextRequest) {
     // Targeted path revalidations
     if (type === 'perfume') {
       revalidateTag('perfume')
+      revalidatePath('/')
       revalidatePath('/collection')
+      revalidatePath('/discovery-set')
+      revalidatePath('/sitemap.xml')
+      revalidatePath('/llms.txt')
+      revalidatePath('/llms-full.txt')
+      revalidatePath('/pricing.md')
+      revalidatePath('/', 'layout')
       if (payload.slug?.current) {
         revalidateTag(`perfume:${payload.slug.current}`)
         revalidatePath(`/collection/${payload.slug.current}`)
@@ -49,8 +56,16 @@ export async function POST(req: NextRequest) {
       revalidatePath('/', 'layout')
     } else if (type === 'houseObject') {
       revalidateTag('houseObject')
-      revalidatePath('/collection')
       revalidatePath('/')
+      revalidatePath('/collection')
+      revalidatePath('/objects')
+      revalidatePath('/objects/en-route')
+      revalidatePath('/discovery-set')
+      revalidatePath('/sitemap.xml')
+      revalidatePath('/llms.txt')
+      revalidatePath('/llms-full.txt')
+      revalidatePath('/pricing.md')
+      revalidatePath('/', 'layout')
     }
 
     return NextResponse.json({

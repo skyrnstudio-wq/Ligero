@@ -2,9 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState, type MouseEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { useCase } from "@/context/case-context";
-import type { Product } from "@/lib/products";
+import { useCatalog } from "@/context/catalog-context";
+import {
+  getPerfumeCutoutImage,
+  type Product,
+  type HouseObject,
+} from "@/lib/products";
 
 export type CatalogCategory =
   | "all"
@@ -59,179 +64,230 @@ const SORT_OPTIONS: { id: SortOption; label: string }[] = [
   { id: "alpha", label: "Alphabetical (A–Z)" },
 ];
 
+const PERFUME_CATALOG_META: Record<
+  string,
+  {
+    notesLine: string;
+    badge?: string;
+    badgeVariant?: "solid" | "outline";
+    categories: CatalogCategory[];
+    featuredRank: number;
+    bestsellerRank: number;
+  }
+> = {
+  aube: {
+    notesLine: "crisp mint, water jasmine, green cedar",
+    badge: "Best Seller",
+    badgeVariant: "solid",
+    categories: ["all", "edp", "fresh"],
+    featuredRank: 1,
+    bestsellerRank: 2,
+  },
+  fleur: {
+    notesLine: "star magnolia, velvet rose, luxury musk",
+    categories: ["all", "edp", "floral"],
+    featuredRank: 2,
+    bestsellerRank: 3,
+  },
+  noctis: {
+    notesLine: "dark plum, coastal grey amber, sea driftwood",
+    categories: ["all", "edp", "amber", "gourmand"],
+    featuredRank: 3,
+    bestsellerRank: 4,
+  },
+  blanc: {
+    notesLine: "wild strawberry, whipped cream, rich vanilla",
+    categories: ["all", "edp", "gourmand"],
+    featuredRank: 4,
+    bestsellerRank: 8,
+  },
+  "ambre-doux": {
+    notesLine: "saffron threads, crystalline amber, silken woods",
+    badge: "Best Seller",
+    badgeVariant: "solid",
+    categories: ["all", "edp", "amber"],
+    featuredRank: 5,
+    bestsellerRank: 5,
+  },
+  maree: {
+    notesLine: "saline marine accord, wild rosemary, mineral woods",
+    categories: ["all", "edp", "fresh"],
+    featuredRank: 6,
+    bestsellerRank: 7,
+  },
+  "noir-cacao": {
+    notesLine: "raw cacao 85%, dark chocolate, smoked patchouli",
+    badge: "New",
+    badgeVariant: "solid",
+    categories: ["all", "edp", "gourmand", "amber"],
+    featuredRank: 7,
+    bestsellerRank: 6,
+  },
+};
+
+function derivePerfumeCategories(p: Product): CatalogCategory[] {
+  const cats = new Set<CatalogCategory>(["all", "edp"]);
+  const text = `${p.scentProfile?.family || ""} ${p.notesUppercase || ""} ${p.scentProfile?.top || ""} ${p.scentProfile?.heart || ""} ${p.scentProfile?.base || ""}`.toLowerCase();
+  if (/fresh|mint|marine|aquatic|green|citrus|bergamot|sea|neroli/.test(text)) {
+    cats.add("fresh");
+  }
+  if (/floral|rose|jasmine|magnolia|neroli|tuberose|iris|bloom/.test(text)) {
+    cats.add("floral");
+  }
+  if (/amber|wood|cedar|sandal|oud|musk|vetiver|incense|saffron/.test(text)) {
+    cats.add("amber");
+  }
+  if (/gourmand|cacao|chocolate|vanilla|plum|cream|caramel|honey|noir/.test(text)) {
+    cats.add("gourmand");
+  }
+  return Array.from(cats);
+}
+
 /**
- * Builds the authentic maison catalog:
- * The 7 Eau de Parfum creations + The Discovery Set + En Route (Car Perfume).
- * Zero duplicates, zero fake duos.
+ * Builds the maison catalog dynamically from Sanity perfumes and house objects,
+ * keeping curated ranks/metadata for the 7 signature creations while including
+ * any newly added Sanity perfumes or house objects automatically.
  */
-function buildCatalogItems(perfumes: Product[]): CatalogItem[] {
-  const bySlug = new Map(perfumes.map((p) => [p.slug, p]));
+function buildCatalogItems(
+  perfumes: Product[],
+  objects: HouseObject[]
+): CatalogItem[] {
+  let nextRank = 10;
 
-  const getPerfume = (slug: string) => bySlug.get(slug) ?? perfumes[0];
+  const perfumeItems: CatalogItem[] = perfumes.map((p) => {
+    const meta = PERFUME_CATALOG_META[p.slug];
+    const fallbackNotes = (p.notesUppercase || p.scentProfile?.top || p.oneLiner || "")
+      .toLowerCase()
+      .replace(/\s*·\s*/g, ", ");
 
-  const aube = getPerfume("aube");
-  const fleur = getPerfume("fleur");
-  const noctis = getPerfume("noctis");
-  const ambreDoux = getPerfume("ambre-doux");
-  const blanc = getPerfume("blanc");
-  const maree = getPerfume("maree");
-  const noirCacao = getPerfume("noir-cacao");
+    const featuredRank = meta?.featuredRank ?? nextRank++;
+    const bestsellerRank = meta?.bestsellerRank ?? featuredRank + 10;
+    const badge = p.badge || meta?.badge;
 
-  return [
-    {
-      id: "aube",
-      slug: aube.slug,
-      href: `/collection/${aube.slug}`,
-      name: aube.name,
+    return {
+      id: p.slug,
+      slug: p.slug,
+      href: `/collection/${p.slug}`,
+      name: p.name,
       typeLabel: "Eau de Parfum",
-      notesLine: "crisp mint, water jasmine, green cedar",
-      price: aube.price,
-      volume: "50 ml · Eau de Parfum",
-      primaryImage: `/images/perfumes/cutouts/${aube.slug}.webp?v=2`,
-      badge: "Best Seller",
-      badgeVariant: "solid",
-      categories: ["all", "edp", "fresh"],
-      featuredRank: 1,
-      bestsellerRank: 2,
-    },
-    {
-      id: "fleur",
-      slug: fleur.slug,
-      href: `/collection/${fleur.slug}`,
-      name: fleur.name,
-      typeLabel: "Eau de Parfum",
-      notesLine: "star magnolia, velvet rose, luxury musk",
-      price: fleur.price,
-      volume: "50 ml · Eau de Parfum",
-      primaryImage: `/images/perfumes/cutouts/${fleur.slug}.webp?v=2`,
-      categories: ["all", "edp", "floral"],
-      featuredRank: 2,
-      bestsellerRank: 3,
-    },
-    {
-      id: "noctis",
-      slug: noctis.slug,
-      href: `/collection/${noctis.slug}`,
-      name: noctis.name,
-      typeLabel: "Eau de Parfum",
-      notesLine: "dark plum, coastal grey amber, sea driftwood",
-      price: noctis.price,
-      volume: "50 ml · Eau de Parfum",
-      primaryImage: `/images/perfumes/cutouts/${noctis.slug}.webp?v=2`,
-      categories: ["all", "edp", "amber", "gourmand"],
-      featuredRank: 3,
-      bestsellerRank: 4,
-    },
-    {
-      id: "blanc",
-      slug: blanc.slug,
-      href: `/collection/${blanc.slug}`,
-      name: blanc.name,
-      typeLabel: "Eau de Parfum",
-      notesLine: "wild strawberry, whipped cream, rich vanilla",
-      price: blanc.price,
-      volume: "50 ml · Eau de Parfum",
-      primaryImage: `/images/perfumes/cutouts/${blanc.slug}.webp?v=2`,
-      categories: ["all", "edp", "gourmand"],
-      featuredRank: 4,
-      bestsellerRank: 8,
-    },
-    {
-      id: "ambre-doux",
-      slug: ambreDoux.slug,
-      href: `/collection/${ambreDoux.slug}`,
-      name: ambreDoux.name,
-      typeLabel: "Eau de Parfum",
-      notesLine: "saffron threads, crystalline amber, silken woods",
-      price: ambreDoux.price,
-      volume: "50 ml · Eau de Parfum",
-      primaryImage: `/images/perfumes/cutouts/${ambreDoux.slug}.webp?v=2`,
-      badge: "Best Seller",
-      badgeVariant: "solid",
-      categories: ["all", "edp", "amber"],
-      featuredRank: 5,
-      bestsellerRank: 5,
-    },
-    {
-      id: "maree",
-      slug: maree.slug,
-      href: `/collection/${maree.slug}`,
-      name: maree.name,
-      typeLabel: "Eau de Parfum",
-      notesLine: "saline marine accord, wild rosemary, mineral woods",
-      price: maree.price,
-      volume: "50 ml · Eau de Parfum",
-      primaryImage: `/images/perfumes/cutouts/${maree.slug}.webp?v=2`,
-      categories: ["all", "edp", "fresh"],
-      featuredRank: 6,
-      bestsellerRank: 7,
-    },
-    {
-      id: "noir-cacao",
-      slug: noirCacao.slug,
-      href: `/collection/${noirCacao.slug}`,
-      name: noirCacao.name,
-      typeLabel: "Eau de Parfum",
-      notesLine: "raw cacao 85%, dark chocolate, smoked patchouli",
-      price: noirCacao.price,
-      volume: "50 ml · Eau de Parfum",
-      primaryImage: `/images/perfumes/cutouts/${noirCacao.slug}.webp?v=2`,
-      badge: "New",
-      badgeVariant: "solid",
-      categories: ["all", "edp", "gourmand", "amber"],
-      featuredRank: 7,
-      bestsellerRank: 6,
-    },
-    {
-      id: "discovery-set",
-      slug: "discovery-set",
-      href: "/discovery-set",
-      name: "The Discovery Set",
-      typeLabel: "Coffret · 7 × 10 ml",
-      notesLine: "every perfume the house makes, ten millilitres each",
-      price: 999,
-      compareAtPrice: 1399,
-      volume: "7 × 10 ml Coffret",
-      primaryImage: "/images/objects/discovery-set-floating.webp",
+      notesLine: meta?.notesLine || fallbackNotes,
+      price: p.price,
+      volume: p.volume || "50 ml · Eau de Parfum",
+      primaryImage: getPerfumeCutoutImage(p),
+      badge,
+      badgeVariant: badge ? (meta?.badgeVariant ?? "solid") : undefined,
+      categories: meta?.categories ?? derivePerfumeCategories(p),
+      featuredRank,
+      bestsellerRank,
+    };
+  });
+
+  const objectItems: CatalogItem[] = objects.map((o, index) => {
+    if (o.slug === "discovery-set") {
+      return {
+        id: o.slug,
+        slug: o.slug,
+        href: "/discovery-set",
+        name: o.name,
+        typeLabel: o.volume ? `Coffret · ${o.volume}` : "Coffret · 7 × 10 ml",
+        notesLine:
+          o.description.toLowerCase().replace(/\.$/, "") ||
+          "every perfume the house makes, ten millilitres each",
+        price: o.price,
+        compareAtPrice: 1399,
+        volume: o.volume ? `${o.volume} Coffret` : "7 × 10 ml Coffret",
+        primaryImage: o.image || "/images/objects/discovery-set-floating.webp",
+        isPhotoCard: false,
+        badge: o.badge || "Save ₹400",
+        badgeVariant: "outline",
+        categories: ["all", "sets"],
+        featuredRank: 100 + index,
+        bestsellerRank: 1,
+      };
+    }
+
+    if (o.slug === "en-route") {
+      return {
+        id: o.slug,
+        slug: o.slug,
+        href: "/objects/en-route",
+        name: o.name,
+        typeLabel: "Car Perfume · Cabin Diffuser",
+        notesLine: "cedarwood, crisp bergamot, sun-warmed amber",
+        price: o.price,
+        volume: o.volume || "Car Perfume · Cabin Diffuser",
+        primaryImage: o.image || "/images/objects/car-perfume-floating.webp",
+        isPhotoCard: false,
+        badge: o.badge || "Car Perfume",
+        badgeVariant: "outline",
+        categories: ["all", "sets", "amber", "fresh"],
+        featuredRank: 100 + index,
+        bestsellerRank: 9,
+      };
+    }
+
+    return {
+      id: o.slug,
+      slug: o.slug,
+      href: `/objects#${o.slug}`,
+      name: o.name,
+      typeLabel: o.volume || "House Object",
+      notesLine: o.description.toLowerCase().replace(/\.$/, ""),
+      price: o.price,
+      volume: o.volume || "House Object",
+      primaryImage: o.image,
       isPhotoCard: false,
-      badge: "Save ₹400",
+      badge: o.badge || "House Object",
       badgeVariant: "outline",
       categories: ["all", "sets"],
-      featuredRank: 8,
-      bestsellerRank: 1,
-    },
-    {
-      id: "en-route",
-      slug: "en-route",
-      href: "/objects/en-route",
-      name: "En Route",
-      typeLabel: "Car Perfume · Cabin Diffuser",
-      notesLine: "cedarwood, crisp bergamot, sun-warmed amber",
-      price: 499,
-      volume: "Car Perfume · Cabin Diffuser",
-      primaryImage: "/images/objects/car-perfume-floating.webp",
-      isPhotoCard: false,
-      badge: "Car Perfume",
-      badgeVariant: "outline",
-      categories: ["all", "sets", "amber", "fresh"],
-      featuredRank: 9,
-      bestsellerRank: 9,
-    },
-  ];
+      featuredRank: 100 + index,
+      bestsellerRank: 100 + index,
+    };
+  });
+
+  return [...perfumeItems, ...objectItems];
 }
 
 export default function CollectionCatalog({
   perfumes,
+  objects,
 }: {
   perfumes: Product[];
+  objects?: HouseObject[];
 }) {
   const { addToCase, setIsCaseOpen } = useCase();
+  const catalog = useCatalog();
+  const liveObjects = objects && objects.length > 0 ? objects : catalog.objects;
   const [activeCategory, setActiveCategory] = useState<CatalogCategory>("all");
   const [sortBy, setSortBy] = useState<SortOption>("featured");
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [addedId, setAddedId] = useState<string | null>(null);
+  const sortRef = useRef<HTMLDivElement | null>(null);
 
-  const allItems = useMemo(() => buildCatalogItems(perfumes), [perfumes]);
+  useEffect(() => {
+    if (!sortMenuOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSortMenuOpen(false);
+    };
+    const onPointerDown = (e: globalThis.MouseEvent | TouchEvent) => {
+      if (sortRef.current && !sortRef.current.contains(e.target as Node)) {
+        setSortMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+    };
+  }, [sortMenuOpen]);
+
+  const allItems = useMemo(
+    () => buildCatalogItems(perfumes, liveObjects),
+    [perfumes, liveObjects]
+  );
 
   const filteredItems = useMemo(() => {
     const base = allItems.filter((item) =>
@@ -315,7 +371,7 @@ export default function CollectionCatalog({
           <Link
             href={item.href}
             aria-label={`${item.name} — ${item.typeLabel}, ₹${item.price.toLocaleString("en-IN")}`}
-            className="relative flex h-full w-full items-center justify-center p-5 sm:p-7 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#1c140e]"
+            className="relative flex h-full w-full items-center justify-center p-4 pb-12 sm:p-7 [@media(hover:none)]:pb-12 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#1c140e]"
           >
             {/* Clean Upright Flacon Cutout with gentle natural drop shadow */}
             <div className="relative h-full w-full max-w-[150px] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-1 group-hover:scale-[1.03]">
@@ -330,40 +386,52 @@ export default function CollectionCatalog({
             </div>
           </Link>
 
-          {/* Hover Quick-Add Bar */}
-          <div className="absolute inset-x-2 bottom-2 z-20 flex translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100">
+          {/* Hover / Touch Quick-Add Bar */}
+          <div className="hover-reveal-touch absolute inset-x-1.5 bottom-1.5 z-20 flex translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 sm:inset-x-2 sm:bottom-2">
             {isSingleBottle && item.id !== "discovery-set" && item.id !== "en-route" ? (
-              <div className="grid w-full grid-cols-2 divide-x divide-[#f3ede3]/20 bg-[#1c140e] text-[#f3ede3] shadow-md">
-                <button
-                  type="button"
-                  onClick={(e) =>
-                    handleQuickAdd(e, item, {
-                      volume: "50 ml · Eau de Parfum",
-                      price: item.price,
-                    })
-                  }
-                  className="flex flex-col items-center justify-center px-2 py-2 text-center transition-colors hover:bg-[#32241b]"
-                >
-                  <span className="text-[9px] font-medium uppercase tracking-[0.14em]">
-                    50 ml · ₹{item.price.toLocaleString("en-IN")}
-                  </span>
-                </button>
+              <>
                 <button
                   type="button"
                   onClick={(e) => handleQuickAdd(e, item)}
-                  className="flex items-center justify-center px-2 py-2 text-[9px] font-semibold uppercase tracking-[0.16em] text-[#d89f68] transition-colors hover:bg-[#32241b]"
+                  className="flex min-h-11 w-full items-center justify-between bg-[#1c140e] px-3 py-2 text-[9.5px] font-medium uppercase tracking-[0.14em] text-[#f3ede3] shadow-md transition-colors hover:bg-[#32241b] sm:hidden"
                 >
-                  {isAdded ? "Added" : "+ Add to Case"}
+                  <span>50 ml</span>
+                  <span className="text-[#d89f68]">
+                    {isAdded ? "Added" : "+ Add"}
+                  </span>
                 </button>
-              </div>
+                <div className="hidden w-full grid-cols-2 divide-x divide-[#f3ede3]/20 bg-[#1c140e] text-[#f3ede3] shadow-md sm:grid">
+                  <button
+                    type="button"
+                    onClick={(e) =>
+                      handleQuickAdd(e, item, {
+                        volume: "50 ml · Eau de Parfum",
+                        price: item.price,
+                      })
+                    }
+                    className="flex min-h-11 flex-col items-center justify-center px-2 py-2 text-center transition-colors hover:bg-[#32241b]"
+                  >
+                    <span className="text-[9px] font-medium uppercase tracking-[0.14em]">
+                      50 ml · ₹{item.price.toLocaleString("en-IN")}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => handleQuickAdd(e, item)}
+                    className="flex min-h-11 items-center justify-center px-2 py-2 text-[9px] font-semibold uppercase tracking-[0.16em] text-[#d89f68] transition-colors hover:bg-[#32241b]"
+                  >
+                    {isAdded ? "Added" : "+ Add to Case"}
+                  </button>
+                </div>
+              </>
             ) : (
               <button
                 type="button"
                 onClick={(e) => handleQuickAdd(e, item)}
-                className="flex w-full items-center justify-between bg-[#1c140e] px-3.5 py-2 text-[9.5px] font-medium uppercase tracking-[0.18em] text-[#f3ede3] shadow-md transition-colors hover:bg-[#32241b]"
+                className="flex min-h-11 w-full items-center justify-between bg-[#1c140e] px-3 py-2 text-[9.5px] font-medium uppercase tracking-[0.14em] text-[#f3ede3] shadow-md transition-colors hover:bg-[#32241b] sm:px-3.5 sm:tracking-[0.18em]"
               >
-                <span>{item.volume}</span>
-                <span className="text-[#d89f68]">
+                <span className="truncate">{item.volume}</span>
+                <span className="shrink-0 pl-2 text-[#d89f68]">
                   {isAdded
                     ? "Added"
                     : `+ Add · ₹${item.price.toLocaleString("en-IN")}`}
@@ -374,20 +442,20 @@ export default function CollectionCatalog({
         </div>
 
         {/* Compact Centered Editorial Caption */}
-        <div className="flex flex-1 flex-col items-center justify-between px-2.5 pb-4 pt-3 text-center sm:px-3 sm:pb-5 sm:pt-3.5">
+        <div className="flex flex-1 flex-col items-center justify-between px-2 pb-4 pt-2.5 text-center sm:px-3 sm:pb-5 sm:pt-3.5">
           <div className="flex flex-col items-center">
             <p className="font-body text-[8.5px] uppercase tracking-[0.2em] text-aube-text-muted">
               {item.typeLabel}
             </p>
 
-            <h2 className="mt-1 font-body text-xs font-semibold uppercase tracking-[0.16em] text-[#1c140e] sm:text-[13px]">
+            <h3 className="mt-0.5 font-body text-xs font-semibold uppercase tracking-[0.16em] text-[#1c140e] sm:text-[13px]">
               <Link
                 href={item.href}
-                className="transition-colors hover:text-aube-accent"
+                className="inline-flex min-h-11 items-center px-1 transition-colors hover:text-aube-accent"
               >
                 {item.name}
               </Link>
-            </h2>
+            </h3>
 
             <p className="mt-1 max-w-[26ch] font-body text-[11px] leading-snug text-aube-text-muted">
               {item.notesLine}
@@ -418,8 +486,8 @@ export default function CollectionCatalog({
   return (
     <div>
       {/* Sticky Filter & Sort Sub-bar */}
-      <div className="sticky top-[var(--header-offset)] z-30 border-y border-aube-hairline bg-[#FBF8F2]/95 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[112rem] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-8 lg:px-14">
+      <div className="sticky top-[var(--sticky-top,var(--header-offset))] z-30 border-y border-aube-hairline bg-[#FBF8F2]/95 backdrop-blur-md transition-[top] duration-300">
+        <div className="mx-auto flex max-w-[112rem] flex-wrap items-center justify-between gap-2 px-4 py-1.5 sm:gap-3 sm:px-8 sm:py-2.5 lg:px-14">
           {/* Left: Count / Filter status */}
           <div className="flex items-center gap-3">
             <span className="font-body text-[10px] font-medium uppercase tracking-[0.2em] text-[#1c140e]">
@@ -435,7 +503,7 @@ export default function CollectionCatalog({
           {/* Center: Horizontal Category Filter Tabs */}
           <nav
             aria-label="Filter collection by olfactive family or format"
-            className="order-3 flex w-full items-center gap-5 overflow-x-auto border-t border-aube-hairline/60 pt-2.5 no-scrollbar lg:order-2 lg:w-auto lg:border-t-0 lg:pt-0"
+            className="order-3 flex w-full items-center gap-4 overflow-x-auto border-t border-aube-hairline/60 pt-1 no-scrollbar touch-pan-x sm:gap-5 lg:order-2 lg:w-auto lg:border-t-0 lg:pt-0"
           >
             {FILTER_TABS.map((tab) => {
               const active = activeCategory === tab.id;
@@ -445,9 +513,9 @@ export default function CollectionCatalog({
                   type="button"
                   onClick={() => setActiveCategory(tab.id)}
                   aria-pressed={active}
-                  className={`whitespace-nowrap pb-0.5 font-body text-[10px] uppercase tracking-[0.18em] transition-colors ${
+                  className={`inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center whitespace-nowrap px-1 font-body text-[10px] uppercase tracking-[0.18em] transition-colors ${
                     active
-                      ? "border-b border-[#1c140e] font-semibold text-[#1c140e]"
+                      ? "border-b-2 border-[#1c140e] font-semibold text-[#1c140e]"
                       : "text-aube-text-muted hover:text-[#1c140e]"
                   }`}
                 >
@@ -458,13 +526,13 @@ export default function CollectionCatalog({
           </nav>
 
           {/* Right: Sort By Dropdown */}
-          <div className="relative order-2 lg:order-3">
+          <div ref={sortRef} className="relative order-2 lg:order-3">
             <button
               type="button"
               onClick={() => setSortMenuOpen((prev) => !prev)}
               aria-expanded={sortMenuOpen}
               aria-haspopup="listbox"
-              className="inline-flex items-center gap-1.5 font-body text-[10px] font-medium uppercase tracking-[0.2em] text-[#1c140e] transition-colors hover:text-aube-accent"
+              className="inline-flex min-h-11 min-w-11 items-center gap-1.5 px-1 font-body text-[10px] font-medium uppercase tracking-[0.2em] text-[#1c140e] transition-colors hover:text-aube-accent"
             >
               <span>
                 Sort By:{" "}
@@ -493,7 +561,7 @@ export default function CollectionCatalog({
                         setSortBy(option.id);
                         setSortMenuOpen(false);
                       }}
-                      className={`flex w-full items-center justify-between px-3.5 py-2 text-left font-body text-[10.5px] uppercase tracking-[0.15em] transition-colors hover:bg-[#F3EDE3] ${
+                      className={`flex min-h-11 w-full items-center justify-between px-3.5 py-2.5 text-left font-body text-[10.5px] uppercase tracking-[0.15em] transition-colors hover:bg-[#F3EDE3] ${
                         sortBy === option.id
                           ? "font-semibold text-[#1c140e]"
                           : "text-aube-text-muted"

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Product } from "@/lib/products";
+import { getPerfumeCutoutImage, type Product } from "@/lib/products";
 import { useCase } from "@/context/case-context";
 
 interface ProductStickyBarProps {
@@ -22,11 +22,12 @@ export default function ProductStickyBar({
       setVisible(window.scrollY > 650);
     };
 
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const cutout = `/images/perfumes/cutouts/${product.slug}.webp?v=2`;
+  const cutout = getPerfumeCutoutImage(product);
 
   const handleAdd = () => {
     addToCase({
@@ -47,9 +48,9 @@ export default function ProductStickyBar({
     <div
       role="region"
       aria-label="Sticky purchase bar"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-pdp-hairline bg-pdp-base/95 text-pdp-text backdrop-blur-md transition-all duration-300 lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-pdp-hairline bg-pdp-base/95 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] text-pdp-text backdrop-blur-md transition-all duration-300 lg:hidden"
     >
-      <div className="mx-auto flex h-16 max-w-[112rem] items-center justify-between px-5 sm:px-8">
+      <div className="mx-auto flex h-12 max-w-[112rem] items-center justify-between px-5 sm:px-8">
         <div className="flex items-center gap-3">
           <div className="relative h-11 w-10 flex-none overflow-hidden bg-pdp-surface2">
             <Image
@@ -73,7 +74,7 @@ export default function ProductStickyBar({
         <button
           type="button"
           onClick={handleAdd}
-          className="min-h-10 bg-pdp-btn px-5 py-2.5 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-pdp-btn-text transition-colors hover:bg-pdp-btn-hover"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center bg-pdp-btn px-5 py-2.5 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-pdp-btn-text transition-colors hover:bg-pdp-btn-hover"
         >
           {added ? "Added" : "Add to Case"}
         </button>

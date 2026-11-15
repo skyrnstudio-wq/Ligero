@@ -79,6 +79,31 @@ test.describe("Tier 3: Cross-Feature Combinations Suite (Pairwise Interactions)"
     await expect(result).toBeVisible();
   });
 
+  test("C4b: Occasion search filters by typed occasion, synonyms, and quick-filter pills", async ({ page }) => {
+    await page.goto("/collection", { waitUntil: "load" });
+    const searchBtn = page.locator("button[aria-controls='maison-search-panel']");
+    await searchBtn.click();
+
+    const searchInput = page.locator("input#maison-search-input");
+    await searchInput.fill("party");
+    await page.waitForTimeout(200);
+    await expect(page.locator("#maison-search-panel a:has-text('Noctis')")).toBeVisible();
+    await expect(page.locator("#maison-search-panel a:has-text('Noir Cacao')")).toBeVisible();
+
+    // Synonym check: "workout" -> Gym/Sports -> Aubé & Marée
+    await searchInput.fill("workout");
+    await page.waitForTimeout(200);
+    await expect(page.locator("#maison-search-panel a:has-text('Aubé')")).toBeVisible();
+    await expect(page.locator("#maison-search-panel a:has-text('Marée')")).toBeVisible();
+
+    // Quick-filter pill check: clicking "Sports"
+    const sportsPill = page.locator("#maison-search-panel button:has-text('Sports')");
+    await sportsPill.click();
+    await expect(searchInput).toHaveValue("Sports");
+    await expect(page.locator("#maison-search-panel a:has-text('Marée')")).toBeVisible();
+    await assertNoHorizontalOverflow(page, "search-occasion-filter");
+  });
+
   // ==========================================
   // Combo 3: Sticky Filter Bar Sync with Auto-Hiding Header
   // ==========================================

@@ -9,7 +9,14 @@ const nextConfig = (phase: string): NextConfig => {
     distDir: isDev ? ".next-dev" : ".next",
     outputFileTracingRoot: path.resolve(__dirname),
     serverExternalPackages: ["sanity", "@sanity/vision", "@sanity/ui"],
+    onDemandEntries: {
+      maxInactiveAge: 60 * 60 * 1000,
+      pagesBufferLength: 50,
+    },
     images: {
+      formats: ["image/avif", "image/webp"],
+      minimumCacheTTL: 31536000,
+      deviceSizes: [640, 750, 828, 1080, 1200, 1600, 1920],
       localPatterns: [
         {
           pathname: "/images/**",
@@ -21,6 +28,28 @@ const nextConfig = (phase: string): NextConfig => {
           hostname: "cdn.sanity.io",
         },
       ],
+    },
+    async headers() {
+      return [
+        {
+          source: "/images/:path*",
+          headers: [
+            {
+              key: "Cache-Control",
+              value: "public, max-age=31536000, immutable",
+            },
+          ],
+        },
+        {
+          source: "/(llms\\.txt|llms-full\\.txt|pricing\\.md)",
+          headers: [
+            {
+              key: "Cache-Control",
+              value: "public, max-age=3600, stale-while-revalidate=86400",
+            },
+          ],
+        },
+      ];
     },
     webpack: (config, { dev }) => {
       if (dev) {

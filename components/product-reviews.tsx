@@ -213,6 +213,7 @@ export default function ProductReviews({
 
       <dialog
         ref={dialogRef}
+        data-lenis-prevent=""
         aria-labelledby={`${uid}-title`}
         onClick={(e) => {
           if (e.target === dialogRef.current) closeForm();

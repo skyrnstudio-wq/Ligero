@@ -35,25 +35,25 @@ export default function ProductScentRadar({ product }: ProductScentRadarProps) {
   ];
 
   return (
-    <div className="mt-8 overflow-hidden border border-pdp-hairline bg-gradient-to-b from-pdp-surface/60 via-pdp-surface2/40 to-pdp-surface/80 p-5 sm:p-6 backdrop-blur-sm">
+    <div className="mt-6 overflow-hidden border border-pdp-hairline bg-gradient-to-b from-pdp-surface/60 via-pdp-surface2/40 to-pdp-surface/80 p-4 sm:mt-8 sm:p-6 backdrop-blur-sm">
       <div className="flex items-center justify-between border-b border-pdp-hairline/80 pb-3">
         <div>
           <p className="font-body text-[9px] font-semibold uppercase tracking-[0.22em] text-pdp-muted">
-            Technical Architecture
+            Performance Profile
           </p>
           <h3 className="mt-0.5 font-display text-lg font-normal tracking-wide text-pdp-text">
             Performance &amp; Longevity
           </h3>
         </div>
         <span className="font-body text-[10px] uppercase tracking-[0.2em] text-pdp-accent">
-          Extrait Rating
+          Parfum Profile
         </span>
       </div>
 
-      <div className="mt-4 space-y-4">
+      <div className="mt-4 grid grid-cols-2 gap-3.5 sm:gap-4">
         {metrics.map((m) => (
           <div key={m.label} className="space-y-1.5">
-            <div className="flex items-baseline justify-between font-body text-xs">
+            <div className="flex flex-col gap-0.5 font-body text-[11px] sm:flex-row sm:items-baseline sm:justify-between sm:text-xs">
               <span className="font-medium text-pdp-text">{m.label}</span>
               <span className="tabular-nums font-semibold text-pdp-text">
                 {m.value}
@@ -66,29 +66,9 @@ export default function ProductScentRadar({ product }: ProductScentRadarProps) {
                 style={{ width: `${m.level}%` }}
               />
             </div>
-            <p className="font-body text-[10px] text-pdp-muted">{m.sub}</p>
+            <p className="hidden font-body text-[10px] text-pdp-muted sm:block">{m.sub}</p>
           </div>
         ))}
-      </div>
-
-      {/* Maison Craftsmanship Highlights */}
-      <div className="mt-5 grid grid-cols-2 gap-2 border-t border-pdp-hairline/80 pt-4 font-body text-[10.5px]">
-        <div className="flex items-center gap-2 text-pdp-text/90">
-          <span className="h-1.5 w-1.5 rounded-full bg-pdp-accent" />
-          <span>Zero synthetic dyes</span>
-        </div>
-        <div className="flex items-center gap-2 text-pdp-text/90">
-          <span className="h-1.5 w-1.5 rounded-full bg-pdp-accent" />
-          <span>Zero phthalate fixatives</span>
-        </div>
-        <div className="flex items-center gap-2 text-pdp-text/90">
-          <span className="h-1.5 w-1.5 rounded-full bg-pdp-accent" />
-          <span>Hand-numbered batch</span>
-        </div>
-        <div className="flex items-center gap-2 text-pdp-text/90">
-          <span className="h-1.5 w-1.5 rounded-full bg-pdp-accent" />
-          <span>Cruelty-free botanicals</span>
-        </div>
       </div>
     </div>
   );

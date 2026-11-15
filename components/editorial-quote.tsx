@@ -6,7 +6,7 @@ export default function EditorialQuote() {
   return (
     <section
       aria-label="Maison philosophy"
-      className="relative overflow-hidden border-b border-[#382a20] bg-[#1c140e] px-6 py-16 text-noctis-text sm:px-10 sm:py-20 lg:py-24 text-center"
+      className="relative overflow-hidden border-b border-[#382a20] bg-[#1c140e] px-6 py-10 text-noctis-text sm:px-10 sm:py-20 lg:py-24 text-center"
       style={{
         backgroundImage: `
           radial-gradient(circle at 50% 50%, rgba(185, 151, 91, 0.16) 0%, rgba(28, 20, 14, 0.98) 85%),
@@ -21,7 +21,7 @@ export default function EditorialQuote() {
           The Art of Scent
         </p>
 
-        <blockquote className="mt-5 font-display text-2xl font-light italic leading-[1.3] text-noctis-text sm:text-3xl lg:text-[2.85rem] lg:leading-[1.22]">
+        <blockquote className="mt-3 font-display text-xl font-light italic leading-[1.3] text-noctis-text sm:mt-5 sm:text-3xl lg:text-[2.85rem] lg:leading-[1.22]">
           &ldquo;Smell is a word, perfume is literature.&rdquo;
         </blockquote>
 

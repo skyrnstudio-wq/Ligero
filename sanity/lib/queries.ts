@@ -32,12 +32,12 @@ export const PERFUMES_QUERY = groq`
     },
     keyIngredients[] {
       name,
-      origin,
       note,
       description,
       "image": image.asset->url
     },
-    "relatedSlugs": relatedPerfumes[]->slug.current
+    "relatedSlugs": relatedPerfumes[]->slug.current,
+    occasions
   }
 `
 
@@ -73,12 +73,12 @@ export const PERFUME_BY_SLUG_QUERY = groq`
     },
     keyIngredients[] {
       name,
-      origin,
       note,
       description,
       "image": image.asset->url
     },
-    "relatedSlugs": relatedPerfumes[]->slug.current
+    "relatedSlugs": relatedPerfumes[]->slug.current,
+    occasions
   }
 `
 

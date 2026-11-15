@@ -19,7 +19,6 @@ test.describe("Routes Smoke Suite — All 34 Static, SSG, & Dynamic Routes", () 
     { path: "/legal/terms", title: "Terms of Sale" },
     { path: "/legal/shipping-returns", title: "Shipping & Returns" },
     { path: "/legal/compliance-checklist", title: "Compliance Checklist" },
-    { path: "/legal/grievance", title: "Grievance Officer" },
   ];
 
   const PERFUME_SLUGS = [

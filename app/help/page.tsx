@@ -3,9 +3,25 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import PrivateSalon from "@/components/private-salon";
 
+import {
+  buildBreadcrumbSchema,
+  buildFaqSchema,
+  buildGraph,
+} from "@/lib/seo/schema";
+
 export const metadata = {
-  title: "Help | Ligero Parfum",
-  description: "Shipping, returns, authenticity, how to wear and store, and payments.",
+  title: "Help & House Policies",
+  description:
+    "Answers on domestic surface shipping, seven-day sealed bottle returns, batch authenticity, extrait application, storage, and accepted payment methods.",
+  alternates: {
+    canonical: "/help",
+  },
+  openGraph: {
+    title: "Help & House Policies | Ligero Parfum",
+    description:
+      "Shipping timelines, sealed returns, batch authenticity, wear guidance, and payment methods.",
+    url: "/help",
+  },
 };
 
 const GROUPS = [
@@ -52,7 +68,7 @@ const GROUPS = [
       },
       {
         q: "Why does the colour of a perfume vary slightly between batches?",
-        a: "We use single-origin botanicals and add zero artificial dyes or stabilisers. A harvest after heavy rain has a slightly different tint from a dry-season harvest, just as wine does.",
+        a: "We formulate exclusively with pure botanical extracts and absolutes, adding zero artificial dyes or stabilisers. Natural extraits vary subtly across batches just as seasonal vintages do.",
       },
     ],
   },
@@ -80,14 +96,33 @@ const GROUPS = [
   },
 ];
 
+const FAQ_ENTRIES = GROUPS.flatMap((group) =>
+  group.items.map((item) => ({
+    question: item.q,
+    answer: item.a,
+  }))
+);
+
 /**
  * Help page (site-blueprint.md §11b).
  * Type-only hero: "Help." One word. Accordions start directly below.
  * Grouped accordions written in the house voice: Shipping, Returns, Authenticity, How to wear and store, Payments.
  */
 export default function HelpPage() {
+  const jsonLd = buildGraph([
+    buildFaqSchema(FAQ_ENTRIES),
+    buildBreadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Help", path: "/help" },
+    ]),
+  ]);
+
   return (
     <div className="min-h-screen bg-aube-base text-aube-text">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <SiteHeader />
 
       <main className="pt-[var(--header-offset)]">

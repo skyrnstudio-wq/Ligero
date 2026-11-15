@@ -12,117 +12,14 @@ import {
   type KeyboardEvent,
 } from "react";
 
-export interface FragranceItem {
-  name: string;
-  slug: string;
-  price: number;
-  badge?: string;
-  rating?: number;
-  reviewCount?: number;
-  concentration: string;
-  atmosphere: string;
-  family: string;
-  notesSummary: string;
-  image: string;
-  notesImage: string;
-}
-
-const FRAGRANCES: FragranceItem[] = [
-  {
-    name: "Aubé",
-    slug: "aube",
-    price: 1099,
-    badge: "EAU DE PARFUM",
-    concentration: "EAU DE PARFUM · 50 ML",
-    atmosphere:
-      "Warm skin, citrus peel, first light. Wild mountain mint and water jasmine hydro-distilled before sunrise.",
-    family: "Crisp Green Aquatic",
-    notesSummary: "Wild Garden Mint · Water Jasmine · Green Cedar",
-    image: "/images/perfumes/cutouts/aube.webp?v=2",
-    notesImage: "/images/perfumes/notes/aube.webp",
-  },
-  {
-    name: "Fleur",
-    slug: "fleur",
-    price: 1299,
-    badge: "BEST-SELLER",
-    concentration: "EAU DE PARFUM · 50 ML",
-    atmosphere:
-      "Jasmine, sambac, the courtyard after rain. Three million hand-harvested rose petals in silken musk.",
-    family: "Velvet Floral Oriental",
-    notesSummary: "Star Magnolia · Velvet Rose · Luxury Musk",
-    image: "/images/perfumes/cutouts/fleur.webp?v=2",
-    notesImage: "/images/perfumes/notes/fleur.webp",
-  },
-  {
-    name: "Ambre Doux",
-    slug: "ambre-doux",
-    price: 1699,
-    badge: "PRIVATE RESERVE",
-    concentration: "EAU DE PARFUM · 50 ML",
-    atmosphere:
-      "Amber, tobacco leaf, a closing door. Crystalline tree resin and rich saffron stigmas cured one full year.",
-    family: "Warm Amber Resin",
-    notesSummary: "Saffron Threads · Amber Resin · Polished Cedar",
-    image: "/images/perfumes/cutouts/ambre-doux.webp?v=2",
-    notesImage: "/images/perfumes/notes/ambre-doux.webp",
-  },
-  {
-    name: "Noctis",
-    slug: "noctis",
-    price: 1299,
-    badge: "BEST-SELLER",
-    concentration: "EAU DE PARFUM · 50 ML",
-    atmosphere:
-      "Smoke, leather, the hour after midnight. Damson plum and coastal grey ambergris over salt-cured driftwood.",
-    family: "Smoked Oceanic Noir",
-    notesSummary: "Dark Plum · Grey Ambergris · Sea Driftwood",
-    image: "/images/perfumes/cutouts/noctis.webp?v=2",
-    notesImage: "/images/perfumes/notes/noctis.webp",
-  },
-  {
-    name: "Blanc",
-    slug: "blanc",
-    price: 1099,
-    badge: "RESTOCKED",
-    concentration: "EAU DE PARFUM · 50 ML",
-    atmosphere:
-      "Linen, iris, the pause before speech. Wild strawberry and rich vanilla melting into bare skin.",
-    family: "Lactonic Gourmand Amber",
-    notesSummary: "Wild Strawberry · Whipped Cream · Rich Vanilla",
-    image: "/images/perfumes/cutouts/blanc.webp?v=2",
-    notesImage: "/images/perfumes/notes/blanc.webp",
-  },
-  {
-    name: "Marée",
-    slug: "maree",
-    price: 1699,
-    badge: "SINGLE HARVEST",
-    concentration: "EAU DE PARFUM · 50 ML",
-    atmosphere:
-      "Salt, kelp, the sea at dusk. Saline marine distillation and coastal rosemary cut at low tide.",
-    family: "Oceanic Mineral Aromatic",
-    notesSummary: "Saline Ocean Mist · Coastal Rosemary · Wild Vetiver",
-    image: "/images/perfumes/cutouts/maree.webp?v=2",
-    notesImage: "/images/perfumes/notes/maree.webp",
-  },
-  {
-    name: "Noir Cacao",
-    slug: "noir-cacao",
-    price: 1599,
-    badge: "ATELIER EDITION",
-    concentration: "EAU DE PARFUM · 50 ML",
-    atmosphere:
-      "Coconut, toasted, at the last hour. Roasted cacao absolute and aged patchouli with sandalwood.",
-    family: "Amber Gourmand Woody",
-    notesSummary: "Raw Cacao 85% · Dark Chocolate · Rich Vanilla",
-    image: "/images/perfumes/cutouts/noir-cacao.webp?v=2",
-    notesImage: "/images/perfumes/notes/noir-cacao.webp",
-  },
-];
+import {
+  DEFAULT_FRAGRANCES,
+  type FragranceItem,
+} from "@/lib/products";
+export type { FragranceItem };
 
 export default function TheCollection({ items }: { items?: FragranceItem[] }) {
-  const fragranceList = items && items.length > 0 ? items : FRAGRANCES;
+  const fragranceList = items && items.length > 0 ? items : DEFAULT_FRAGRANCES;
   const ledgerRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
@@ -185,7 +82,7 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
       slug: fragrance.slug,
       name: fragrance.name,
       price: fragrance.price,
-      volume: "50 ml · Eau de Parfum",
+      volume: fragrance.volume || "50 ml · Eau de Parfum",
       image: fragrance.image,
     });
     setAddedSlug(fragrance.slug);
@@ -199,17 +96,17 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
     <section
       id="collection"
       aria-labelledby="collection-heading"
-      className="relative overflow-hidden border-b border-aube-hairline bg-[#FAFAF7] py-16 sm:py-20 lg:py-28"
+      className="relative overflow-hidden border-b border-aube-hairline bg-[#FAFAF7] py-10 sm:py-20 lg:py-28"
     >
       <div className="mx-auto max-w-[104rem] px-4 sm:px-8 lg:px-12">
         {/* Serge Lutens-Inspired Compact Architectural Heading Stack */}
-        <div className="mb-8 flex flex-col items-center text-center sm:mb-10">
+        <div className="mb-5 flex flex-col items-center text-center sm:mb-10">
           <div className="inline-block border-b border-aube-text pb-1.5">
             <h2
               id="collection-heading"
               className="font-display text-xl font-normal uppercase tracking-[0.24em] text-aube-text sm:text-2xl lg:text-[1.75rem]"
             >
-              The Seven Perfumes
+              {fragranceList.length === 7 ? "The Seven Perfumes" : "The Collection"}
             </h2>
           </div>
           <p className="mt-2 font-body text-[11px] uppercase tracking-[0.18em] text-aube-text-muted">
@@ -217,17 +114,23 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
           </p>
 
           {/* Minimalist Carousel Control Strip */}
-          <div className="mt-4 flex w-full items-center justify-between border-b border-aube-hairline pb-3 text-xs">
+          <div className="mt-4 flex w-full items-center justify-between border-b border-aube-hairline pb-2.5 text-xs">
             <span className="font-body text-[10px] uppercase tracking-[0.16em] text-aube-text-muted">
-              Olfactive Ledger · 07 Flacons
+              <span className="sm:hidden">
+                {String(fragranceList.length).padStart(2, "0")} Flacons
+              </span>
+              <span className="hidden sm:inline">
+                Olfactive Ledger · {String(fragranceList.length).padStart(2, "0")} Flacons
+              </span>
             </span>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Link
                 href="/collection"
-                className="hidden font-body text-[10.5px] uppercase tracking-[0.18em] text-aube-text underline underline-offset-4 transition-colors hover:text-aube-accent sm:inline"
+                className="inline-flex min-h-11 items-center font-body text-[10.5px] uppercase tracking-[0.16em] text-aube-text underline underline-offset-4 transition-colors hover:text-aube-accent"
               >
-                View Full Catalog
+                <span className="sm:hidden">Catalog</span>
+                <span className="hidden sm:inline">View Full Catalog</span>
               </Link>
 
               <div className="flex items-center gap-1.5">
@@ -236,7 +139,7 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                   onClick={() => scrollByCard(-1)}
                   disabled={!canScrollPrev}
                   aria-label="Previous fragrances"
-                  className="flex h-7 w-7 items-center justify-center border border-aube-hairline bg-[#F1F0EB] text-aube-text transition-colors hover:border-aube-text disabled:opacity-25 focus-visible:outline-2 focus-visible:outline-aube-text"
+                  className="flex h-11 w-11 min-h-11 min-w-11 items-center justify-center border border-aube-hairline bg-[#F1F0EB] text-aube-text transition-colors hover:border-aube-text disabled:opacity-25 focus-visible:outline-2 focus-visible:outline-aube-text"
                 >
                   <svg
                     aria-hidden="true"
@@ -258,7 +161,7 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                   onClick={() => scrollByCard(1)}
                   disabled={!canScrollNext}
                   aria-label="Next fragrances"
-                  className="flex h-7 w-7 items-center justify-center border border-aube-hairline bg-[#F1F0EB] text-aube-text transition-colors hover:border-aube-text disabled:opacity-25 focus-visible:outline-2 focus-visible:outline-aube-text"
+                  className="flex h-11 w-11 min-h-11 min-w-11 items-center justify-center border border-aube-hairline bg-[#F1F0EB] text-aube-text transition-colors hover:border-aube-text disabled:opacity-25 focus-visible:outline-2 focus-visible:outline-aube-text"
                 >
                   <svg
                     aria-hidden="true"
@@ -287,7 +190,7 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
           tabIndex={0}
           aria-label="Fragrances ledger carousel, use left and right arrow keys to navigate"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          className="flex snap-x snap-mandatory overflow-x-auto border-t border-b border-aube-hairline divide-x divide-aube-hairline no-scrollbar focus-visible:outline-1 focus-visible:outline-aube-text"
+          className="flex snap-x snap-mandatory overflow-x-auto touch-pan-x border-t border-b border-aube-hairline divide-x divide-aube-hairline no-scrollbar focus-visible:outline-1 focus-visible:outline-aube-text"
         >
           {fragranceList.map((fragrance, index) => {
             const isTouchRevealed = revealedSlug === fragrance.slug;
@@ -297,13 +200,13 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
               <article
                 key={fragrance.slug}
                 data-ledger-column
-                className="group relative flex w-[78vw] shrink-0 snap-start flex-col bg-transparent p-5 transition-colors duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-black/[0.015] sm:w-[44vw] sm:p-6 md:w-[32vw] lg:w-1/3 lg:p-7"
+                className="group relative flex w-[74vw] shrink-0 snap-start flex-col bg-transparent p-4 transition-colors duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-black/[0.015] sm:w-[44vw] sm:p-6 md:w-[32vw] lg:w-1/3 lg:p-7"
               >
                 {/* Generous Flacon Plinth + Top-to-Down Ingredient Curtain Reveal */}
-                <div className="relative h-[310px] w-full overflow-hidden bg-transparent transition-all duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] sm:h-[360px] md:h-[400px] lg:h-[440px]">
+                <div className="relative h-[220px] w-full overflow-hidden bg-transparent transition-all duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] sm:h-[360px] md:h-[400px] lg:h-[440px]">
                   <Link
                     href={`/collection/${fragrance.slug}`}
-                    aria-label={`Inspect ${fragrance.name}, 50 ml Extrait de Parfum`}
+                    aria-label={`Inspect ${fragrance.name}, 50 ml Eau de Parfum`}
                     className="relative block h-full w-full focus-visible:outline-2 focus-visible:outline-aube-text"
                   >
                     {/* Layer 1 (Base): Front-Facing Perfume Flacon with Grounding Plinth & Studio Cast Shadow */}
@@ -315,7 +218,7 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                       <div className="relative h-[86%] w-[86%]">
                         <Image
                           src={fragrance.image}
-                          alt={`${fragrance.name} 50 ml Extrait de Parfum`}
+                          alt={`${fragrance.name} 50 ml Eau de Parfum`}
                           fill
                           priority={index < 3}
                           sizes="(max-width: 640px) 70vw, (max-width: 1024px) 38vw, 28vw"
@@ -325,58 +228,62 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                     </div>
 
                     {/* Layer 2 (Curtain): Raw Botanicals — Pure Top-to-Down Reveal Over Bottle */}
-                    <div
-                      className={`pointer-events-none absolute inset-0 z-20 overflow-hidden bg-transparent transition-[clip-path] duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
-                        isTouchRevealed
-                          ? "[clip-path:inset(0_0_0%_0)]"
-                          : "[clip-path:inset(0_0_100%_0)] group-hover:[clip-path:inset(0_0_0%_0)] group-focus-within:[clip-path:inset(0_0_0%_0)]"
-                      }`}
-                    >
-                      <Image
-                        src={fragrance.notesImage}
-                        alt={`Raw botanicals of ${fragrance.name}`}
-                        fill
-                        sizes="(max-width: 640px) 78vw, (max-width: 1024px) 44vw, 33vw"
-                        className={`object-cover object-center transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                          isTouchRevealed
-                            ? "translate-y-0 scale-100"
-                            : "-translate-y-4 scale-105 group-hover:translate-y-0 group-hover:scale-100 group-focus-within:translate-y-0 group-focus-within:scale-100"
-                        }`}
-                      />
+                    {fragrance.notesImage && (
                       <div
-                        aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 bg-black/[0.04]"
-                      />
-                    </div>
+                        className={`pointer-events-none absolute inset-0 z-20 overflow-hidden bg-transparent transition-[clip-path] duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+                          isTouchRevealed
+                            ? "[clip-path:inset(0_0_0%_0)]"
+                            : "[clip-path:inset(0_0_100%_0)] group-hover:[clip-path:inset(0_0_0%_0)] group-focus-within:[clip-path:inset(0_0_0%_0)]"
+                        }`}
+                      >
+                        <Image
+                          src={fragrance.notesImage}
+                          alt={`Raw botanicals of ${fragrance.name}`}
+                          fill
+                          sizes="(max-width: 640px) 78vw, (max-width: 1024px) 44vw, 33vw"
+                          className={`object-cover object-center transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                            isTouchRevealed
+                              ? "translate-y-0 scale-100"
+                              : "-translate-y-4 scale-105 group-hover:translate-y-0 group-hover:scale-100 group-focus-within:translate-y-0 group-focus-within:scale-100"
+                          }`}
+                        />
+                        <div
+                          aria-hidden="true"
+                          className="pointer-events-none absolute inset-0 bg-black/[0.04]"
+                        />
+                      </div>
+                    )}
                   </Link>
 
                   {/* Touch reveal toggle pill (< lg) */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setRevealedSlug((curr) =>
-                        curr === fragrance.slug ? null : fragrance.slug
-                      );
-                    }}
-                    aria-pressed={isTouchRevealed}
-                    aria-label={`Toggle ingredients view for ${fragrance.name}`}
-                    className="absolute bottom-2 right-2 z-30 border border-aube-hairline bg-white/95 px-2 py-0.5 font-body text-[8.5px] uppercase tracking-[0.14em] text-aube-text shadow-sm lg:hidden"
-                  >
-                    {isTouchRevealed ? "Bottle" : "Ingredients"}
-                  </button>
+                  {fragrance.notesImage && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setRevealedSlug((curr) =>
+                          curr === fragrance.slug ? null : fragrance.slug
+                        );
+                      }}
+                      aria-pressed={isTouchRevealed}
+                      aria-label={`Toggle ingredients view for ${fragrance.name}`}
+                      className="absolute bottom-2 right-2 z-30 flex min-h-11 min-w-11 items-center justify-center border border-aube-hairline bg-white/95 px-2.5 font-body text-[9.5px] uppercase tracking-[0.14em] text-aube-text shadow-sm lg:hidden"
+                    >
+                      {isTouchRevealed ? "Bottle" : "Ingredients"}
+                    </button>
+                  )}
                 </div>
 
                 {/* Olfactory / Review & Acquire Action Row */}
-                <div className="mt-3.5 flex items-center justify-between text-xs">
+                <div className="mt-2 flex items-center justify-between gap-2 text-xs">
                   {typeof fragrance.rating === "number" &&
                   typeof fragrance.reviewCount === "number" &&
                   fragrance.reviewCount > 0 ? (
                     <Link
                       href={`/collection/${fragrance.slug}#reviews-section`}
                       aria-label={`${fragrance.name}: rated ${(fragrance.rating ?? 0).toFixed(1)} out of 5 stars based on ${fragrance.reviewCount} verified collector reviews`}
-                      className="group/rating flex items-center gap-1.5 text-aube-text transition-opacity hover:opacity-75 focus-visible:outline-1 focus-visible:outline-aube-text"
+                      className="group/rating inline-flex min-h-11 min-w-11 items-center gap-1.5 text-aube-text transition-opacity hover:opacity-75 focus-visible:outline-1 focus-visible:outline-aube-text"
                     >
                       <span
                         aria-hidden="true"
@@ -406,7 +313,7 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                         ? `${fragrance.name} in Case`
                         : `Acquire ${fragrance.name}`
                     }
-                    className="group/btn inline-flex items-center gap-1.5 font-body text-[10.5px] uppercase tracking-[0.14em] text-aube-text transition-colors duration-500 hover:text-aube-accent focus-visible:outline-1 focus-visible:outline-aube-text"
+                    className="group/btn inline-flex min-h-11 min-w-11 items-center justify-end gap-1.5 font-body text-[10.5px] uppercase tracking-[0.14em] text-aube-text transition-colors duration-500 hover:text-aube-accent focus-visible:outline-1 focus-visible:outline-aube-text"
                   >
                     <span>{isAdded ? "In Case" : "Acquire"}</span>
                     <svg
@@ -427,11 +334,11 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                 </div>
 
                 {/* Architectural Title & Ledger Price Row */}
-                <div className="mt-2.5 flex items-baseline justify-between gap-2 border-t border-aube-hairline pt-2.5">
+                <div className="mt-1 flex items-baseline justify-between gap-2 border-t border-aube-hairline pt-2">
                   <div className="min-w-0">
                     <Link
                       href={`/collection/${fragrance.slug}`}
-                      className="font-display text-base font-medium uppercase tracking-[0.16em] text-aube-text transition-colors duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:text-aube-accent focus-visible:outline-1 focus-visible:outline-aube-text"
+                      className="inline-flex min-h-11 items-center font-display text-base font-medium uppercase tracking-[0.16em] text-aube-text transition-colors duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:text-aube-accent focus-visible:outline-1 focus-visible:outline-aube-text"
                     >
                       {fragrance.name}
                     </Link>

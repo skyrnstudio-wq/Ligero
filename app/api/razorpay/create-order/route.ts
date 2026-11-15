@@ -2,27 +2,54 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   getRazorpayClient,
   isRazorpayConfigured,
-  calculateVerifiedCartTotal,
+  resolveVerifiedCartItems,
+  type VerifiedOrderItem,
 } from "@/lib/razorpay";
+import { savePendingOrderToSanity } from "@/lib/orders";
+
+interface RazorpayApiError {
+  statusCode?: number;
+  error?: {
+    code?: string;
+    description?: string;
+  };
+}
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { items, customer, giftNote, customOrderId } = body;
+    const { items, customer, giftNote, customOrderId, amount, currency, receipt } = body;
 
-    if (!items || !Array.isArray(items) || items.length === 0) {
+    const hasItems = Array.isArray(items) && items.length > 0;
+    const hasDirectAmount = amount !== undefined && amount !== null;
+
+    if (!hasItems && !hasDirectAmount) {
       return NextResponse.json(
         { success: false, error: "Your case is empty." },
         { status: 400 }
       );
     }
 
-    // Authoritative total calculation from verified catalog
-    const verifiedTotal = calculateVerifiedCartTotal(items);
+    let verifiedItems: VerifiedOrderItem[] | undefined;
+    let amountInPaise = 0;
 
-    if (verifiedTotal <= 0) {
+    if (hasItems) {
+      const resolved = await resolveVerifiedCartItems(items);
+      if (!resolved.valid) {
+        return NextResponse.json(
+          { success: false, error: resolved.error },
+          { status: 400 }
+        );
+      }
+      verifiedItems = resolved.items;
+      amountInPaise = resolved.amountPaise;
+    } else {
+      amountInPaise = Math.round(Number(amount));
+    }
+
+    if (!Number.isFinite(amountInPaise) || amountInPaise < 100) {
       return NextResponse.json(
-        { success: false, error: "Invalid order amount." },
+        { success: false, error: "Amount must be at least 100 paise." },
         { status: 400 }
       );
     }
@@ -36,46 +63,76 @@ export async function POST(req: NextRequest) {
         {
           success: false,
           configured: false,
-          orderId: referenceId,
-          amount: verifiedTotal * 100,
-          currency: "INR",
-          message:
-            "Razorpay API keys not configured. Set NEXT_PUBLIC_RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in .env.local",
+          error: "Razorpay API credentials are not configured.",
         },
-        { status: 200 }
+        { status: 401 }
       );
     }
 
     const razorpay = getRazorpayClient();
     if (!razorpay) {
       return NextResponse.json(
-        { success: false, error: "Failed to initialize Razorpay client." },
-        { status: 500 }
+        {
+          success: false,
+          configured: false,
+          error: "Razorpay API credentials are not configured.",
+        },
+        { status: 401 }
       );
     }
 
-    const receipt = referenceId.slice(0, 40);
+    const orderCurrency =
+      typeof currency === "string" && currency.trim()
+        ? currency.trim().toUpperCase()
+        : "INR";
+    const orderReceipt = String(receipt || referenceId).slice(0, 40);
+
+    const itemsSummary = verifiedItems
+      ? verifiedItems
+          .map((item) => `${item.name} (${item.volume}) × ${item.quantity}`)
+          .join("; ")
+          .slice(0, 240)
+      : "Direct Order";
+
+    const shippingAddress = [customer?.address, customer?.apartment]
+      .filter(Boolean)
+      .join(", ")
+      .slice(0, 240);
 
     const orderOptions = {
-      amount: Math.round(verifiedTotal * 100), // paise
-      currency: "INR",
-      receipt,
+      amount: amountInPaise,
+      currency: orderCurrency,
+      receipt: orderReceipt,
       notes: {
-        orderReference: referenceId,
-        customerName: customer?.fullName?.slice(0, 50) || "Guest",
-        customerEmail: customer?.email?.slice(0, 50) || "",
-        customerPhone: customer?.phone?.slice(0, 20) || "",
-        city: customer?.city?.slice(0, 40) || "",
-        pincode: customer?.pincode?.slice(0, 10) || "",
-        giftNote: (giftNote || "").slice(0, 200),
+        orderReference: String(referenceId).slice(0, 60),
+        itemsSummary,
+        customerName: String(customer?.fullName || "Guest").slice(0, 80),
+        customerEmail: String(customer?.email || "").slice(0, 80),
+        customerPhone: String(customer?.phone || "").slice(0, 20),
+        shippingAddress,
+        city: String(customer?.city || "").slice(0, 50),
+        state: String(customer?.state || "").slice(0, 50),
+        pincode: String(customer?.pincode || "").slice(0, 12),
+        giftNote: String(giftNote || "").slice(0, 200),
       },
     };
 
     const razorpayOrder = await razorpay.orders.create(orderOptions);
 
+    await savePendingOrderToSanity({
+      razorpayOrderId: razorpayOrder.id,
+      orderReference: referenceId,
+      amountPaise: Number(razorpayOrder.amount) || amountInPaise,
+      currency: razorpayOrder.currency || orderCurrency,
+      customer,
+      items: verifiedItems,
+      giftNote,
+    });
+
     return NextResponse.json({
       success: true,
       configured: true,
+      order_id: razorpayOrder.id,
       razorpayOrderId: razorpayOrder.id,
       amount: razorpayOrder.amount,
       currency: razorpayOrder.currency,
@@ -84,10 +141,25 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error("Razorpay order creation failed:", error);
+    const rzpError = error as RazorpayApiError;
+    const errorDescription = rzpError?.error?.description;
+
+    if (rzpError?.statusCode === 401) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: errorDescription || "Razorpay authentication failed.",
+        },
+        { status: 401 }
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Internal Server Error",
+        error:
+          errorDescription ||
+          (error instanceof Error ? error.message : "Failed to create Razorpay order."),
       },
       { status: 500 }
     );

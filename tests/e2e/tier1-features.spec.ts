@@ -470,7 +470,7 @@ test.describe("Tier 1: Feature Coverage Suite (F1 to F20)", () => {
       const section = page.locator("section#correspondence-strip, section:has(input[type='email'])").first();
       if (await section.isVisible()) {
         const box = await section.boundingBox();
-        expect(box?.width).toBeLessThanOrEqual(window.innerWidth + 2);
+        expect(box?.width).toBeLessThanOrEqual((page.viewportSize()?.width ?? 390) + 2);
       }
     });
   });
@@ -655,7 +655,7 @@ test.describe("Tier 1: Feature Coverage Suite (F1 to F20)", () => {
       const stickyBar = page.locator("div.sticky:has(button:has-text('All'))").first();
       if (await stickyBar.isVisible()) {
         const box = await stickyBar.boundingBox();
-        expect(box?.width).toBeGreaterThanOrEqual(window.innerWidth - 60);
+        expect(box?.width).toBeGreaterThanOrEqual((page.viewportSize()?.width ?? 390) - 60);
       }
     });
   });

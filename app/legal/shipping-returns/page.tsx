@@ -3,8 +3,12 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 
 export const metadata = {
-  title: "Shipping and Returns — Ligero Parfum",
-  description: "Guidelines on domestic surface delivery, transit timelines, and sealed bottle returns.",
+  title: "Shipping and Returns",
+  description:
+    "Guidelines on domestic surface delivery, transit timelines, and sealed bottle returns for Ligero Parfum.",
+  alternates: {
+    canonical: "/legal/shipping-returns",
+  },
 };
 
 export default function ShippingReturnsPage() {

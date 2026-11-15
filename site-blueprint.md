@@ -285,7 +285,7 @@ Real reviews only. No placeholder ratings, counts or quotes exist anywhere on th
 ## 12. Marketing psychology, applied quietly
 
 - Scarcity: small batches, no restocks promised. True scarcity, never a countdown timer. Never framed as permanence or tiering.
-- Authority: single-origin estates and artisanal distillation. Facts do the persuading. No unverified geographical claims.
+- Authority: artisanal distillation and botanical extraits. Facts do the persuading. No geographical claims.
 - Mimetic desire: the Collection row. Desire spreads from seeing others' objects of desire. No testimonial wall and no quotes pulled onto marketing pages. Social proof lives only in approved reviews on each perfume page (section 11c).
 - Loss aversion in the bespoke band: "twice a year" closes twice, gently.
 - Zero-price effect: never discount. No sale language anywhere, ever.

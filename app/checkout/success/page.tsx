@@ -35,15 +35,42 @@ function SuccessContent() {
   const [order, setOrder] = useState<StoredOrder | null>(null);
 
   useEffect(() => {
-    try {
-      const stored = sessionStorage.getItem("ligero_last_order");
-      if (stored) {
-        setOrder(JSON.parse(stored));
+    let active = true;
+
+    async function loadOrder() {
+      try {
+        const stored = sessionStorage.getItem("ligero_last_order");
+        if (stored) {
+          if (active) setOrder(JSON.parse(stored));
+          return;
+        }
+      } catch {
+        // Ignore sessionStorage unavailable
       }
-    } catch {
-      // Ignore
+
+      if (!orderIdParam && !paymentIdParam) return;
+
+      try {
+        const params = new URLSearchParams();
+        if (orderIdParam) params.set("orderId", orderIdParam);
+        if (paymentIdParam) params.set("paymentId", paymentIdParam);
+
+        const res = await fetch(`/api/orders/lookup?${params.toString()}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (active && data.success && data.order) {
+          setOrder(data.order);
+        }
+      } catch {
+        // Ignore lookup failures
+      }
     }
-  }, []);
+
+    loadOrder();
+    return () => {
+      active = false;
+    };
+  }, [orderIdParam, paymentIdParam]);
 
   const displayId = order?.orderId || orderIdParam || "LGP-2026-9481";
   const displayPaymentId = order?.paymentId || paymentIdParam;
@@ -185,10 +212,10 @@ function SuccessContent() {
           </Link>
 
           <a
-            href="mailto:sales@ligeroparfum.com"
+            href="mailto:sales@ligeroparfums.com"
             className="text-center text-xs uppercase tracking-[0.2em] text-aube-text-muted hover:text-aube-accent"
           >
-            Inquiries: sales@ligeroparfum.com →
+            Inquiries: sales@ligeroparfums.com →
           </a>
         </div>
       </div>

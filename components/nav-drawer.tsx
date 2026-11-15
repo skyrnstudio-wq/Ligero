@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { PERFUMES } from "@/lib/products";
+import { useCatalog } from "@/context/catalog-context";
 
 declare global {
   interface Window {
@@ -28,6 +28,7 @@ const HOUSE_LINKS = [
 ];
 
 export default function NavDrawer({ isOpen, onClose, isDark = false }: NavDrawerProps) {
+  const { perfumes } = useCatalog();
   const drawerRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const triggerElRef = useRef<HTMLElement | null>(null);
@@ -115,7 +116,7 @@ export default function NavDrawer({ isOpen, onClose, isDark = false }: NavDrawer
 
   return (
     <div
-      className={`fixed inset-0 z-50 ${
+      className={`fixed inset-0 z-50 overflow-hidden ${
         isOpen
           ? "visible pointer-events-auto"
           : "invisible pointer-events-none transition-[visibility] duration-0 delay-500"
@@ -135,13 +136,13 @@ export default function NavDrawer({ isOpen, onClose, isDark = false }: NavDrawer
         role="dialog"
         aria-modal="true"
         aria-label="Navigation Menu"
-        data-lenis-prevent
-        className={`absolute inset-y-0 left-0 flex w-full max-w-md flex-col justify-between overflow-y-auto border-r border-[#382a20] bg-[#1c140e] px-6 pt-6 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+1rem))] text-[#f3ede3] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] sm:px-10 sm:pt-10 sm:pb-[max(2.5rem,calc(env(safe-area-inset-bottom)+1.5rem))] ${
+        data-lenis-prevent=""
+        className={`absolute inset-y-0 left-0 flex w-[88vw] max-w-md flex-col justify-between overflow-y-auto border-r border-[#382a20] bg-[#1c140e] px-6 pt-6 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+1rem))] text-[#f3ede3] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] sm:px-10 sm:pt-10 sm:pb-[max(2.5rem,calc(env(safe-area-inset-bottom)+1.5rem))] ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="flex items-center justify-between border-b border-[#382a20] pb-6">
-          <Link href="/" onClick={onClose} className="flex flex-col transition-opacity hover:opacity-85">
+          <Link href="/" onClick={onClose} className="flex min-h-11 flex-col justify-center transition-opacity hover:opacity-85">
             <span className="font-display text-lg font-medium uppercase leading-tight tracking-[0.24em] pl-[0.24em] text-[#FDFBF7]">
               Ligéro
             </span>
@@ -182,21 +183,21 @@ export default function NavDrawer({ isOpen, onClose, isDark = false }: NavDrawer
 
           <div className="border-t border-[#382a20] pt-8">
             <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#b09f8f]">
-              Seven Perfumes
+              The Perfumes
             </p>
 
-            <ul className="mt-4 flex flex-col gap-2">
-              {PERFUMES.map((perfume) => (
+            <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-1 sm:gap-y-2">
+              {perfumes.map((perfume) => (
                 <li key={perfume.slug}>
                   <Link
                     href={`/collection/${perfume.slug}`}
                     onClick={onClose}
-                    className="group flex min-h-11 items-center justify-between py-2 transition-colors"
+                    className="group flex min-h-11 items-center justify-between gap-2 py-2 transition-colors"
                   >
-                    <span className="font-display text-xl font-normal italic text-[#f3ede3] transition-colors group-hover:text-[#d89f68]">
+                    <span className="font-display text-lg font-normal italic text-[#f3ede3] transition-colors group-hover:text-[#d89f68] sm:text-xl">
                       {perfume.name}
                     </span>
-                    <span className="text-[11px] text-[#b09f8f] transition-colors group-hover:text-[#f3ede3]">
+                    <span className="hidden text-[11px] text-[#b09f8f] transition-colors group-hover:text-[#f3ede3] sm:inline">
                       {perfume.scentProfile.family}
                     </span>
                   </Link>
@@ -210,10 +211,15 @@ export default function NavDrawer({ isOpen, onClose, isDark = false }: NavDrawer
           <p className="text-xs leading-relaxed text-[#b09f8f]">
             Handcrafted with pure botanical extraits.
           </p>
-          <div className="mt-3 flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-[#b09f8f]">
-            <Link href="/help" onClick={onClose} className="inline-flex min-h-11 items-center hover:text-[#d89f68]">
-              Help
-            </Link>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-4 text-[11px] uppercase tracking-[0.2em] text-[#b09f8f]">
+            <div className="flex items-center gap-5">
+              <Link href="/help" onClick={onClose} className="inline-flex min-h-11 items-center hover:text-[#d89f68]">
+                Help
+              </Link>
+              <Link href="/legal/privacy" onClick={onClose} className="inline-flex min-h-11 items-center hover:text-[#d89f68]">
+                Privacy
+              </Link>
+            </div>
             <a
               href="https://www.instagram.com/ligeroparfums"
               target="_blank"

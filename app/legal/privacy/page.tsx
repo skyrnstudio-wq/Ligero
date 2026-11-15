@@ -3,8 +3,12 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 
 export const metadata = {
-  title: "Privacy Policy — Ligero Parfum",
-  description: "Privacy policy under the Digital Personal Data Protection Act, 2023.",
+  title: "Privacy Policy",
+  description:
+    "Privacy policy for Ligero Parfum under the Digital Personal Data Protection Act, 2023.",
+  alternates: {
+    canonical: "/legal/privacy",
+  },
 };
 
 export default function PrivacyPolicyPage() {
@@ -119,26 +123,6 @@ export default function PrivacyPolicyPage() {
             <p className="mt-4">
               Under Sections 11 and 13 of the DPDP Act, you may request a summary of the data we hold, ask for corrections, or request erasure (unless retaining the record is required by tax law). You may withdraw consent at any time.
             </p>
-          </section>
-
-          <section>
-            <h2 className="font-display text-2xl font-light italic text-aube-text sm:text-3xl">
-              8. Grievance Officer
-            </h2>
-            <div className="mt-4 border border-aube-hairline bg-aube-surface p-6 sm:p-8">
-              <p className="font-display text-xl font-normal text-aube-text">
-                Grievance Officer, Ligero Parfum
-              </p>
-              <p className="mt-2 text-sm text-aube-text-muted">
-                Email: grievance@ligeroparfums.com
-              </p>
-              <p className="text-sm text-aube-text-muted">
-                Hours: Monday to Friday, 10:00 to 18:00 IST
-              </p>
-              <p className="mt-3 text-xs uppercase tracking-[0.16em] text-aube-accent">
-                Acknowledged within 72 hours. Resolved within 30 days.
-              </p>
-            </div>
           </section>
         </div>
       </main>

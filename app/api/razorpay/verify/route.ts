@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyRazorpaySignature, isRazorpayConfigured } from "@/lib/razorpay";
+import {
+  verifyRazorpaySignature,
+  isRazorpayConfigured,
+  resolveVerifiedCartItems,
+} from "@/lib/razorpay";
+import { markOrderPaidInSanity } from "@/lib/orders";
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,6 +14,9 @@ export async function POST(req: NextRequest) {
       razorpay_payment_id,
       razorpay_signature,
       orderReference,
+      customer,
+      items,
+      giftNote,
     } = body;
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
@@ -54,6 +62,28 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    let verifiedItems;
+    let amountPaise: number | undefined;
+    if (Array.isArray(items) && items.length > 0) {
+      const resolved = await resolveVerifiedCartItems(items);
+      if (resolved.valid) {
+        verifiedItems = resolved.items;
+        amountPaise = resolved.amountPaise;
+      }
+    }
+
+    await markOrderPaidInSanity({
+      razorpayOrderId: razorpay_order_id,
+      razorpayPaymentId: razorpay_payment_id,
+      razorpaySignature: razorpay_signature,
+      orderReference,
+      amountPaise,
+      currency: "INR",
+      customer,
+      items: verifiedItems,
+      giftNote,
+    });
 
     return NextResponse.json({
       success: true,

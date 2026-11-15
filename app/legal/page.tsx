@@ -3,8 +3,12 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 
 export const metadata = {
-  title: "Legal & House Policies — Ligero Parfum",
-  description: "Statutory disclosures, terms of sale, privacy policy, and shipping guidelines.",
+  title: "Legal & House Policies",
+  description:
+    "Statutory disclosures, terms of sale, privacy policy, and shipping guidelines for Ligero Parfum.",
+  alternates: {
+    canonical: "/legal",
+  },
 };
 
 const POLICIES = [
@@ -24,9 +28,9 @@ const POLICIES = [
     desc: "Domestic surface courier logistics, delivery timelines, and return conditions for sealed bottles.",
   },
   {
-    title: "Grievance Redressal & Statutory Disclosures",
+    title: "Statutory Disclosures & Compliance",
     href: "/legal/compliance-checklist",
-    desc: "Grievance Officer contact details, statutory compliance, and Consumer Protection disclosures.",
+    desc: "Legal Metrology declarations, data protection, and Consumer Protection disclosures.",
   },
 ];
 

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Product } from "@/lib/products";
+import { getPerfumeCutoutImage, type Product } from "@/lib/products";
 import { useCase } from "@/context/case-context";
 import type { ReviewSummary } from "@/lib/reviews";
+import ProductDiscoveryBanner from "./product-discovery-banner";
 import ProductScentRadar from "./product-scent-radar";
 
 interface ProductOrderPanelProps {
@@ -18,23 +19,48 @@ export default function ProductOrderPanel({
   reviewSummary = null,
 }: ProductOrderPanelProps) {
   const [added, setAdded] = useState(false);
+  const [selectedFormat, setSelectedFormat] = useState<"flacon" | "discovery">(
+    "flacon"
+  );
+  const [descOpen, setDescOpen] = useState(false);
   const { addToCase, setIsCaseOpen } = useCase();
 
+  useEffect(() => {
+    if (window.matchMedia("(min-width: 1024px)").matches) {
+      setDescOpen(true);
+    }
+  }, []);
+
   const handleAdd = () => {
-    addToCase(
-      {
-        slug: product.slug,
-        name: product.name,
-        price: product.price,
-        volume: product.volume,
-        image: `/images/perfumes/cutouts/${product.slug}.webp?v=2`,
-      },
-      1
-    );
+    if (selectedFormat === "discovery") {
+      addToCase(
+        {
+          slug: "discovery-set",
+          name: `The Discovery Set (Includes ${product.name})`,
+          price: 999,
+          volume: "7 × 10 ml Coffret",
+          image: "/images/objects/discovery-set-floating.webp",
+        },
+        1
+      );
+    } else {
+      addToCase(
+        {
+          slug: product.slug,
+          name: product.name,
+          price: product.price,
+          volume: product.volume,
+          image: getPerfumeCutoutImage(product),
+        },
+        1
+      );
+    }
     setAdded(true);
     setIsCaseOpen(true);
     setTimeout(() => setAdded(false), 2000);
   };
+
+  const activePrice = selectedFormat === "discovery" ? 999 : product.price;
 
   const notesLower = product.notesUppercase
     .toLowerCase()
@@ -64,14 +90,14 @@ export default function ProductOrderPanel({
           {notesLower}
         </p>
 
-        <p className="mt-2.5 font-body text-xs font-medium tabular-nums text-pdp-text">
-          ₹{product.price.toLocaleString("en-IN")}
+        <p className="mt-2 font-body text-xs font-medium tabular-nums text-pdp-text sm:mt-2.5">
+          ₹{activePrice.toLocaleString("en-IN")}
         </p>
 
         {reviewSummary && reviewSummary.count > 0 ? (
           <a
             href="#reviews-section"
-            className="mt-4 inline-flex items-center gap-1.5 font-body text-xs text-pdp-text transition-opacity hover:opacity-75"
+            className="mt-2 inline-flex min-h-11 items-center gap-1.5 font-body text-xs text-pdp-text transition-opacity hover:opacity-75 sm:mt-3"
           >
             <span aria-hidden="true" className="tracking-[0.12em] text-[11px] text-amber-700/80 dark:text-amber-400/80">
               {"★".repeat(Math.round(reviewSummary.average))}
@@ -83,7 +109,7 @@ export default function ProductOrderPanel({
         ) : (
           <a
             href="#reviews-section"
-            className="mt-4 inline-block font-body text-[11px] text-pdp-muted underline-offset-4 hover:underline hover:text-pdp-text"
+            className="mt-2 inline-flex min-h-11 items-center font-body text-[11px] text-pdp-muted underline-offset-4 hover:underline hover:text-pdp-text sm:mt-3"
           >
             Write a review
           </a>
@@ -91,15 +117,52 @@ export default function ProductOrderPanel({
       </div>
 
       {/* 2. Left-Aligned Description & Purchase Controls */}
-      <div className="mt-7 flex flex-col gap-3.5">
+      <div className="mt-4 flex flex-col gap-3 sm:mt-6 sm:gap-3.5">
         <p className="font-body text-xs leading-relaxed text-pdp-text/90">
           {product.oneLiner} {product.material}
         </p>
 
-        {/* Format Indicator (50 ml Flacon) */}
-        <div className="flex items-center justify-between border border-pdp-text/20 bg-pdp-chip/60 px-4 py-2.5 font-body text-[10.5px] font-medium uppercase tracking-[0.18em] text-pdp-text">
-          <span>50 ml Flacon</span>
-          <span className="text-pdp-muted">Eau de Parfum</span>
+        {/* Format Toggle (50 ml Flacon vs 7 × 10 ml Coffret) */}
+        <div
+          role="group"
+          aria-label="Select flacon format"
+          className="grid grid-cols-2 gap-2"
+        >
+          <button
+            type="button"
+            onClick={() => setSelectedFormat("flacon")}
+            aria-pressed={selectedFormat === "flacon"}
+            className={`flex min-h-11 flex-col items-start justify-center border px-3.5 py-2 text-left transition-colors ${
+              selectedFormat === "flacon"
+                ? "border-pdp-text bg-pdp-chip text-pdp-text"
+                : "border-pdp-text/20 bg-pdp-surface/50 text-pdp-muted hover:border-pdp-text/50 hover:text-pdp-text"
+            }`}
+          >
+            <span className="font-body text-[10.5px] font-semibold uppercase tracking-[0.16em]">
+              50 ml
+            </span>
+            <span className="font-body text-[10px] opacity-80">
+              Full Flacon · ₹{product.price.toLocaleString("en-IN")}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSelectedFormat("discovery")}
+            aria-pressed={selectedFormat === "discovery"}
+            className={`flex min-h-11 flex-col items-start justify-center border px-3.5 py-2 text-left transition-colors ${
+              selectedFormat === "discovery"
+                ? "border-pdp-text bg-pdp-chip text-pdp-text"
+                : "border-pdp-text/20 bg-pdp-surface/50 text-pdp-muted hover:border-pdp-text/50 hover:text-pdp-text"
+            }`}
+          >
+            <span className="font-body text-[10.5px] font-semibold uppercase tracking-[0.16em]">
+              7 × 10 ml
+            </span>
+            <span className="font-body text-[10px] opacity-80">
+              Discovery Set · ₹999
+            </span>
+          </button>
         </div>
 
         {/* Primary Add to Case Button */}
@@ -108,7 +171,11 @@ export default function ProductOrderPanel({
           onClick={handleAdd}
           className="flex min-h-11 w-full items-center justify-center bg-pdp-btn px-6 py-3.5 font-body text-[10.5px] font-semibold uppercase tracking-[0.22em] text-pdp-btn-text transition-colors hover:bg-pdp-btn-hover active:scale-[0.99]"
         >
-          {added ? "Added to Case" : "Add to Case"}
+          {added
+            ? "Added to Case"
+            : selectedFormat === "discovery"
+            ? "Add Discovery Set to Case"
+            : "Add to Case"}
         </button>
 
         {/* Sub-CTA Utility Links */}
@@ -119,9 +186,13 @@ export default function ProductOrderPanel({
       </div>
 
       {/* 3. Minimal Accordions (Description, Ingredients, Shipping & Returns, Declarations) */}
-      <div className="mt-8 divide-y divide-pdp-text/15 border-t border-b border-pdp-text/15">
-        <details className="group py-3.5" open>
-          <summary className="flex cursor-pointer list-none items-center justify-between font-body text-xs font-normal text-pdp-text">
+      <div className="mt-5 divide-y divide-pdp-text/15 border-t border-b border-pdp-text/15 sm:mt-8">
+        <details
+          className="group py-1"
+          open={descOpen}
+          onToggle={(e) => setDescOpen((e.currentTarget as HTMLDetailsElement).open)}
+        >
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between font-body text-xs font-normal text-pdp-text">
             <span>Description</span>
             <span
               aria-hidden="true"
@@ -130,7 +201,7 @@ export default function ProductOrderPanel({
               +
             </span>
           </summary>
-          <div className="mt-3 space-y-2.5 font-body text-xs leading-relaxed text-pdp-muted">
+          <div className="mt-1 mb-3 space-y-2.5 font-body text-xs leading-relaxed text-pdp-muted">
             <p>{product.ritual}</p>
             <p>
               {product.scentProfile.concentration || "Eau de Parfum"} · Handcrafted in Small Batches.
@@ -138,8 +209,8 @@ export default function ProductOrderPanel({
           </div>
         </details>
 
-        <details className="group py-3.5">
-          <summary className="flex cursor-pointer list-none items-center justify-between font-body text-xs font-normal text-pdp-text">
+        <details className="group py-1">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between font-body text-xs font-normal text-pdp-text">
             <span>Ingredients</span>
             <span
               aria-hidden="true"
@@ -148,7 +219,7 @@ export default function ProductOrderPanel({
               +
             </span>
           </summary>
-          <div className="mt-3 space-y-2 font-body text-xs leading-relaxed text-pdp-muted">
+          <div className="mt-1 mb-3 space-y-2 font-body text-xs leading-relaxed text-pdp-muted">
             <p>
               Alcohol Denat. (Food-Grade Grain), Parfum (Fragrance), Aqua (Demineralised Water), and natural botanical extracts: {botanicals}.
             </p>
@@ -158,8 +229,8 @@ export default function ProductOrderPanel({
           </div>
         </details>
 
-        <details className="group py-3.5">
-          <summary className="flex cursor-pointer list-none items-center justify-between font-body text-xs font-normal text-pdp-text">
+        <details className="group py-1">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between font-body text-xs font-normal text-pdp-text">
             <span>Shipping &amp; Returns</span>
             <span
               aria-hidden="true"
@@ -168,7 +239,7 @@ export default function ProductOrderPanel({
               +
             </span>
           </summary>
-          <div className="mt-3 space-y-2 font-body text-xs leading-relaxed text-pdp-muted">
+          <div className="mt-1 mb-3 space-y-2 font-body text-xs leading-relaxed text-pdp-muted">
             <p>
               Shipped by tracked surface freight across all serviceable pincodes. Dispatched within two working days; delivery takes three to seven working days.
             </p>
@@ -185,8 +256,8 @@ export default function ProductOrderPanel({
           </div>
         </details>
 
-        <details className="group py-3.5">
-          <summary className="flex cursor-pointer list-none items-center justify-between font-body text-xs font-normal text-pdp-text">
+        <details className="group py-1">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between font-body text-xs font-normal text-pdp-text">
             <span>Declarations</span>
             <span
               aria-hidden="true"
@@ -195,10 +266,10 @@ export default function ProductOrderPanel({
               +
             </span>
           </summary>
-          <dl className="mt-3 grid grid-cols-1 gap-1.5 font-body text-xs leading-relaxed text-pdp-muted">
+          <dl className="mt-1 mb-3 grid grid-cols-1 gap-1.5 font-body text-xs leading-relaxed text-pdp-muted">
             <div>
               <dt className="inline font-medium text-pdp-text">Commodity:</dt>{" "}
-              <dd className="inline">Extrait de Parfum ({product.name})</dd>
+              <dd className="inline">Eau de Parfum ({product.name})</dd>
             </div>
             <div>
               <dt className="inline font-medium text-pdp-text">Net quantity:</dt>{" "}
@@ -224,6 +295,9 @@ export default function ProductOrderPanel({
 
       {/* 4. Scent Performance Architecture & Longevity Radar */}
       <ProductScentRadar product={product} />
+
+      {/* 5. Discovery Set Upsell Banner */}
+      <ProductDiscoveryBanner fragranceName={product.name} />
     </div>
   );
 }

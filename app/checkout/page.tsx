@@ -99,6 +99,7 @@ export default function CheckoutPage() {
     items,
     subtotal,
     totalCount,
+    addToCase,
     updateQuantity,
     removeFromCase,
     clearCase,
@@ -122,14 +123,10 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
-  const [isRazorpayReady, setIsRazorpayReady] = useState(false);
-  const [isSandboxNoticeOpen, setIsSandboxNoticeOpen] = useState(false);
 
   // Pre-load Razorpay checkout script
   useEffect(() => {
-    loadRazorpayScript().then((loaded) => {
-      setIsRazorpayReady(loaded);
-    });
+    loadRazorpayScript();
   }, []);
 
   const handleInputChange = (
@@ -177,7 +174,10 @@ export default function CheckoutPage() {
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-    if (items.length === 0) return;
+    if (items.length === 0) {
+      setPaymentError("Your case is currently empty. Add a fragrance or Discovery Set before completing payment.");
+      return;
+    }
 
     setIsProcessing(true);
     setPaymentError(null);
@@ -204,170 +204,120 @@ export default function CheckoutPage() {
 
       const orderData = await res.json();
 
-      // Case A: Live or Test Razorpay Keys are active
-      if (orderData.configured && orderData.razorpayOrderId) {
-        // Ensure script is loaded
-        const scriptLoaded = await loadRazorpayScript();
-        if (!scriptLoaded || typeof window === "undefined" || !window.Razorpay) {
-          throw new Error("Unable to connect to Razorpay payment gateway. Please check your network connection.");
-        }
-
-        const options: RazorpayOptions = {
-          key: orderData.keyId,
-          amount: orderData.amount,
-          currency: orderData.currency || "INR",
-          name: "Ligero Parfum",
-          description: `Acquisition ${orderData.orderReference}`,
-          order_id: orderData.razorpayOrderId,
-          image: "/images/hero/ligero-parfum-cutout.webp",
-          handler: async function (response: RazorpaySuccessResponse) {
-            try {
-              // 2. Verify payment cryptographic signature on server
-              const verifyRes = await fetch("/api/razorpay/verify", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature: response.razorpay_signature,
-                  orderReference: orderData.orderReference,
-                }),
-              });
-
-              const verifyData = await verifyRes.json();
-
-              if (!verifyRes.ok || !verifyData.verified) {
-                throw new Error(
-                  verifyData.error || "Payment signature verification failed. Please contact concierge."
-                );
-              }
-
-              // Store order metadata for confirmation
-              const orderRecord = {
-                orderId: orderData.orderReference,
-                paymentId: response.razorpay_payment_id,
-                razorpayOrderId: response.razorpay_order_id,
-                date: new Date().toLocaleDateString("en-IN", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                }),
-                customer: formData,
-                items,
-                subtotal,
-                status: "Verified (Razorpay)",
-              };
-
-              sessionStorage.setItem("ligero_last_order", JSON.stringify(orderRecord));
-              clearCase();
-              router.push(
-                `/checkout/success?orderId=${orderData.orderReference}&paymentId=${response.razorpay_payment_id}`
-              );
-            } catch (err) {
-              setIsProcessing(false);
-              setPaymentError(
-                err instanceof Error ? err.message : "Payment verification failed."
-              );
-            }
-          },
-          prefill: {
-            name: formData.fullName,
-            email: formData.email,
-            contact: formData.phone,
-          },
-          notes: {
-            orderReference: orderData.orderReference,
-            city: formData.city,
-            pincode: formData.pincode,
-          },
-          theme: {
-            color: "#A64B24", // Burnt Apricot
-          },
-          modal: {
-            ondismiss: function () {
-              setIsProcessing(false);
-            },
-          },
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.on("payment.failed", function (failRes: RazorpayFailureResponse) {
-          setIsProcessing(false);
-          setPaymentError(
-            failRes.error?.description || "Payment was declined or cancelled. Please try again."
-          );
-        });
-        rzp.open();
-        return;
+      // Open Razorpay Standard Checkout modal
+      const resolvedOrderId = orderData.order_id || orderData.razorpayOrderId;
+      if (!orderData.configured || !resolvedOrderId) {
+        throw new Error(orderData.error || "Payment gateway is not configured. Please contact support.");
       }
 
-      // Case B: Razorpay keys are not yet provided in .env.local
-      // Graceful test simulation mode for developer preview
-      setIsSandboxNoticeOpen(true);
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded || typeof window === "undefined" || !window.Razorpay) {
+        throw new Error("Unable to connect to Razorpay payment gateway. Please check your network connection.");
+      }
 
-      const orderRecord = {
-        orderId: orderRef,
-        paymentId: `sim_rzp_${Date.now().toString().slice(-8)}`,
-        date: new Date().toLocaleDateString("en-IN", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        }),
-        customer: formData,
-        items,
-        subtotal,
-        status: "Verified (Sandbox Simulation)",
+      const checkoutImage =
+        typeof window !== "undefined" ? `${window.location.origin}/icon.png` : "/icon.png";
+
+      const options: RazorpayOptions = {
+        key: orderData.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
+        amount: orderData.amount,
+        currency: orderData.currency || "INR",
+        name: "Ligero Parfum",
+        description: `Acquisition ${orderData.orderReference}`,
+        order_id: resolvedOrderId,
+        image: checkoutImage,
+        handler: async function (response: RazorpaySuccessResponse) {
+          try {
+            // 2. Verify payment cryptographic signature on server and persist paid order
+            const verifyRes = await fetch("/api/razorpay/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                orderReference: orderData.orderReference,
+                customer: formData,
+                items,
+                giftNote: formData.giftNote,
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+
+            if (!verifyRes.ok || !verifyData.verified) {
+              throw new Error(
+                verifyData.error || "Payment signature verification failed. Please contact concierge."
+              );
+            }
+
+            // Store order metadata for confirmation
+            const orderRecord = {
+              orderId: orderData.orderReference,
+              paymentId: response.razorpay_payment_id,
+              razorpayOrderId: response.razorpay_order_id,
+              date: new Date().toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              }),
+              customer: formData,
+              items,
+              subtotal,
+              giftNote: formData.giftNote,
+              status: "Verified (Razorpay)",
+            };
+
+            sessionStorage.setItem("ligero_last_order", JSON.stringify(orderRecord));
+            clearCase();
+            router.push(
+              `/checkout/success?orderId=${orderData.orderReference}&paymentId=${response.razorpay_payment_id}`
+            );
+          } catch (err) {
+            setIsProcessing(false);
+            setPaymentError(
+              err instanceof Error ? err.message : "Payment verification failed."
+            );
+          }
+        },
+        prefill: {
+          name: formData.fullName,
+          email: formData.email,
+          contact: formData.phone,
+        },
+        notes: {
+          orderReference: orderData.orderReference,
+          city: formData.city,
+          pincode: formData.pincode,
+        },
+        theme: {
+          color: "#A64B24", // Burnt Apricot
+        },
+        modal: {
+          ondismiss: function () {
+            setIsProcessing(false);
+            setPaymentError("Payment was cancelled. You can retry whenever you are ready.");
+          },
+        },
       };
 
-      sessionStorage.setItem("ligero_last_order", JSON.stringify(orderRecord));
-      clearCase();
-      router.push(`/checkout/success?orderId=${orderRef}&paymentId=${orderRecord.paymentId}`);
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", function (failRes: RazorpayFailureResponse) {
+        setIsProcessing(false);
+        setPaymentError(
+          failRes.error?.description || "Payment was declined or cancelled. Please try again."
+        );
+      });
+      rzp.open();
     } catch (err) {
       setIsProcessing(false);
       setPaymentError(
         err instanceof Error
           ? err.message
-          : "Unable to complete transaction. Please check your details or write to sales@ligeroparfum.com."
+          : "Unable to complete transaction. Please check your details or write to sales@ligeroparfums.com."
       );
     }
   };
-
-  // Empty state
-  if (items.length === 0) {
-    return (
-      <div className="min-h-screen bg-aube-base text-aube-text">
-        <header className="border-b border-aube-hairline bg-nav-silk/80 backdrop-blur-md">
-          <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 sm:px-10">
-            <Link href="/" className="font-display text-2xl font-light tracking-wide text-aube-text">
-              Ligero Parfum
-            </Link>
-            <Link
-              href="/collection"
-              className="text-xs uppercase tracking-[0.2em] text-aube-text-muted hover:text-aube-accent"
-            >
-              The Collection
-            </Link>
-          </div>
-        </header>
-
-        <main className="mx-auto flex max-w-xl flex-col items-center justify-center px-6 py-32 text-center">
-          <h1 className="font-display text-4xl font-light italic text-aube-text sm:text-5xl">
-            Your case is currently empty.
-          </h1>
-          <p className="mt-4 text-base text-aube-text-muted">
-            Explore seven rare extrait de parfums and olfactory objects.
-          </p>
-          <Link
-            href="/collection"
-            className="mt-8 border border-aube-text bg-aube-text px-8 py-3.5 text-xs uppercase tracking-[0.22em] text-aube-base transition-all hover:border-aube-accent hover:bg-aube-accent"
-          >
-            Explore The Collection
-          </Link>
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-aube-base text-aube-text">
@@ -379,16 +329,9 @@ export default function CheckoutPage() {
           </Link>
 
           <div className="flex items-center gap-6">
-            <div className="hidden sm:flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-aube-text-muted">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-              <span>Razorpay 256-bit Encrypted</span>
-            </div>
             <Link
               href="/collection"
-              className="text-xs uppercase tracking-[0.2em] text-aube-text-muted hover:text-aube-accent"
+              className="inline-flex min-h-11 items-center text-xs uppercase tracking-[0.2em] text-aube-text-muted hover:text-aube-accent"
             >
               ← Back to Shop
             </Link>
@@ -397,15 +340,53 @@ export default function CheckoutPage() {
       </header>
 
       {/* Main Checkout Area */}
-      <main className="mx-auto max-w-7xl px-6 py-12 sm:px-10 lg:py-16">
-        <div className="mb-10">
-          <h1 className="font-display text-4xl font-light italic tracking-tight sm:text-5xl">
+      <main className="mx-auto max-w-7xl px-5 py-8 sm:px-10 sm:py-12 lg:py-16">
+        <div className="mb-6 sm:mb-10">
+          <h1 className="font-display text-3xl font-light italic tracking-tight sm:text-5xl">
             Complete Your Case
           </h1>
           <p className="mt-2 text-sm text-aube-text-muted">
             Complimentary tracked delivery. No customer account required.
           </p>
         </div>
+
+        {/* Collapsible Mobile Order Summary */}
+        <details className="group mb-6 border border-aube-hairline bg-aube-surface lg:hidden">
+          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-4 py-3 text-xs uppercase tracking-[0.18em] text-aube-text">
+            <span>
+              Order Summary · {totalCount} {totalCount === 1 ? "Item" : "Items"}
+            </span>
+            <span className="flex items-center gap-2 font-body font-semibold">
+              ₹{subtotal.toLocaleString("en-IN")}
+              <span aria-hidden="true" className="text-sm text-aube-text-muted transition-transform group-open:rotate-45">
+                +
+              </span>
+            </span>
+          </summary>
+          <div className="border-t border-aube-hairline px-4 py-4">
+            {items.length === 0 ? (
+              <p className="text-xs text-aube-text-muted">
+                Your case is empty.{" "}
+                <Link href="/collection" className="underline text-aube-text">
+                  Explore The Collection
+                </Link>
+              </p>
+            ) : (
+              <ul className="divide-y divide-aube-hairline/60 text-xs">
+                {items.map((item) => (
+                  <li key={item.slug} className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
+                    <span className="truncate font-display text-base font-light text-aube-text">
+                      {item.name} × {item.quantity}
+                    </span>
+                    <span className="shrink-0 font-body font-medium text-aube-text">
+                      ₹{(item.price * item.quantity).toLocaleString("en-IN")}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </details>
 
         {paymentError && (
           <div className="mb-8 border border-aube-error/40 bg-aube-error/10 p-4 text-xs text-aube-error flex items-start gap-3">
@@ -436,16 +417,21 @@ export default function CheckoutPage() {
 
                 <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <div>
-                    <label className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted">
+                    <label
+                      htmlFor="fullName"
+                      className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted"
+                    >
                       Full Name *
                     </label>
                     <input
+                      id="fullName"
                       type="text"
                       name="fullName"
+                      autoComplete="name"
                       value={formData.fullName}
                       onChange={handleInputChange}
                       placeholder="e.g. Radhika Sharma"
-                      className="mt-2 w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-sm text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none"
+                      className="mt-2 w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-base text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none sm:text-sm"
                     />
                     {errors.fullName && (
                       <p className="mt-1 text-xs text-aube-error">{errors.fullName}</p>
@@ -453,16 +439,21 @@ export default function CheckoutPage() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted">
+                    <label
+                      htmlFor="email"
+                      className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted"
+                    >
                       Email Address *
                     </label>
                     <input
+                      id="email"
                       type="email"
                       name="email"
+                      autoComplete="email"
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder="radhika@example.com"
-                      className="mt-2 w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-sm text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none"
+                      className="mt-2 w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-base text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none sm:text-sm"
                     />
                     {errors.email && (
                       <p className="mt-1 text-xs text-aube-error">{errors.email}</p>
@@ -470,7 +461,10 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted">
+                    <label
+                      htmlFor="phone"
+                      className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted"
+                    >
                       Mobile Number (for Courier SMS updates) *
                     </label>
                     <div className="mt-2 flex">
@@ -478,13 +472,15 @@ export default function CheckoutPage() {
                         +91
                       </span>
                       <input
+                        id="phone"
                         type="tel"
                         name="phone"
+                        autoComplete="tel-national"
                         maxLength={10}
                         value={formData.phone}
                         onChange={handleInputChange}
                         placeholder="98765 43210"
-                        className="w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-sm text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none"
+                        className="w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-base text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none sm:text-sm"
                       />
                     </div>
                     {errors.phone && (
@@ -505,16 +501,21 @@ export default function CheckoutPage() {
 
                 <div className="mt-6 space-y-5">
                   <div>
-                    <label className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted">
+                    <label
+                      htmlFor="address"
+                      className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted"
+                    >
                       Street Address & Building *
                     </label>
                     <input
+                      id="address"
                       type="text"
                       name="address"
+                      autoComplete="street-address"
                       value={formData.address}
                       onChange={handleInputChange}
                       placeholder="Flat / Villa number, building name, street"
-                      className="mt-2 w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-sm text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none"
+                      className="mt-2 w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-base text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none sm:text-sm"
                     />
                     {errors.address && (
                       <p className="mt-1 text-xs text-aube-error">{errors.address}</p>
@@ -522,31 +523,41 @@ export default function CheckoutPage() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted">
+                    <label
+                      htmlFor="apartment"
+                      className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted"
+                    >
                       Apartment / Suite / Landmark (Optional)
                     </label>
                     <input
+                      id="apartment"
                       type="text"
                       name="apartment"
+                      autoComplete="address-line2"
                       value={formData.apartment}
                       onChange={handleInputChange}
                       placeholder="e.g. Near Rosewood Club"
-                      className="mt-2 w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-sm text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none"
+                      className="mt-2 w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-base text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none sm:text-sm"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
                     <div>
-                      <label className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted">
+                      <label
+                        htmlFor="city"
+                        className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted"
+                      >
                         City *
                       </label>
                       <input
+                        id="city"
                         type="text"
                         name="city"
+                        autoComplete="address-level2"
                         value={formData.city}
                         onChange={handleInputChange}
                         placeholder="City"
-                        className="mt-2 w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-sm text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none"
+                        className="mt-2 w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-base text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none sm:text-sm"
                       />
                       {errors.city && (
                         <p className="mt-1 text-xs text-aube-error">{errors.city}</p>
@@ -554,14 +565,19 @@ export default function CheckoutPage() {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted">
+                      <label
+                        htmlFor="state"
+                        className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted"
+                      >
                         State *
                       </label>
                       <select
+                        id="state"
                         name="state"
+                        autoComplete="address-level1"
                         value={formData.state}
                         onChange={handleInputChange}
-                        className="mt-2 w-full border border-aube-hairline bg-aube-surface px-3 py-3 text-sm text-aube-text focus:border-aube-accent focus:outline-none"
+                        className="mt-2 w-full border border-aube-hairline bg-aube-surface px-3 py-3 text-base text-aube-text focus:border-aube-accent focus:outline-none sm:text-sm"
                       >
                         {SHIPPING_REGIONS.map((st) => (
                           <option key={st} value={st}>
@@ -572,17 +588,23 @@ export default function CheckoutPage() {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted">
+                      <label
+                        htmlFor="pincode"
+                        className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted"
+                      >
                         PIN Code *
                       </label>
                       <input
+                        id="pincode"
                         type="text"
                         name="pincode"
+                        inputMode="numeric"
+                        autoComplete="postal-code"
                         maxLength={6}
                         value={formData.pincode}
                         onChange={handleInputChange}
                         placeholder="400001"
-                        className="mt-2 w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-sm text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none"
+                        className="mt-2 w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-base text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none sm:text-sm"
                       />
                       {errors.pincode && (
                         <p className="mt-1 text-xs text-aube-error">{errors.pincode}</p>
@@ -594,21 +616,25 @@ export default function CheckoutPage() {
 
               {/* Section 3: Complimentary Gifting Note */}
               <div className="border-b border-aube-hairline pb-8">
-                <h2 className="font-display text-2xl font-light text-aube-text">
+                <label
+                  htmlFor="giftNote"
+                  className="block font-display text-2xl font-light text-aube-text"
+                >
                   3. Gifting & Special Instructions
-                </h2>
+                </label>
                 <p className="mt-1 text-xs text-aube-text-muted">
                   Optional handwritten archival card included inside the parcel.
                 </p>
 
                 <div className="mt-4">
                   <textarea
+                    id="giftNote"
                     rows={3}
                     name="giftNote"
                     value={formData.giftNote}
                     onChange={handleInputChange}
                     placeholder="Enter an optional personal note to be written on the presentation card..."
-                    className="w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-sm text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none"
+                    className="w-full border border-aube-hairline bg-aube-surface px-4 py-3 text-base text-aube-text placeholder-aube-text-muted/50 focus:border-aube-accent focus:outline-none sm:text-sm"
                   />
                 </div>
               </div>
@@ -674,84 +700,125 @@ export default function CheckoutPage() {
           </div>
 
           {/* Right Column: Case Summary Sidebar */}
-          <div className="lg:col-span-5">
+          <aside aria-label="Order Summary" className="lg:col-span-5">
             <div className="sticky top-28 border border-aube-hairline bg-aube-surface p-6 sm:p-8">
               <div className="flex items-baseline justify-between border-b border-aube-hairline pb-4">
-                <h2 className="font-display text-2xl font-light text-aube-text">
-                  Your Case
-                </h2>
-                <span className="text-xs uppercase tracking-[0.18em] text-aube-text-muted">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-aube-text-muted">
+                    Order Summary
+                  </p>
+                  <h2 className="mt-1 font-display text-2xl font-light text-aube-text">
+                    Your Case
+                  </h2>
+                </div>
+                <span className="text-xs uppercase tracking-[0.18em] text-aube-text-muted tabular-nums">
                   {totalCount} {totalCount === 1 ? "Item" : "Items"}
                 </span>
               </div>
 
-              {/* Items List */}
-              <ul className="my-6 divide-y divide-aube-hairline/60">
-                {items.map((item) => (
-                  <li key={item.slug} className="flex gap-4 py-4 first:pt-0 last:pb-0">
-                    <div className="relative h-20 w-16 flex-shrink-0 overflow-hidden border border-aube-hairline/80 bg-aube-base/50">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        sizes="64px"
-                        className="object-contain p-2"
-                      />
-                    </div>
-                    <div className="flex flex-1 flex-col justify-between">
-                      <div>
-                        <div className="flex items-start justify-between">
-                          <span className="font-display text-lg font-light text-aube-text">
-                            {item.name}
-                          </span>
-                          <span className="font-body text-sm font-medium text-aube-text">
-                            ₹{(item.price * item.quantity).toLocaleString("en-IN")}
-                          </span>
-                        </div>
-                        <p className="text-[11px] uppercase tracking-[0.16em] text-aube-text-muted">
-                          {item.volume}
-                        </p>
+              {/* Items List or Clean Empty State */}
+              {items.length === 0 ? (
+                <div className="my-6 border border-dashed border-aube-hairline bg-aube-base/40 p-6 text-center">
+                  <p className="font-display text-xl font-light italic text-aube-text">
+                    Your case is currently empty.
+                  </p>
+                  <p className="mt-2 text-xs text-aube-text-muted">
+                    Add a 50 ml flacon or begin with The Discovery Set before checking out.
+                  </p>
+                  <div className="mt-5 flex flex-col gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        addToCase({
+                          slug: "discovery-set",
+                          name: "The Discovery Set",
+                          price: 999,
+                          volume: "7 × 10 ml",
+                          image: "/images/objects/discovery-set-floating.webp",
+                        })
+                      }
+                      className="min-h-11 border border-aube-text bg-aube-text px-5 py-2.5 text-[10.5px] uppercase tracking-[0.2em] text-aube-base transition-colors hover:border-aube-accent hover:bg-aube-accent"
+                    >
+                      Add Discovery Set · ₹999
+                    </button>
+                    <Link
+                      href="/collection"
+                      className="inline-flex min-h-11 items-center justify-center border border-aube-hairline px-5 py-2.5 text-[10.5px] uppercase tracking-[0.2em] text-aube-text transition-colors hover:border-aube-text"
+                    >
+                      Explore The Collection
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <ul className="my-6 divide-y divide-aube-hairline/60">
+                  {items.map((item) => (
+                    <li key={item.slug} className="flex gap-4 py-4 first:pt-0 last:pb-0">
+                      <div className="relative h-20 w-16 flex-shrink-0 overflow-hidden border border-aube-hairline/80 bg-aube-base/50">
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          sizes="64px"
+                          className="object-contain p-2"
+                        />
                       </div>
+                      <div className="flex flex-1 flex-col justify-between">
+                        <div>
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="font-display text-lg font-light text-aube-text">
+                              {item.name}
+                            </span>
+                            <span className="font-body text-sm font-medium tabular-nums text-aube-text">
+                              ₹{(item.price * item.quantity).toLocaleString("en-IN")}
+                            </span>
+                          </div>
+                          <p className="text-[11px] uppercase tracking-[0.16em] text-aube-text-muted">
+                            {item.volume}
+                          </p>
+                        </div>
 
-                      <div className="mt-2 flex items-center justify-between text-xs">
-                        <div className="flex items-center border border-aube-hairline">
+                        <div className="mt-2 flex items-center justify-between text-xs">
+                          <div className="flex items-center border border-aube-hairline">
+                            <button
+                              type="button"
+                              aria-label="Decrease quantity"
+                              onClick={() => updateQuantity(item.slug, -1)}
+                              className="flex h-11 w-11 min-h-11 min-w-11 items-center justify-center text-sm hover:text-aube-accent"
+                            >
+                              −
+                            </button>
+                            <span className="w-8 text-center font-medium tabular-nums">
+                              {item.quantity}
+                            </span>
+                            <button
+                              type="button"
+                              aria-label="Increase quantity"
+                              onClick={() => updateQuantity(item.slug, 1)}
+                              className="flex h-11 w-11 min-h-11 min-w-11 items-center justify-center text-sm hover:text-aube-accent"
+                            >
+                              +
+                            </button>
+                          </div>
+
                           <button
                             type="button"
-                            onClick={() => updateQuantity(item.slug, -1)}
-                            className="flex h-6 w-6 items-center justify-center hover:text-aube-accent"
+                            onClick={() => removeFromCase(item.slug)}
+                            className="inline-flex min-h-11 items-center px-2 text-[10px] uppercase tracking-[0.16em] text-aube-text-muted hover:text-aube-accent"
                           >
-                            −
-                          </button>
-                          <span className="w-6 text-center font-medium">
-                            {item.quantity}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(item.slug, 1)}
-                            className="flex h-6 w-6 items-center justify-center hover:text-aube-accent"
-                          >
-                            +
+                            Remove
                           </button>
                         </div>
-
-                        <button
-                          type="button"
-                          onClick={() => removeFromCase(item.slug)}
-                          className="text-[10px] uppercase tracking-[0.16em] text-aube-text-muted hover:text-aube-accent"
-                        >
-                          Remove
-                        </button>
                       </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                    </li>
+                  ))}
+                </ul>
+              )}
 
               {/* Price Calculation */}
               <div className="border-t border-aube-hairline pt-5 space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-aube-text-muted">Subtotal</span>
-                  <span className="text-aube-text">₹{subtotal.toLocaleString("en-IN")}</span>
+                  <span className="tabular-nums text-aube-text">₹{subtotal.toLocaleString("en-IN")}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-aube-text-muted">Domestic Shipping</span>
@@ -766,7 +833,7 @@ export default function CheckoutPage() {
                   <span className="text-xs uppercase tracking-[0.2em] font-medium text-aube-text">
                     Total
                   </span>
-                  <span className="font-display text-3xl font-light text-aube-text">
+                  <span className="font-display text-3xl font-light tabular-nums text-aube-text">
                     ₹{subtotal.toLocaleString("en-IN")}
                   </span>
                 </div>
@@ -797,7 +864,7 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </aside>
         </div>
       </main>
     </div>

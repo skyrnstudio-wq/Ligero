@@ -113,7 +113,7 @@ export default function CaseDrawer() {
 
   return (
     <div
-      className={`fixed inset-0 z-50 ${
+      className={`fixed inset-0 z-50 overflow-hidden ${
         isCaseOpen
           ? "visible pointer-events-auto"
           : "invisible pointer-events-none transition-[visibility] duration-0 delay-500"
@@ -133,7 +133,7 @@ export default function CaseDrawer() {
         role="dialog"
         aria-modal="true"
         aria-label="Your Case"
-        data-lenis-prevent
+        data-lenis-prevent=""
         className={`absolute inset-y-0 right-0 flex w-full max-w-md flex-col justify-between overflow-y-auto border-l border-aube-hairline bg-aube-surface px-6 pt-6 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+1rem))] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] sm:px-10 sm:pt-8 sm:pb-[max(2rem,calc(env(safe-area-inset-bottom)+1.5rem))] ${
           isCaseOpen ? "translate-x-0" : "translate-x-full"
         }`}
@@ -211,7 +211,7 @@ export default function CaseDrawer() {
                         >
                           {item.name}
                         </Link>
-                        <span className="font-display text-lg font-light text-aube-text tabular-nums">
+                        <span className="font-display text-lg font-light text-aube-text">
                           {item.price}
                         </span>
                       </div>
@@ -225,7 +225,7 @@ export default function CaseDrawer() {
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.slug, -1)}
-                          aria-label={`Decrease ${item.name} quantity`}
+                          aria-label="Decrease quantity"
                           className="flex h-11 w-11 items-center justify-center text-aube-text transition-colors hover:text-aube-accent"
                         >
                           −
@@ -236,7 +236,7 @@ export default function CaseDrawer() {
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.slug, 1)}
-                          aria-label={`Increase ${item.name} quantity`}
+                          aria-label="Increase quantity"
                           className="flex h-11 w-11 items-center justify-center text-aube-text transition-colors hover:text-aube-accent"
                         >
                           +
@@ -260,7 +260,7 @@ export default function CaseDrawer() {
 
         {/* Footer with Gift Note, Subtotal & Checkout */}
         {items.length > 0 && (
-          <div className="border-t border-aube-hairline/60 pt-5">
+          <div className="border-t border-aube-hairline/60 pt-5 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <div className="mb-4 border-b border-aube-hairline/50 pb-4">
               <button
                 type="button"

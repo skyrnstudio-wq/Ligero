@@ -1,8 +1,8 @@
 export interface KeyIngredient {
   name: string;
-  origin?: string;
   note: string;
   description: string;
+  image?: string;
 }
 
 export interface Product {
@@ -11,6 +11,7 @@ export interface Product {
   subtitle: string;
   volume: string;
   price: number;
+  badge?: string;
   oneLiner: string;
   notesUppercase: string;
   notesPoem: [string, string, string];
@@ -18,8 +19,10 @@ export interface Product {
   material: string;
   provenance: string;
   image: string;
+  notesImage?: string;
   gallery: string[];
   relatedSlugs: string[];
+  occasions?: string[];
   isDark?: boolean;
   scentProfile: {
     top: string;
@@ -38,9 +41,12 @@ export interface HouseObject {
   slug: string;
   name: string;
   price: number;
+  volume?: string;
+  badge?: string;
   description: string;
   spec: string;
   image: string;
+  occasions?: string[];
 }
 
 export const PERFUMES: Product[] = [
@@ -72,16 +78,19 @@ export const PERFUMES: Product[] = [
         name: "Wild Mountain Mint",
         note: "Top / Head",
         description: "Harvested at dawn before sunrise to retain the crystalline, icy volatile essential oils without any bitterness.",
+        image: "/images/perfumes/notes/aube-top.webp",
       },
       {
         name: "Dewy Water Jasmine",
         note: "Heart",
         description: "Hydro-distilled white petals that evoke morning mist rising over still mountain lakes.",
+        image: "/images/perfumes/notes/aube-mid.webp",
       },
       {
         name: "Green Cedar",
         note: "Base / Anchor",
         description: "Slow steam-extracted heartwood delivering architectural clarity and an earthy, pristine foundation.",
+        image: "/images/perfumes/notes/aube-base.webp",
       },
     ],
     ritual: "Morning awakening. Apply two delicate presses to warm pulse points: wrists, hollow of the throat, and the collar of a crisp shirt. Inhale the dewy freshness as it unfolds into radiant floral elegance.",
@@ -94,8 +103,10 @@ export const PERFUMES: Product[] = [
       "/images/perfumes/aube-in-hand.webp",
       "/images/perfumes/notes/aube.webp",
       "/images/perfumes/box.webp",
+      "/images/perfumes/tray.webp",
     ],
     relatedSlugs: ["blanc", "fleur"],
+    occasions: ["Gym", "Sports", "Morning", "Office", "Daily Wear", "Summer", "Brunch", "Casual"],
   },
   {
     slug: "fleur",
@@ -122,19 +133,22 @@ export const PERFUMES: Product[] = [
     },
     keyIngredients: [
       {
-        name: "Velvet Rose Absolute",
-        note: "Heart / Soul",
-        description: "Three million hand-harvested petals required for a single litre of pure absolute. Lush, velvety, and deeply romantic.",
-      },
-      {
         name: "White Star Magnolia",
         note: "Top / Head",
         description: "Delicate waxy white petals exuding citrus-tinged creaminess and luminous dawn florals.",
+        image: "/images/perfumes/notes/fleur-top.webp",
+      },
+      {
+        name: "Velvet Rose Absolute",
+        note: "Heart / Soul",
+        description: "Three million hand-harvested petals required for a single litre of pure absolute. Lush, velvety, and deeply romantic.",
+        image: "/images/perfumes/notes/fleur-mid.webp",
       },
       {
         name: "Silken Botanical Musk",
         note: "Base / Skin Fixative",
         description: "Cruelty-free plant-derived musk that mimics the natural warmth and sensual intimacy of bare skin.",
+        image: "/images/perfumes/notes/fleur-base.webp",
       },
     ],
     ritual: "Pure daytime elegance. Spray once onto the nape of the neck, behind each earlobe, and across the ends of hair. The sillage whispers with every turn of the head.",
@@ -147,8 +161,10 @@ export const PERFUMES: Product[] = [
       "/images/perfumes/fleur-in-hand.webp",
       "/images/perfumes/notes/fleur.webp",
       "/images/perfumes/box.webp",
+      "/images/perfumes/fleur-tray.webp",
     ],
     relatedSlugs: ["blanc", "aube"],
+    occasions: ["Wedding", "Date Night", "Brunch", "Office", "Daytime", "Festive", "Formal", "Gifting"],
   },
   {
     slug: "ambre-doux",
@@ -178,16 +194,19 @@ export const PERFUMES: Product[] = [
         name: "Saffron Stigmas",
         note: "Top / Head",
         description: "Regal crimson threads delivering a leathery, golden-spicy radiance that sparkles across the top.",
+        image: "/images/perfumes/notes/ambre-doux-top.webp",
       },
       {
         name: "Crystalline Amber Resin",
         note: "Heart",
         description: "Slow-clarified tree resins imparting warmth, honeyed depth, and golden luminosity.",
+        image: "/images/perfumes/notes/ambre-doux-mid.webp",
       },
       {
         name: "Polished Cedar",
         note: "Base / Anchor",
         description: "Noble mountain cedar aged in temperature-controlled casks to impart a silken, polished woody sillage.",
+        image: "/images/perfumes/notes/ambre-doux-base.webp",
       },
     ],
     ritual: "An evening signature. Apply to the nape of the neck, inside the elbows, and across your coat collar. Let the heat of your skin ignite the saffron and warm amber as twilight settles.",
@@ -200,8 +219,10 @@ export const PERFUMES: Product[] = [
       "/images/perfumes/ambre-doux-in-hand.webp",
       "/images/perfumes/notes/ambre-doux.webp",
       "/images/perfumes/box.webp",
+      "/images/perfumes/tray.webp",
     ],
     relatedSlugs: ["noctis", "noir-cacao"],
+    occasions: ["Party", "Wedding", "Festive", "Evening", "Dinner", "Formal", "Winter"],
   },
   {
     slug: "noctis",
@@ -231,16 +252,19 @@ export const PERFUMES: Product[] = [
         name: "Damson Black Plum",
         note: "Top / Head",
         description: "Inky, shadowed fruit steeped with cracked peppery spices to create a sensual, dark-toned opening.",
+        image: "/images/perfumes/notes/noctis-top.webp",
       },
       {
         name: "Coastal Grey Amber",
         note: "Heart",
         description: "Mineral-rich, saline, and skin-like warmth that anchors the fruity darkness with oceanic mystery.",
+        image: "/images/perfumes/notes/noctis-mid.webp",
       },
       {
         name: "Sunken Coastal Driftwood",
         note: "Base / Anchor",
         description: "Salt-crusted, mineral-bleached wood cured by tides and sun, evoking midnight waves on desolate shores.",
+        image: "/images/perfumes/notes/noctis-base.webp",
       },
     ],
     ritual: "On pulse points, after dark. Two deliberate sprays on the chest and collarbone. Mysterious, enigmatic, and unforgettable in dimly lit spaces and nighttime conversations.",
@@ -253,8 +277,10 @@ export const PERFUMES: Product[] = [
       "/images/perfumes/noctis-in-hand.webp",
       "/images/perfumes/notes/noctis.webp",
       "/images/perfumes/box.webp",
+      "/images/perfumes/tray.webp",
     ],
     relatedSlugs: ["ambre-doux", "noir-cacao"],
+    occasions: ["Party", "Club", "Night Out", "Date Night", "Evening", "Concert", "Formal"],
     isDark: true,
   },
   {
@@ -285,16 +311,19 @@ export const PERFUMES: Product[] = [
         name: "Wild Strawberry",
         note: "Top / Head",
         description: "Small, highly concentrated berries bursting with sweet tartness and sparkling sunlight.",
+        image: "/images/perfumes/notes/blanc-top.webp",
       },
       {
         name: "Whipped Cream Accord",
         note: "Heart",
         description: "Soft, whipped, airy cream that softens the skin profile without any sticky synthetic heaviness.",
+        image: "/images/perfumes/notes/blanc-mid.webp",
       },
       {
         name: "Rich Vanilla Pods",
         note: "Base / Anchor",
         description: "Dark oily pods cured under tropical sun, delivering rich balsamic sweetness and warm, comforting depth.",
+        image: "/images/perfumes/notes/blanc-base.webp",
       },
     ],
     ritual: "Soft, decadent comfort. An irresistible daily indulgence that melts into the skin. Apply behind the ears, across wrists, and into warm hollows. Pure cashmere comfort.",
@@ -307,8 +336,10 @@ export const PERFUMES: Product[] = [
       "/images/perfumes/blanc-in-hand.webp",
       "/images/perfumes/notes/blanc.webp",
       "/images/perfumes/box.webp",
+      "/images/perfumes/tray.webp",
     ],
     relatedSlugs: ["aube", "fleur"],
+    occasions: ["Date Night", "Casual", "Cozy", "Evening", "Brunch", "Gifting", "Winter"],
   },
   {
     slug: "maree",
@@ -338,16 +369,19 @@ export const PERFUMES: Product[] = [
         name: "Wild Coastal Rosemary",
         note: "Top / Head",
         description: "Aromatic needle leaves charged with coastal breeze, resinous, invigorating, and green.",
+        image: "/images/perfumes/notes/maree-top.webp",
       },
       {
         name: "Marine Accord",
         note: "Heart",
         description: "Pure oceanic salt spray, mineral tides, and sea foam without synthetic metallic calone notes.",
+        image: "/images/perfumes/notes/maree-mid.webp",
       },
       {
         name: "Wild Vetiver",
         note: "Base / Anchor",
         description: "Smoky, earthy roots that ground the sea salt with mineral sophistication and enduring resilience.",
+        image: "/images/perfumes/notes/maree-base.webp",
       },
     ],
     ritual: "Wear it for an invigorating, fresh coastal sillage. Apply across the collar, wrists, and forearms before stepping out. Carries the invigorating spirit of open sea tides wherever you go.",
@@ -360,8 +394,10 @@ export const PERFUMES: Product[] = [
       "/images/perfumes/maree-in-hand.webp",
       "/images/perfumes/notes/maree.webp",
       "/images/perfumes/box.webp",
+      "/images/perfumes/tray.webp",
     ],
     relatedSlugs: ["aube", "blanc"],
+    occasions: ["Sports", "Gym", "Beach", "Summer", "Travel", "Outdoor", "Daytime", "Casual"],
   },
   {
     slug: "noir-cacao",
@@ -388,19 +424,22 @@ export const PERFUMES: Product[] = [
     },
     keyIngredients: [
       {
+        name: "Spiced Bergamot & Cardamom",
+        note: "Top / Head",
+        description: "Cold-pressed bitter Italian bergamot alongside cracked green cardamom pods for a sparkling, dark-spiced opening.",
+        image: "/images/perfumes/notes/noir-cacao-top.webp",
+      },
+      {
         name: "Raw Cacao Absolute",
         note: "Heart / Core",
         description: "Dark, bittersweet, roasted bean absolute with zero synthetic sweetness. Deep, intoxicating, and aristocratic.",
+        image: "/images/perfumes/notes/noir-cacao-mid.webp",
       },
       {
-        name: "Aged Vanilla Beans",
-        note: "Base",
-        description: "Aged dark pods contributing resinous, creamy, and sensual balsamic undertones.",
-      },
-      {
-        name: "Aged Patchouli",
+        name: "Aged Patchouli & Sandalwood",
         note: "Base / Anchor",
-        description: "Cold-aged dark patchouli leaves offering earthy, velvety chocolate-like depth that fuses with sandalwood.",
+        description: "Cold-aged dark patchouli leaves and smoked sandalwood offering earthy, velvety chocolate-like depth.",
+        image: "/images/perfumes/notes/noir-cacao-base.webp",
       },
     ],
     ritual: "An addictive after-dark statement. Irresistible. Unforgettable. Two presses to the throat and wrists before dusk. Let the warmth of your skin reveal dark cacao, smoked patchouli, and roasted vanilla.",
@@ -413,8 +452,10 @@ export const PERFUMES: Product[] = [
       "/images/perfumes/noir-cacao-in-hand.webp",
       "/images/perfumes/notes/noir-cacao.webp",
       "/images/perfumes/box.webp",
+      "/images/perfumes/tray.webp",
     ],
     relatedSlugs: ["noctis", "ambre-doux"],
+    occasions: ["Party", "Date Night", "Wedding", "Winter", "Evening", "Club", "Dinner", "Festive"],
     isDark: true,
   },
 ];
@@ -427,6 +468,7 @@ export const OBJECTS: HouseObject[] = [
     description: "Every perfume the house makes, ten millilitres each.",
     spec: "Seven vials, one box. Ten millilitres each.",
     image: "/images/objects/discovery-set-floating.webp",
+    occasions: ["Gifting", "Travel", "First-Time", "All Occasions", "Daily Wear"],
   },
   {
     slug: "en-route",
@@ -435,8 +477,53 @@ export const OBJECTS: HouseObject[] = [
     description: "For the drive.",
     spec: "Refillable cabin diffuser. Cedar, bergamot, and warm amber.",
     image: "/images/objects/car-perfume-floating.webp",
+    occasions: ["Travel", "Drive", "Commute", "Road Trip", "Gifting"],
   },
 ];
+
+export const SEARCH_OCCASIONS = [
+  "Party",
+  "Sports",
+  "Gym",
+  "Date Night",
+  "Office",
+  "Wedding",
+  "Travel",
+  "Gifting",
+] as const;
+
+const OCCASION_SYNONYMS: Record<string, string[]> = {
+  gym: ["workout", "fitness", "training", "exercise", "sweat", "athletic", "active"],
+  sports: ["sport", "running", "tennis", "golf", "outdoor", "active", "athletic", "workout", "fitness"],
+  party: ["club", "clubbing", "nightlife", "celebration", "cocktail", "dance", "night out", "festive"],
+  "date night": ["date", "romantic", "anniversary", "dinner", "intimate"],
+  office: ["work", "meeting", "corporate", "business", "professional", "interview", "desk"],
+  wedding: ["festive", "reception", "ceremony", "bridal", "groom", "celebration"],
+  travel: ["flight", "vacation", "holiday", "trip", "road trip", "commute", "drive", "car"],
+  gifting: ["gift", "present", "birthday", "anniversary"],
+  "daily wear": ["daily", "everyday", "signature", "casual", "daytime"],
+};
+
+export function normalizeSearchText(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+export function getSearchKeywordsForOccasions(occasions: string[] = []): string[] {
+  const keywords = new Set<string>();
+  for (const occ of occasions) {
+    const normalized = normalizeSearchText(occ);
+    keywords.add(normalized);
+    const synonyms = OCCASION_SYNONYMS[normalized];
+    if (synonyms) {
+      for (const syn of synonyms) keywords.add(syn);
+    }
+  }
+  return Array.from(keywords);
+}
 
 export function getProductBySlug(slug: string): Product | undefined {
   return PERFUMES.find((p) => p.slug === slug);
@@ -445,3 +532,143 @@ export function getProductBySlug(slug: string): Product | undefined {
 export function getAllProductSlugs(): string[] {
   return PERFUMES.map((p) => p.slug);
 }
+
+export function isStaticPerfumeSlug(slug: string): boolean {
+  return PERFUMES.some((p) => p.slug === slug);
+}
+
+export function getPerfumeCutoutImage(p: Pick<Product, "slug" | "image">): string {
+  if (p.image && (p.image.startsWith("http") || p.image.includes("/cutouts/"))) {
+    return p.image;
+  }
+  if (isStaticPerfumeSlug(p.slug)) {
+    return `/images/perfumes/cutouts/${p.slug}.webp?v=2`;
+  }
+  return p.image || "/images/perfumes/cutouts/aube.webp?v=2";
+}
+
+export function getPerfumeNotesImage(
+  p: Pick<Product, "slug" | "notesImage">
+): string | undefined {
+  if (p.notesImage) {
+    return p.notesImage;
+  }
+  if (isStaticPerfumeSlug(p.slug)) {
+    return `/images/perfumes/notes/${p.slug}.webp`;
+  }
+  return undefined;
+}
+
+export interface FragranceItem {
+  name: string;
+  slug: string;
+  price: number;
+  volume?: string;
+  badge?: string;
+  rating?: number;
+  reviewCount?: number;
+  concentration: string;
+  atmosphere: string;
+  family: string;
+  notesSummary: string;
+  image: string;
+  notesImage?: string;
+}
+
+export const DEFAULT_FRAGRANCES: FragranceItem[] = [
+  {
+    name: "Aubé",
+    slug: "aube",
+    price: 1099,
+    badge: "EAU DE PARFUM",
+    rating: 5,
+    reviewCount: 1,
+    concentration: "EAU DE PARFUM · 50 ML",
+    atmosphere:
+      "Warm skin, citrus peel, first light. Wild mountain mint and water jasmine hydro-distilled before sunrise.",
+    family: "Crisp Green Aquatic",
+    notesSummary: "Wild Garden Mint · Water Jasmine · Green Cedar",
+    image: "/images/perfumes/cutouts/aube.webp?v=2",
+    notesImage: "/images/perfumes/notes/aube.webp",
+  },
+  {
+    name: "Fleur",
+    slug: "fleur",
+    price: 1299,
+    badge: "BEST-SELLER",
+    concentration: "EAU DE PARFUM · 50 ML",
+    atmosphere:
+      "Jasmine, sambac, the courtyard after rain. Three million hand-harvested rose petals in silken musk.",
+    family: "Velvet Floral Oriental",
+    notesSummary: "Star Magnolia · Velvet Rose · Luxury Musk",
+    image: "/images/perfumes/cutouts/fleur.webp?v=2",
+    notesImage: "/images/perfumes/notes/fleur.webp",
+  },
+  {
+    name: "Ambre Doux",
+    slug: "ambre-doux",
+    price: 1699,
+    badge: "PRIVATE RESERVE",
+    concentration: "EAU DE PARFUM · 50 ML",
+    atmosphere:
+      "Amber, tobacco leaf, a closing door. Crystalline tree resin and rich saffron stigmas cured one full year.",
+    family: "Warm Amber Resin",
+    notesSummary: "Saffron Threads · Amber Resin · Polished Cedar",
+    image: "/images/perfumes/cutouts/ambre-doux.webp?v=2",
+    notesImage: "/images/perfumes/notes/ambre-doux.webp",
+  },
+  {
+    name: "Noctis",
+    slug: "noctis",
+    price: 1299,
+    badge: "BEST-SELLER",
+    concentration: "EAU DE PARFUM · 50 ML",
+    atmosphere:
+      "Smoke, leather, the hour after midnight. Damson plum and coastal grey ambergris over salt-cured driftwood.",
+    family: "Smoked Oceanic Noir",
+    notesSummary: "Dark Plum · Grey Ambergris · Sea Driftwood",
+    image: "/images/perfumes/cutouts/noctis.webp?v=2",
+    notesImage: "/images/perfumes/notes/noctis.webp",
+  },
+  {
+    name: "Blanc",
+    slug: "blanc",
+    price: 1099,
+    badge: "RESTOCKED",
+    rating: 5,
+    reviewCount: 1,
+    concentration: "EAU DE PARFUM · 50 ML",
+    atmosphere:
+      "Linen, iris, the pause before speech. Wild strawberry and rich vanilla melting into bare skin.",
+    family: "Lactonic Gourmand Amber",
+    notesSummary: "Wild Strawberry · Whipped Cream · Rich Vanilla",
+    image: "/images/perfumes/cutouts/blanc.webp?v=2",
+    notesImage: "/images/perfumes/notes/blanc.webp",
+  },
+  {
+    name: "Marée",
+    slug: "maree",
+    price: 1699,
+    badge: "SINGLE HARVEST",
+    concentration: "EAU DE PARFUM · 50 ML",
+    atmosphere:
+      "Salt, kelp, the sea at dusk. Saline marine distillation and coastal rosemary cut at low tide.",
+    family: "Oceanic Mineral Aromatic",
+    notesSummary: "Saline Ocean Mist · Coastal Rosemary · Wild Vetiver",
+    image: "/images/perfumes/cutouts/maree.webp?v=2",
+    notesImage: "/images/perfumes/notes/maree.webp",
+  },
+  {
+    name: "Noir Cacao",
+    slug: "noir-cacao",
+    price: 1599,
+    badge: "ATELIER EDITION",
+    concentration: "EAU DE PARFUM · 50 ML",
+    atmosphere:
+      "Coconut, toasted, at the last hour. Roasted cacao absolute and aged patchouli with sandalwood.",
+    family: "Amber Gourmand Woody",
+    notesSummary: "Raw Cacao 85% · Dark Chocolate · Rich Vanilla",
+    image: "/images/perfumes/cutouts/noir-cacao.webp?v=2",
+    notesImage: "/images/perfumes/notes/noir-cacao.webp",
+  },
+];

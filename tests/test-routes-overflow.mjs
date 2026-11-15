@@ -19,7 +19,6 @@ const ROUTES = [
   "/legal/privacy",
   "/legal/terms",
   "/legal/shipping-returns",
-  "/legal/grievance",
   "/legal/compliance-checklist",
 ];
 

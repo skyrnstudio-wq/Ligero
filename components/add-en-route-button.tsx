@@ -3,17 +3,33 @@
 import { useState } from "react";
 import { useCase } from "@/context/case-context";
 
-export default function AddEnRouteButton({ className = "" }: { className?: string }) {
+interface AddEnRouteButtonProps {
+  className?: string;
+  slug?: string;
+  name?: string;
+  price?: number;
+  volume?: string;
+  image?: string;
+}
+
+export default function AddEnRouteButton({
+  className = "",
+  slug = "en-route",
+  name = "En Route",
+  price = 499,
+  volume = "Car Perfume · Cabin Diffuser",
+  image = "/images/objects/car-perfume-floating.webp",
+}: AddEnRouteButtonProps) {
   const [added, setAdded] = useState(false);
   const { addToCase, setIsCaseOpen } = useCase();
 
   const handleAdd = () => {
     addToCase({
-      slug: "en-route",
-      name: "En Route",
-      price: 499,
-      volume: "Car Perfume · Cabin Diffuser",
-      image: "/images/objects/car-perfume-floating.webp",
+      slug,
+      name,
+      price,
+      volume,
+      image,
     });
     setIsCaseOpen(true);
     setAdded(true);

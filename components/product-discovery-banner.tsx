@@ -29,7 +29,7 @@ export default function ProductDiscoveryBanner({
   };
 
   return (
-    <div className="group relative mt-6 overflow-hidden border border-pdp-hairline bg-gradient-to-br from-pdp-surface via-pdp-surface2 to-pdp-base p-5 transition-all duration-300 hover:border-pdp-accent/40">
+    <div className="group relative mt-5 overflow-hidden border border-pdp-hairline bg-gradient-to-br from-pdp-surface via-pdp-surface2 to-pdp-base p-4 transition-all duration-300 hover:border-pdp-accent/40 sm:mt-6 sm:p-5">
       {/* Ambient gradient glow */}
       <div
         aria-hidden="true"
@@ -71,7 +71,7 @@ export default function ProductDiscoveryBanner({
         <button
           type="button"
           onClick={handleAddDiscovery}
-          className="inline-flex min-h-9 items-center justify-center bg-pdp-btn px-4 py-1.5 font-body text-[10px] font-semibold uppercase tracking-[0.18em] text-pdp-btn-text transition-colors hover:bg-pdp-btn-hover"
+          className="inline-flex min-h-11 items-center justify-center bg-pdp-btn px-4 py-2.5 font-body text-[10px] font-semibold uppercase tracking-[0.18em] text-pdp-btn-text transition-colors hover:bg-pdp-btn-hover"
         >
           {added ? "Added to Case" : "Add Discovery Set"}
         </button>
