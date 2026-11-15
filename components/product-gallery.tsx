@@ -217,16 +217,12 @@ export default function ProductGallery({
         >
           {allImages.map((imgUrl, idx) => {
             const isPrimaryFlacon = idx === 0 && imgUrl === cutoutImage;
-            const slideWidthClass =
-              allImages.length > 1
-                ? "w-[88vw] shrink-0 snap-start border-r border-pdp-hairline/40"
-                : "w-full shrink-0 snap-start";
 
             return (
               <div
                 key={`${imgUrl}-${idx}`}
                 data-gallery-slide
-                className={`relative aspect-[4/3.8] max-h-[44svh] overflow-hidden bg-pdp-surface2 ${slideWidthClass}`}
+                className="relative aspect-[4/3.8] max-h-[44svh] w-full shrink-0 snap-center snap-always overflow-hidden bg-pdp-surface2"
               >
                 <button
                   type="button"
@@ -251,7 +247,7 @@ export default function ProductGallery({
                             alt={`${displayName} Eau de Parfum bottle`}
                             fill
                             priority
-                            sizes="88vw"
+                            sizes="100vw"
                             className="object-contain object-center [filter:drop-shadow(-16px_22px_22px_rgba(28,20,14,0.26))_drop-shadow(0_6px_12px_rgba(28,20,14,0.14))]"
                           />
                         </div>
@@ -263,7 +259,7 @@ export default function ProductGallery({
                       alt={`${displayName} gallery view ${idx + 1}`}
                       fill
                       priority={idx === 1}
-                      sizes="88vw"
+                      sizes="100vw"
                       className="object-cover object-center"
                     />
                   )}
