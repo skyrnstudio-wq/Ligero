@@ -116,12 +116,18 @@ export default function ObjectsDuo({ objects }: { objects?: HouseObject[] }) {
               aria-label="Explore The Discovery Set, seven 10 ml vials"
               className="group relative flex h-[200px] w-full items-center justify-center sm:h-[320px] md:h-[420px] lg:h-[460px] xl:h-[500px]"
             >
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute bottom-4 left-1/2 h-5 w-[56%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.24)_0%,rgba(28,20,14,0.09)_50%,transparent_76%)] sm:bottom-6"
+              />
               <Image
                 src={discoveryImage}
                 alt="Ligero Parfums Floating Signature Collection, seven 10 ml pocket perfume sprays: Aube, Maree, Blanc, Ambre Doux, Noctis, Fleur, and Noir Cacao"
                 fill
-                sizes="(max-width: 768px) 84vw, 50vw"
-                className="relative z-10 object-contain object-center p-4 sm:p-8 lg:p-12 [filter:drop-shadow(0_20px_28px_rgba(28,20,14,0.22))_drop-shadow(0_6px_10px_rgba(28,20,14,0.12))] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
+                loading="eager"
+                quality={80}
+                sizes="(max-width: 640px) 280px, (max-width: 1024px) 44vw, 38vw"
+                className="relative z-10 object-contain object-center p-4 sm:p-8 lg:p-12 md:[filter:drop-shadow(0_18px_24px_rgba(28,20,14,0.20))] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
               />
             </Link>
 
@@ -192,12 +198,18 @@ export default function ObjectsDuo({ objects }: { objects?: HouseObject[] }) {
               aria-label="Explore En Route, Car Perfume Cabin Diffuser"
               className="group relative flex h-[200px] w-full items-center justify-center sm:h-[320px] md:h-[420px] lg:h-[460px] xl:h-[500px]"
             >
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute bottom-4 left-1/2 h-5 w-[56%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.24)_0%,rgba(28,20,14,0.09)_50%,transparent_76%)] sm:bottom-6"
+              />
               <Image
                 src={enRouteImage}
                 alt="Ligero En Route Car Perfume, luxury diffuser flat-lay with cedarwood and dried bergamot peel"
                 fill
-                sizes="(max-width: 768px) 84vw, 50vw"
-                className="relative z-10 object-contain object-center p-4 sm:p-8 lg:p-12 [filter:drop-shadow(0_18px_24px_rgba(28,20,14,0.18))] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
+                loading="eager"
+                quality={80}
+                sizes="(max-width: 640px) 280px, (max-width: 1024px) 44vw, 38vw"
+                className="relative z-10 object-contain object-center p-4 sm:p-8 lg:p-12 md:[filter:drop-shadow(0_16px_22px_rgba(28,20,14,0.18))] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
               />
             </Link>
 

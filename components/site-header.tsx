@@ -411,7 +411,7 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
                               alt={`${perfume.name} bottle`}
                               fill
                               sizes="130px"
-                              className="object-contain p-2 [filter:drop-shadow(-8px_12px_16px_rgba(0,0,0,0.55))_drop-shadow(0_4px_8px_rgba(0,0,0,0.35))] transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105"
+                              className="object-contain p-2 md:[filter:drop-shadow(-8px_12px_16px_rgba(0,0,0,0.55))] transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105"
                             />
                           </div>
                           <span className="mt-2 font-display text-xl font-light italic transition-colors duration-300 group-hover:text-[#d89f68]">

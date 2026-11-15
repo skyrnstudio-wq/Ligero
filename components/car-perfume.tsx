@@ -82,12 +82,18 @@ export default function CarPerfume() {
           aria-label="Explore En Route, Car Perfume Cabin Diffuser"
           className="group relative order-1 block h-[340px] bg-transparent sm:h-[440px] lg:order-2 lg:h-auto lg:min-h-[560px] lg:border-l lg:border-aube-hairline"
         >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-6 left-1/2 h-5 w-[56%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.20)_0%,rgba(28,20,14,0.08)_50%,transparent_76%)] sm:bottom-10"
+          />
           <Image
             src={EN_ROUTE_FLOATING_IMAGE}
             alt="Ligéro En Route Car Perfume, luxury diffuser flat-lay with cedarwood and dried bergamot peel"
             fill
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-contain object-center p-8 sm:p-12 lg:p-16 [filter:drop-shadow(0_16px_22px_rgba(28,20,14,0.16))] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02]"
+            loading="eager"
+            quality={80}
+            sizes="(max-width: 1024px) 92vw, 50vw"
+            className="relative z-10 object-contain object-center p-8 sm:p-12 lg:p-16 md:[filter:drop-shadow(0_16px_22px_rgba(28,20,14,0.16))] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02]"
           />
         </Link>
       </div>

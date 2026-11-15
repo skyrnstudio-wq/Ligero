@@ -131,7 +131,9 @@ export default function ProductScentArchitecture({
                       src={imgSrc}
                       alt={`${item.name} (${item.note}) — ${product.name} olfactory note`}
                       fill
-                      sizes="(max-width: 768px) 52vw, 20vw"
+                      loading="eager"
+                      quality={78}
+                      sizes="(max-width: 768px) 200px, 240px"
                       className="object-cover object-center transition-transform duration-700 ease-out hover:scale-105"
                     />
                   </div>

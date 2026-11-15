@@ -93,7 +93,7 @@ export default function IntroLoader() {
     prevOverflowRef.current = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    // Pause in center (380ms) at steady initial scale, then compute target & begin flight
+    // Brief center hold (140ms) at steady initial scale, then compute target & begin flight
     const flightTimer = setTimeout(() => {
       const targetEl = document.getElementById("site-header-logo-target");
       const centerEl = centerLogoRef.current;
@@ -133,7 +133,7 @@ export default function IntroLoader() {
 
       setFlightData({ deltaX, deltaY, targetHeight: navH });
       setStage("flying");
-    }, 380);
+    }, 140);
 
     // Safety fallback: if anything hangs, unlock scroll and complete
     const safetyTimer = setTimeout(() => {

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { preload } from "react-dom";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import PrivateSalon from "@/components/private-salon";
@@ -35,6 +36,11 @@ export const metadata = {
 };
 
 export default async function CollectionPage() {
+  preload("/images/textures/raw-silk-canvas.webp", {
+    as: "image",
+    type: "image/webp",
+  });
+
   const [perfumes, objects] = await Promise.all([
     getLivePerfumes(),
     getLiveObjects(),

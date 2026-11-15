@@ -82,12 +82,18 @@ export default function DiscoverySet() {
           aria-label="Explore The Discovery Set, seven 10 ml vials"
           className="group relative block h-[300px] bg-transparent sm:h-[400px] lg:h-auto lg:min-h-[560px] lg:border-r lg:border-aube-hairline"
         >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-5 left-1/2 h-5 w-[58%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.22)_0%,rgba(28,20,14,0.08)_50%,transparent_76%)] sm:bottom-8"
+          />
           <Image
             src={DISCOVERY_FLOATING_IMAGE}
             alt="Ligéro Parfums Floating Signature Collection, seven 10 ml pocket perfume sprays: Aubé, Marée, Blanc, Ambre Doux, Noctis, Fleur, and Noir Cacao"
             fill
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-contain object-center p-6 sm:p-10 lg:p-14 [filter:drop-shadow(0_22px_28px_rgba(28,20,14,0.22))_drop-shadow(0_8px_12px_rgba(28,20,14,0.14))] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02]"
+            loading="eager"
+            quality={80}
+            sizes="(max-width: 1024px) 92vw, 50vw"
+            className="relative z-10 object-contain object-center p-6 sm:p-10 lg:p-14 md:[filter:drop-shadow(0_18px_24px_rgba(28,20,14,0.20))] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02]"
           />
         </Link>
 

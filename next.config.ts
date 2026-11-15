@@ -14,8 +14,9 @@ const nextConfig = (phase: string): NextConfig => {
       pagesBufferLength: 50,
     },
     images: {
-      formats: ["image/avif", "image/webp"],
+      formats: ["image/webp"],
       minimumCacheTTL: 31536000,
+      imageSizes: [48, 96, 128, 256, 384, 480],
       deviceSizes: [640, 750, 828, 1080, 1200, 1600, 1920],
       localPatterns: [
         {

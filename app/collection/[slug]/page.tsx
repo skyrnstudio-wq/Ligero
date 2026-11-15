@@ -177,7 +177,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           className="absolute inset-0 bg-[radial-gradient(ellipse_75%_50%_at_50%_-10%,var(--pdp-glow)_0%,transparent_75%)] opacity-70"
         />
         <div
-          className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full bg-[radial-gradient(circle,var(--pdp-accent)_0%,transparent_75%)] opacity-[0.06] blur-3xl"
+          className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full bg-[radial-gradient(circle,var(--pdp-accent)_0%,transparent_72%)] opacity-[0.06]"
         />
       </div>
 
@@ -254,12 +254,18 @@ export default async function ProductDetailPage({ params }: PageProps) {
                     >
                       <div className="relative flex h-full w-full items-center justify-center p-2 sm:p-5">
                         <div className="relative h-full w-full max-w-[110px] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-1 group-hover:scale-[1.03] sm:max-w-[190px]">
+                          <div
+                            aria-hidden="true"
+                            className="pointer-events-none absolute bottom-0 left-1/2 h-3 w-[60%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.22)_0%,rgba(28,20,14,0.08)_52%,transparent_76%)]"
+                          />
                           <Image
                             src={getPerfumeCutoutImage(rel)}
                             alt={`${rel.name} bottle`}
                             fill
-                            sizes="(max-width: 640px) 30vw, 24vw"
-                            className="object-contain object-center [filter:drop-shadow(-10px_14px_16px_rgba(28,20,14,0.18))_drop-shadow(0_4px_8px_rgba(28,20,14,0.10))]"
+                            loading="eager"
+                            quality={80}
+                            sizes="(max-width: 640px) 110px, 190px"
+                            className="object-contain object-center md:[filter:drop-shadow(-10px_14px_16px_rgba(28,20,14,0.18))]"
                           />
                         </div>
                       </div>

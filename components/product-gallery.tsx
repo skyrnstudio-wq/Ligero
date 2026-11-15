@@ -239,7 +239,7 @@ export default function ProductGallery({
                       <div className="relative flex h-full w-full items-center justify-center p-7 sm:p-10">
                         <div
                           aria-hidden="true"
-                          className="pointer-events-none absolute bottom-5 left-1/2 h-4 w-[38%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.32)_0%,rgba(28,20,14,0.12)_55%,transparent_80%)] blur-[4px]"
+                          className="pointer-events-none absolute bottom-5 left-1/2 h-4 w-[42%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.32)_0%,rgba(28,20,14,0.12)_52%,transparent_76%)]"
                         />
                         <div className="relative h-full w-full max-w-[220px]">
                           <Image
@@ -247,8 +247,11 @@ export default function ProductGallery({
                             alt={`${displayName} Eau de Parfum bottle`}
                             fill
                             priority
-                            sizes="100vw"
-                            className="object-contain object-center [filter:drop-shadow(-16px_22px_22px_rgba(28,20,14,0.26))_drop-shadow(0_6px_12px_rgba(28,20,14,0.14))]"
+                            fetchPriority="high"
+                            decoding="sync"
+                            quality={82}
+                            sizes="(max-width: 640px) 220px, 50vw"
+                            className="object-contain object-center md:[filter:drop-shadow(-14px_20px_20px_rgba(28,20,14,0.22))]"
                           />
                         </div>
                       </div>
@@ -259,7 +262,9 @@ export default function ProductGallery({
                       alt={`${displayName} gallery view ${idx + 1}`}
                       fill
                       priority={idx === 1}
-                      sizes="100vw"
+                      loading={idx < 4 ? "eager" : "lazy"}
+                      quality={82}
+                      sizes="(max-width: 640px) 100vw, 50vw"
                       className="object-cover object-center"
                     />
                   )}
@@ -383,7 +388,7 @@ export default function ProductGallery({
         <div className="relative flex h-full w-full items-center justify-center p-12 sm:p-18 lg:p-22">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute bottom-11 left-1/2 h-5.5 w-[42%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.34)_0%,rgba(28,20,14,0.14)_54%,transparent_80%)] blur-[4px] transition-all duration-700 group-hover:scale-x-95"
+            className="pointer-events-none absolute bottom-11 left-1/2 h-5.5 w-[44%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.34)_0%,rgba(28,20,14,0.13)_52%,transparent_76%)] transition-all duration-700 group-hover:scale-x-95"
           />
           <div className="relative h-full w-full max-w-[275px] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]">
             <Image
@@ -391,8 +396,11 @@ export default function ProductGallery({
               alt={`${displayName} Eau de Parfum bottle`}
               fill
               priority
-              sizes="(max-width: 1024px) 85vw, 42vw"
-              className="object-contain object-center [filter:drop-shadow(-20px_26px_26px_rgba(28,20,14,0.28))_drop-shadow(0_8px_14px_rgba(28,20,14,0.16))]"
+              fetchPriority="high"
+              decoding="sync"
+              quality={85}
+              sizes="275px"
+              className="object-contain object-center md:[filter:drop-shadow(-18px_24px_24px_rgba(28,20,14,0.24))]"
             />
           </div>
         </div>

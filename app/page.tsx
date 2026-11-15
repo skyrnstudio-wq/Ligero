@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { preload } from "react-dom";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import Hero from "@/components/hero";
@@ -26,6 +27,11 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
+  preload("/images/textures/raw-silk-canvas.webp", {
+    as: "image",
+    type: "image/webp",
+  });
+
   const [homepageData, perfumes, objects] = await Promise.all([
     getLiveHomepage(),
     getLivePerfumes(),
@@ -77,7 +83,7 @@ export default async function Home() {
         </div>
 
         {/* Elevated Curtain Layer: Slides smoothly on top of the stationary Hero */}
-        <div className="relative z-10 border-t border-aube-hairline bg-[#FAFAF7] shadow-[0_-24px_64px_rgba(28,20,14,0.20)]">
+        <div className="relative z-10 border-t border-aube-hairline bg-[#FAFAF7] shadow-[0_-8px_24px_rgba(28,20,14,0.14)] md:shadow-[0_-24px_64px_rgba(28,20,14,0.20)]">
           {/* Movement 2: The Seven Fragrances */}
           <TheCollection items={collectionItems} />
 

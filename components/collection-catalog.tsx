@@ -373,15 +373,21 @@ export default function CollectionCatalog({
             aria-label={`${item.name} — ${item.typeLabel}, ₹${item.price.toLocaleString("en-IN")}`}
             className="relative flex h-full w-full items-center justify-center p-4 pb-12 sm:p-7 [@media(hover:none)]:pb-12 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#1c140e]"
           >
-            {/* Clean Upright Flacon Cutout with gentle natural drop shadow */}
+            {/* Clean Upright Flacon Cutout with instant grounded studio plinth & desktop drop shadow */}
             <div className="relative h-full w-full max-w-[150px] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-1 group-hover:scale-[1.03]">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute bottom-0 left-1/2 h-3.5 w-[58%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.24)_0%,rgba(28,20,14,0.09)_52%,transparent_76%)]"
+              />
               <Image
                 src={item.primaryImage}
                 alt={`${item.name}`}
                 fill
-                priority={index < 4}
-                sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 22vw"
-                className="object-contain object-center [filter:drop-shadow(-10px_14px_16px_rgba(28,20,14,0.18))_drop-shadow(0_4px_8px_rgba(28,20,14,0.10))]"
+                priority={index < 2}
+                loading={index < 2 ? undefined : "eager"}
+                quality={80}
+                sizes="150px"
+                className="object-contain object-center md:[filter:drop-shadow(-10px_14px_16px_rgba(28,20,14,0.18))]"
               />
             </div>
           </Link>

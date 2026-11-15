@@ -33,7 +33,7 @@ export default function ProductDiscoveryBanner({
       {/* Ambient gradient glow */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-gradient-to-br from-pdp-accent/15 to-transparent blur-2xl"
+        className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--pdp-accent)_16%,transparent)_0%,transparent_70%)]"
       />
 
       <div className="relative flex items-center justify-between gap-4">

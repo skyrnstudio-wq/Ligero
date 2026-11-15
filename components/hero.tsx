@@ -163,7 +163,7 @@ export default function Hero() {
       >
         <span
           ref={wordmarkBackRef}
-          className="font-editorial text-[clamp(6.5rem,22vw,23rem)] font-normal uppercase leading-none tracking-[0.06em] text-transparent bg-gradient-to-b from-[#2B2118]/[0.18] via-[#6F6154]/[0.12] to-[#C6A15B]/[0.05] bg-clip-text will-change-transform"
+          className="font-editorial text-[clamp(6.5rem,22vw,23rem)] font-normal uppercase leading-none tracking-[0.06em] text-transparent bg-gradient-to-b from-[#2B2118]/[0.18] via-[#6F6154]/[0.12] to-[#C6A15B]/[0.05] bg-clip-text md:will-change-transform"
         >
           LIGÉRO
         </span>
@@ -175,14 +175,20 @@ export default function Hero() {
           ref={bottleRef}
           className="relative h-[40%] w-full max-w-[260px] sm:h-[60%] sm:max-w-[460px] lg:h-[70%] lg:max-h-[600px] lg:max-w-[520px] will-change-transform"
         >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-[18%] bottom-[4%] h-7 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(44,30,18,0.28)_0%,rgba(44,30,18,0.11)_48%,transparent_76%)] sm:h-9"
+          />
           <Image
             src={HERO_IMAGE}
             alt="Ligéro Parfums signature amber flacon"
             fill
             priority
             fetchPriority="high"
-            sizes="(max-width: 1024px) 85vw, 50vw"
-            className="hero-bottle-straighten object-contain object-center select-none [filter:drop-shadow(-22px_32px_42px_rgba(44,30,18,0.28))_drop-shadow(0_10px_18px_rgba(44,30,18,0.16))]"
+            decoding="sync"
+            quality={82}
+            sizes="(max-width: 640px) 260px, (max-width: 1024px) 460px, 520px"
+            className="hero-bottle-straighten object-contain object-center select-none md:[filter:drop-shadow(-18px_28px_34px_rgba(44,30,18,0.24))]"
           />
         </div>
       </div>
@@ -194,7 +200,7 @@ export default function Hero() {
       >
         <span
           ref={wordmarkGlassRef}
-          className="font-editorial text-[clamp(6.5rem,22vw,23rem)] font-normal uppercase leading-none tracking-[0.06em] text-[#FBF8F2]/50 will-change-transform"
+          className="font-editorial text-[clamp(6.5rem,22vw,23rem)] font-normal uppercase leading-none tracking-[0.06em] text-[#FBF8F2]/50 md:will-change-transform"
         >
           LIGÉRO
         </span>
@@ -211,7 +217,7 @@ export default function Hero() {
         {/* Top-Right Text Block */}
         <div
           ref={topRightRef}
-          className="ml-auto max-w-[16rem] text-right sm:max-w-[23rem] lg:max-w-[25rem] xl:max-w-[27rem] will-change-transform"
+          className="ml-auto max-w-[16rem] text-right sm:max-w-[23rem] lg:max-w-[25rem] xl:max-w-[27rem] md:will-change-transform"
         >
           <p className="font-body text-[13px] leading-[1.45] text-aube-text/85 sm:text-base lg:text-[1.05rem]">
             Rare botanicals, slow-cured resins, and an intoxicating sillage designed to become your second skin. Indulge in an olfactory statement that lingers long after you leave.
@@ -221,7 +227,7 @@ export default function Hero() {
         {/* Bottom-Left Text Block */}
         <div
           ref={bottomLeftRef}
-          className="mr-auto mt-auto max-w-[21rem] text-left sm:max-w-[28rem] lg:max-w-[31rem] xl:max-w-[35rem] will-change-transform"
+          className="mr-auto mt-auto max-w-[21rem] text-left sm:max-w-[28rem] lg:max-w-[31rem] xl:max-w-[35rem] md:will-change-transform"
         >
           <h1 className="font-display text-[1.85rem] font-light leading-[1.08] tracking-[-0.01em] text-aube-text sm:text-5xl lg:text-[3.5rem] xl:text-[4rem]">
             <span className="sr-only">Ligéro Parfums — </span>

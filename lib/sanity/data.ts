@@ -12,11 +12,19 @@ import {
 import { PERFUMES, OBJECTS, type Product, type HouseObject } from '@/lib/products'
 import { type PublicReview, REAL_APPROVED_REVIEWS } from '@/lib/reviews'
 
+function optimizeSanityImageUrl(url: string | undefined, maxWidth = 1440): string | undefined {
+  if (!url) return url
+  if (url.startsWith('https://cdn.sanity.io/images/') && !url.includes('?')) {
+    return `${url}?fm=webp&fit=max&w=${maxWidth}&q=80`
+  }
+  return url
+}
+
 function normalizePerfume(item: Partial<Product>, staticItem?: Product): Product {
   const mergedKeyIngredients =
     item.keyIngredients?.map((ing, idx) => ({
       ...ing,
-      image: ing.image || staticItem?.keyIngredients?.[idx]?.image,
+      image: optimizeSanityImageUrl(ing.image || staticItem?.keyIngredients?.[idx]?.image, 900),
     })) ||
     staticItem?.keyIngredients ||
     []
@@ -27,6 +35,11 @@ function normalizePerfume(item: Partial<Product>, staticItem?: Product): Product
     rawPoem[1] ?? staticItem?.notesPoem?.[1] ?? '',
     rawPoem[2] ?? staticItem?.notesPoem?.[2] ?? '',
   ]
+
+  const optimizedGallery =
+    item.gallery && item.gallery.length > 0
+      ? item.gallery.map((g) => optimizeSanityImageUrl(g, 1440) || g)
+      : staticItem?.gallery || []
 
   return {
     slug: item.slug || staticItem?.slug || '',
@@ -41,9 +54,12 @@ function normalizePerfume(item: Partial<Product>, staticItem?: Product): Product
     ritual: item.ritual || staticItem?.ritual || '',
     material: item.material || staticItem?.material || '',
     provenance: item.provenance || staticItem?.provenance || '',
-    image: item.image || staticItem?.image || `/images/perfumes/cutouts/${item.slug || staticItem?.slug || 'aube'}.webp?v=2`,
-    notesImage: item.notesImage || staticItem?.notesImage,
-    gallery: item.gallery && item.gallery.length > 0 ? item.gallery : staticItem?.gallery || [],
+    image:
+      optimizeSanityImageUrl(item.image, 1000) ||
+      staticItem?.image ||
+      `/images/perfumes/cutouts/${item.slug || staticItem?.slug || 'aube'}.webp?v=2`,
+    notesImage: optimizeSanityImageUrl(item.notesImage, 1000) || staticItem?.notesImage,
+    gallery: optimizedGallery,
     relatedSlugs: item.relatedSlugs && item.relatedSlugs.length > 0 ? item.relatedSlugs : staticItem?.relatedSlugs || [],
     occasions: item.occasions && item.occasions.length > 0 ? item.occasions : staticItem?.occasions || [],
     isDark: typeof item.isDark === 'boolean' ? item.isDark : staticItem?.isDark ?? false,
@@ -70,7 +86,10 @@ function normalizeHouseObject(item: Partial<HouseObject>, staticObj?: HouseObjec
     badge: item.badge || staticObj?.badge,
     description: item.description || staticObj?.description || '',
     spec: item.spec || staticObj?.spec || '',
-    image: item.image || staticObj?.image || '/images/objects/discovery-set-floating.webp',
+    image:
+      optimizeSanityImageUrl(item.image, 1200) ||
+      staticObj?.image ||
+      '/images/objects/discovery-set-floating.webp',
     occasions: item.occasions && item.occasions.length > 0 ? item.occasions : staticObj?.occasions,
   }
 }
@@ -193,7 +212,13 @@ export const getLiveHomepage = cache(async (): Promise<HomepageData | null> => {
       query: HOMEPAGE_QUERY,
       tags: ['homePage'],
     })
-    return data || null
+    if (!data) return null
+    return {
+      ...data,
+      heroImage: optimizeSanityImageUrl(data.heroImage, 1440),
+      featuredBannerImage: optimizeSanityImageUrl(data.featuredBannerImage, 1200),
+      featuredBottleCutout: optimizeSanityImageUrl(data.featuredBottleCutout, 1000),
+    }
   } catch (error) {
     console.warn('[Sanity] Fetch failed for homepage content:', error)
     return null

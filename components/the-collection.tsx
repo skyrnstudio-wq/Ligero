@@ -213,16 +213,18 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                     <div className="relative z-10 flex h-full w-full items-center justify-center">
                       <div
                         aria-hidden="true"
-                        className="pointer-events-none absolute bottom-5 left-1/2 h-4.5 w-[46%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.30)_0%,rgba(28,20,14,0.12)_52%,transparent_78%)] blur-[3px] transition-all duration-700 group-hover:scale-x-95 group-hover:opacity-60"
+                        className="pointer-events-none absolute bottom-5 left-1/2 h-4.5 w-[48%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.30)_0%,rgba(28,20,14,0.12)_50%,transparent_76%)] transition-all duration-700 group-hover:scale-x-95 group-hover:opacity-60"
                       />
                       <div className="relative h-[86%] w-[86%]">
                         <Image
                           src={fragrance.image}
                           alt={`${fragrance.name} 50 ml Eau de Parfum`}
                           fill
-                          priority={index < 3}
-                          sizes="(max-width: 640px) 70vw, (max-width: 1024px) 38vw, 28vw"
-                          className="object-contain p-5 [filter:drop-shadow(-14px_20px_22px_rgba(28,20,14,0.25))_drop-shadow(0_8px_12px_rgba(28,20,14,0.15))] sm:p-7 lg:p-8"
+                          loading="eager"
+                          decoding="async"
+                          quality={80}
+                          sizes="(max-width: 640px) 220px, (max-width: 1024px) 300px, 340px"
+                          className="object-contain p-5 md:[filter:drop-shadow(-12px_18px_20px_rgba(28,20,14,0.22))] sm:p-7 lg:p-8"
                         />
                       </div>
                     </div>
@@ -240,7 +242,9 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                           src={fragrance.notesImage}
                           alt={`Raw botanicals of ${fragrance.name}`}
                           fill
-                          sizes="(max-width: 640px) 78vw, (max-width: 1024px) 44vw, 33vw"
+                          loading="lazy"
+                          quality={75}
+                          sizes="(max-width: 640px) 260px, (max-width: 1024px) 380px, 440px"
                           className={`object-cover object-center transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
                             isTouchRevealed
                               ? "translate-y-0 scale-100"

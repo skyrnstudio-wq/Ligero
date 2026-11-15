@@ -91,14 +91,20 @@ export default async function DiscoverySetPage() {
           <div className="grid grid-cols-1 items-start gap-6 sm:gap-10 lg:grid-cols-12 lg:gap-16">
             <div className="lg:col-span-7">
               <div className="relative aspect-[1417/1024] max-h-[240px] w-full overflow-hidden border border-aube-hairline bg-gradient-to-br from-[#ece8e0] via-[#f6f4ef] to-[#fdfcfa] p-4 sm:max-h-none sm:p-10">
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute bottom-3 left-1/2 h-5 w-[64%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.20)_0%,rgba(28,20,14,0.08)_50%,transparent_76%)] sm:bottom-6"
+                />
                 <Image
                   src={setImage}
                   alt={`The ${perfumes.length} ten-millilitre vials of the Discovery Set`}
                   fill
                   priority
                   fetchPriority="high"
-                  sizes="(max-width: 1024px) 100vw, 58vw"
-                  className="object-contain object-center p-2 drop-shadow-[0_20px_30px_rgba(28,20,14,0.14)] sm:p-4"
+                  decoding="sync"
+                  quality={82}
+                  sizes="(max-width: 640px) 92vw, (max-width: 1024px) 100vw, 58vw"
+                  className="relative z-10 object-contain object-center p-2 md:[filter:drop-shadow(0_18px_26px_rgba(28,20,14,0.16))] sm:p-4"
                 />
               </div>
             </div>
@@ -196,14 +202,16 @@ export default async function DiscoverySetPage() {
                     <div className="relative aspect-[3/4] w-full overflow-hidden">
                       <div
                         aria-hidden="true"
-                        className="pointer-events-none absolute bottom-2 left-1/2 h-4 w-[52%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.30)_0%,rgba(28,20,14,0.12)_52%,transparent_78%)] blur-[3px] transition-all duration-500 group-hover:scale-x-90 group-hover:opacity-75"
+                        className="pointer-events-none absolute bottom-2 left-1/2 h-4 w-[54%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.28)_0%,rgba(28,20,14,0.11)_52%,transparent_76%)] transition-all duration-500 group-hover:scale-x-90 group-hover:opacity-75"
                       />
                       <Image
                         src={cutout}
                         alt={`${p.name} bottle`}
                         fill
-                        sizes="(max-width: 640px) 46vw, 22vw"
-                        className="object-contain p-2 sm:p-3 [filter:drop-shadow(-12px_16px_18px_rgba(28,20,14,0.25))_drop-shadow(0_5px_9px_rgba(28,20,14,0.15))] transition-transform duration-500 group-hover:-translate-y-1"
+                        loading="eager"
+                        quality={78}
+                        sizes="180px"
+                        className="object-contain p-2 sm:p-3 md:[filter:drop-shadow(-10px_14px_16px_rgba(28,20,14,0.22))] transition-transform duration-500 group-hover:-translate-y-1"
                       />
                     </div>
                     <div className="mt-3 border-t border-aube-hairline pt-3 sm:mt-4 sm:pt-4">

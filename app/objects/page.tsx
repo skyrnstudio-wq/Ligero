@@ -99,12 +99,19 @@ export default async function ObjectsPage() {
                 href="/discovery-set"
                 className="group relative block aspect-[1417/1024] max-h-[240px] w-full overflow-hidden border border-aube-hairline bg-gradient-to-br from-[#ece8e0] via-[#f6f4ef] to-[#fdfcfa] sm:max-h-none"
               >
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute bottom-3 left-1/2 h-5 w-[64%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.20)_0%,rgba(28,20,14,0.08)_50%,transparent_76%)] sm:bottom-6"
+                />
                 <Image
                   src={discoveryImage}
                   alt="The seven vials of the Discovery Set"
                   fill
-                  sizes="(max-width: 1024px) 100vw, 58vw"
-                  className="object-contain p-4 drop-shadow-[0_20px_30px_rgba(28,20,14,0.14)] transition-transform duration-700 ease-out group-hover:scale-[1.02] sm:p-6"
+                  priority
+                  decoding="sync"
+                  quality={82}
+                  sizes="(max-width: 640px) 92vw, (max-width: 1024px) 100vw, 58vw"
+                  className="relative z-10 object-contain p-4 md:[filter:drop-shadow(0_18px_26px_rgba(28,20,14,0.16))] transition-transform duration-700 ease-out group-hover:scale-[1.02] sm:p-6"
                 />
               </Link>
             </div>
@@ -134,12 +141,18 @@ export default async function ObjectsPage() {
                 href="/objects/en-route"
                 className="group relative block aspect-[1417/1024] max-h-[240px] w-full overflow-hidden border border-aube-hairline bg-gradient-to-br from-[#ece8e0] via-[#f6f4ef] to-[#fdfcfa] sm:max-h-none"
               >
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute bottom-3 left-1/2 h-5 w-[64%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.20)_0%,rgba(28,20,14,0.08)_50%,transparent_76%)] sm:bottom-6"
+                />
                 <Image
                   src={enRouteImage}
                   alt={`${enRouteName} car perfume`}
                   fill
-                  sizes="(max-width: 1024px) 100vw, 58vw"
-                  className="object-contain p-4 [filter:drop-shadow(0_18px_26px_rgba(28,20,14,0.16))] transition-transform duration-700 ease-out group-hover:scale-[1.02] sm:p-6"
+                  loading="eager"
+                  quality={82}
+                  sizes="(max-width: 640px) 92vw, (max-width: 1024px) 100vw, 58vw"
+                  className="relative z-10 object-contain p-4 md:[filter:drop-shadow(0_18px_26px_rgba(28,20,14,0.16))] transition-transform duration-700 ease-out group-hover:scale-[1.02] sm:p-6"
                 />
               </Link>
             </div>
@@ -173,12 +186,18 @@ export default async function ObjectsPage() {
                 className={`lg:col-span-7 ${idx % 2 === 1 ? "lg:order-2" : ""}`}
               >
                 <div className="relative block aspect-[1417/1024] w-full overflow-hidden border border-aube-hairline bg-gradient-to-br from-[#ece8e0] via-[#f6f4ef] to-[#fdfcfa]">
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute bottom-4 left-1/2 h-5 w-[60%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.20)_0%,rgba(28,20,14,0.08)_50%,transparent_76%)] sm:bottom-6"
+                  />
                   <Image
                     src={obj.image}
                     alt={obj.name}
                     fill
-                    sizes="(max-width: 1024px) 100vw, 58vw"
-                    className="object-contain p-6 drop-shadow-[0_18px_26px_rgba(28,20,14,0.16)]"
+                    loading="eager"
+                    quality={80}
+                    sizes="(max-width: 640px) 92vw, (max-width: 1024px) 100vw, 58vw"
+                    className="relative z-10 object-contain p-6 md:[filter:drop-shadow(0_18px_26px_rgba(28,20,14,0.16))]"
                   />
                 </div>
               </div>

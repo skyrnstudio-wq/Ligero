@@ -15,15 +15,15 @@ export default function ProductManifestoBand({
       {/* Dynamic ambient radial gradients matching the active fragrance glow */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[380px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,var(--pdp-glow)_0%,transparent_70%)] opacity-80 blur-3xl"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[380px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,var(--pdp-glow)_0%,transparent_70%)] opacity-80"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -left-20 top-0 h-64 w-64 rounded-full bg-gradient-to-br from-pdp-accent/10 to-transparent blur-2xl"
+        className="pointer-events-none absolute -left-20 top-0 h-64 w-64 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--pdp-accent)_12%,transparent)_0%,transparent_70%)]"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -right-20 bottom-0 h-64 w-64 rounded-full bg-gradient-to-tl from-pdp-accent/15 to-transparent blur-2xl"
+        className="pointer-events-none absolute -right-20 bottom-0 h-64 w-64 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--pdp-accent)_16%,transparent)_0%,transparent_70%)]"
       />
 
       <div className="relative mx-auto max-w-5xl px-6 text-center sm:px-10 lg:px-12">
@@ -45,7 +45,7 @@ export default function ProductManifestoBand({
 
         {/* 3 Craftsmanship Pillars with subtle gradient borders */}
         <div className="mt-7 grid grid-cols-3 gap-2 sm:mt-12 sm:gap-4 lg:gap-6">
-          <div className="group rounded border border-pdp-hairline/80 bg-pdp-base/70 p-3 text-left backdrop-blur-sm transition-all duration-300 hover:border-pdp-accent/50 hover:bg-pdp-base/90 sm:p-5">
+          <div className="group rounded border border-pdp-hairline/80 bg-pdp-base/90 p-3 text-left md:backdrop-blur-sm transition-all duration-300 hover:border-pdp-accent/50 hover:bg-pdp-base/95 sm:p-5">
             <span className="font-display text-xl font-normal text-pdp-accent sm:text-2xl">
               EdP
             </span>
@@ -57,7 +57,7 @@ export default function ProductManifestoBand({
             </p>
           </div>
 
-          <div className="group rounded border border-pdp-hairline/80 bg-pdp-base/70 p-3 text-left backdrop-blur-sm transition-all duration-300 hover:border-pdp-accent/50 hover:bg-pdp-base/90 sm:p-5">
+          <div className="group rounded border border-pdp-hairline/80 bg-pdp-base/90 p-3 text-left md:backdrop-blur-sm transition-all duration-300 hover:border-pdp-accent/50 hover:bg-pdp-base/95 sm:p-5">
             <span className="font-display text-xl font-normal text-pdp-accent sm:text-2xl">
               Batch
             </span>
@@ -69,7 +69,7 @@ export default function ProductManifestoBand({
             </p>
           </div>
 
-          <div className="group rounded border border-pdp-hairline/80 bg-pdp-base/70 p-3 text-left backdrop-blur-sm transition-all duration-300 hover:border-pdp-accent/50 hover:bg-pdp-base/90 sm:p-5">
+          <div className="group rounded border border-pdp-hairline/80 bg-pdp-base/90 p-3 text-left md:backdrop-blur-sm transition-all duration-300 hover:border-pdp-accent/50 hover:bg-pdp-base/95 sm:p-5">
             <span className="font-display text-xl font-normal text-pdp-accent sm:text-2xl">
               0%
             </span>

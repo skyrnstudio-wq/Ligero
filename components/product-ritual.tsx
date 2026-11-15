@@ -34,11 +34,11 @@ export default function ProductRitual({ product }: ProductRitualProps) {
       {/* Soft gradient ambient glow in empty background */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/4 top-1/2 h-72 w-96 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,var(--pdp-glow)_0%,transparent_75%)] opacity-60 blur-3xl"
+        className="pointer-events-none absolute left-1/4 top-1/2 h-72 w-96 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,var(--pdp-glow)_0%,transparent_72%)] opacity-60"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute right-10 bottom-10 h-64 w-64 rounded-full bg-gradient-to-tl from-pdp-accent/10 to-transparent blur-2xl"
+        className="pointer-events-none absolute right-10 bottom-10 h-64 w-64 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--pdp-accent)_12%,transparent)_0%,transparent_70%)]"
       />
 
       <div className="relative flex flex-col gap-3 border-b border-pdp-hairline pb-5 sm:pb-8 md:flex-row md:items-end md:justify-between md:gap-4">
@@ -62,7 +62,7 @@ export default function ProductRitual({ product }: ProductRitualProps) {
         {steps.map((s) => (
           <article
             key={s.num}
-            className="group relative flex w-[80vw] shrink-0 snap-start flex-col justify-between overflow-hidden border border-pdp-hairline bg-gradient-to-b from-pdp-surface/80 via-pdp-surface2/40 to-pdp-base p-5 backdrop-blur-sm transition-all duration-300 hover:border-pdp-accent/40 hover:shadow-lg sm:w-auto sm:p-7"
+            className="group relative flex w-[80vw] shrink-0 snap-start flex-col justify-between overflow-hidden border border-pdp-hairline bg-gradient-to-b from-pdp-surface/90 via-pdp-surface2/60 to-pdp-base p-5 md:backdrop-blur-sm transition-all duration-300 hover:border-pdp-accent/40 hover:shadow-lg sm:w-auto sm:p-7"
           >
             {/* Top gradient highlight on hover */}
             <div
