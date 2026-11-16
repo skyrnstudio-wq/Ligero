@@ -20,6 +20,23 @@ function optimizeSanityImageUrl(url: string | undefined, maxWidth = 1440): strin
   return url
 }
 
+function sanitizeExtraitText(val?: string): string | undefined {
+  if (!val) return val
+  return val
+    .replace(/Extrait de Parfum/gi, 'Eau de Parfum')
+    .replace(/botanical extraits/gi, 'botanical extracts')
+}
+
+function sanitizePerfumeBadge(badge?: string): string | undefined {
+  if (!badge || /extrait/i.test(badge)) return undefined
+  return badge
+}
+
+function sanitizeObjectBadge(badge?: string): string | undefined {
+  if (!badge || /redeemable/i.test(badge)) return undefined
+  return badge
+}
+
 function normalizePerfume(item: Partial<Product>, staticItem?: Product): Product {
   const mergedKeyIngredients =
     item.keyIngredients?.map((ing, idx) => ({
@@ -41,19 +58,27 @@ function normalizePerfume(item: Partial<Product>, staticItem?: Product): Product
       ? item.gallery.map((g) => optimizeSanityImageUrl(g, 1440) || g)
       : staticItem?.gallery || []
 
+  const rawBadge = sanitizePerfumeBadge(item.badge) ?? sanitizePerfumeBadge(staticItem?.badge)
+
   return {
     slug: item.slug || staticItem?.slug || '',
     name: item.name || staticItem?.name || '',
     subtitle: item.subtitle || staticItem?.subtitle || '',
-    volume: item.volume || staticItem?.volume || '50 ml · Extrait de Parfum',
+    volume:
+      sanitizeExtraitText(item.volume) ||
+      sanitizeExtraitText(staticItem?.volume) ||
+      '50 ml · Eau de Parfum',
     price: typeof item.price === 'number' ? item.price : staticItem?.price ?? 0,
-    badge: item.badge || staticItem?.badge,
+    badge: rawBadge,
     oneLiner: item.oneLiner || staticItem?.oneLiner || '',
     notesUppercase: item.notesUppercase || staticItem?.notesUppercase || '',
     notesPoem,
     ritual: item.ritual || staticItem?.ritual || '',
     material: item.material || staticItem?.material || '',
-    provenance: item.provenance || staticItem?.provenance || '',
+    provenance:
+      sanitizeExtraitText(item.provenance) ||
+      sanitizeExtraitText(staticItem?.provenance) ||
+      '',
     image:
       optimizeSanityImageUrl(item.image, 1000) ||
       staticItem?.image ||
@@ -67,8 +92,13 @@ function normalizePerfume(item: Partial<Product>, staticItem?: Product): Product
       top: item.scentProfile?.top || staticItem?.scentProfile?.top || '',
       heart: item.scentProfile?.heart || staticItem?.scentProfile?.heart || '',
       base: item.scentProfile?.base || staticItem?.scentProfile?.base || '',
-      family: item.scentProfile?.family || staticItem?.scentProfile?.family || 'Extrait de Parfum',
-      concentration: item.scentProfile?.concentration || staticItem?.scentProfile?.concentration,
+      family:
+        sanitizeExtraitText(item.scentProfile?.family) ||
+        sanitizeExtraitText(staticItem?.scentProfile?.family) ||
+        'Eau de Parfum',
+      concentration: sanitizeExtraitText(
+        item.scentProfile?.concentration || staticItem?.scentProfile?.concentration
+      ),
       longevity: item.scentProfile?.longevity || staticItem?.scentProfile?.longevity,
       sillage: item.scentProfile?.sillage || staticItem?.scentProfile?.sillage,
       maceration: item.scentProfile?.maceration || staticItem?.scentProfile?.maceration,
@@ -83,7 +113,7 @@ function normalizeHouseObject(item: Partial<HouseObject>, staticObj?: HouseObjec
     name: item.name || staticObj?.name || '',
     price: typeof item.price === 'number' ? item.price : staticObj?.price ?? 0,
     volume: item.volume || staticObj?.volume,
-    badge: item.badge || staticObj?.badge,
+    badge: sanitizeObjectBadge(item.badge) ?? sanitizeObjectBadge(staticObj?.badge),
     description: item.description || staticObj?.description || '',
     spec: item.spec || staticObj?.spec || '',
     image:

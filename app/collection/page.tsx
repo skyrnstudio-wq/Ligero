@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Image from "next/image";
 import { preload } from "react-dom";
 import SiteHeader from "@/components/site-header";
@@ -112,72 +111,7 @@ export default async function CollectionPage() {
         {/* 2. Interactive Filter/Sort Bar + Clean Catalog Grid */}
         <CollectionCatalog perfumes={perfumes} objects={objects} />
 
-        {/* 3. Semantic Olfactive Index Table for Direct Comparison & Machine Extractability */}
-        <section
-          aria-labelledby="olfactive-index-heading"
-          className="border-t border-aube-hairline bg-[#FBF8F2] px-6 py-16 sm:px-10 sm:py-20 lg:px-16"
-        >
-          <div className="mx-auto max-w-[112rem]">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.24em] text-aube-text-muted">
-                  Permanent Index
-                </p>
-                <h2
-                  id="olfactive-index-heading"
-                  className="mt-2 font-display text-3xl font-light italic text-aube-text sm:text-4xl"
-                >
-                  The Olfactive Ledger.
-                </h2>
-              </div>
-              <p className="max-w-md text-xs leading-relaxed text-aube-text-muted">
-                Every permanent 50 ml Eau de Parfum bottled with food-grade grain alcohol, aged in small batches, and shipped free across India.
-              </p>
-            </div>
-
-            <div className="mt-8 overflow-x-auto border border-aube-hairline bg-[#FAF7F0]">
-              <table className="w-full min-w-[680px] border-collapse text-left text-xs text-aube-text">
-                <thead>
-                  <tr className="border-b border-aube-hairline text-[10px] uppercase tracking-[0.2em] text-aube-text-muted">
-                    <th scope="col" className="px-5 py-4 font-normal">Perfume</th>
-                    <th scope="col" className="px-5 py-4 font-normal">Olfactive Family</th>
-                    <th scope="col" className="px-5 py-4 font-normal">Primary Notes</th>
-                    <th scope="col" className="px-5 py-4 font-normal">Wear & Longevity</th>
-                    <th scope="col" className="px-5 py-4 text-right font-normal">50 ml INR</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {perfumes.map((p) => (
-                    <tr
-                      key={p.slug}
-                      className="border-b border-aube-hairline/70 last:border-b-0 transition-colors hover:bg-[#F3EDE2]"
-                    >
-                      <td className="px-5 py-4 font-display text-lg font-light italic">
-                        <Link href={`/collection/${p.slug}`} className="hover:text-aube-accent">
-                          {p.name}
-                        </Link>
-                      </td>
-                      <td className="px-5 py-4 text-aube-text-muted">
-                        {p.scentProfile.family}
-                      </td>
-                      <td className="px-5 py-4 text-aube-text-muted">
-                        {p.scentProfile.top} · {p.scentProfile.heart} · {p.scentProfile.base}
-                      </td>
-                      <td className="px-5 py-4 text-aube-text-muted">
-                        {p.scentProfile.longevity || "12+ hours"}
-                      </td>
-                      <td className="px-5 py-4 text-right font-medium tabular-nums">
-                        INR {p.price}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        {/* 4. Horizontal Correspondence Strip */}
+        {/* 3. Horizontal Correspondence Strip */}
         <PrivateSalon variant="strip" />
       </main>
 

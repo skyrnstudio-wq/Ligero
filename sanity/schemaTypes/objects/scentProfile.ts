@@ -37,7 +37,7 @@ export const scentProfile = defineType({
       name: 'concentration',
       title: 'Concentration Specification',
       type: 'string',
-      initialValue: 'Extrait de Parfum (30% Parfum Oil)',
+      initialValue: 'Eau de Parfum',
     }),
     defineField({
       name: 'longevity',

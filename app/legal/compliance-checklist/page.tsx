@@ -41,7 +41,7 @@ export default function CompliancePage() {
               In accordance with the Legal Metrology (Packaged Commodities) Rules, 2011, every perfume bottle sold by Ligero Parfum displays:
             </p>
             <ul className="mt-4 flex flex-col gap-2 pl-4 list-disc marker:text-aube-accent text-sm">
-              <li>Name of the commodity: Eau de Parfum / Extrait de Parfum.</li>
+              <li>Name of the commodity: Eau de Parfum.</li>
               <li>Net quantity: 50 ml per flacon (10 ml per vial for the Discovery Set).</li>
               <li>Maximum Retail Price (MRP): Inclusive of all taxes, clearly stated on each product page and carton.</li>
               <li>Country of origin: Declared on product carton in compliance with statutory rules.</li>

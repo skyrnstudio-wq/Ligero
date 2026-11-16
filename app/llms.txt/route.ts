@@ -29,7 +29,7 @@ export async function GET() {
 
   const body = `# Ligero Parfum
 
-> Independent Indian perfume house formulating seven permanent Eau de Parfum extraits in small batches with pure botanical extracts, cold-pressed oils, and aged resins.
+> Independent Indian perfume house formulating seven permanent Eau de Parfum creations in small batches with pure botanical extracts, cold-pressed oils, and aged resins.
 
 Ligero Parfum sells direct to collectors across India in 50 ml glass flacons, The Discovery Set (7 x 10 ml vials), and En Route (car perfume). All prices include GST. Domestic surface shipping across serviceable postal codes in India is complimentary. Unopened, factory-sealed bottles qualify for return within seven days of delivery.
 

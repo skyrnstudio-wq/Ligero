@@ -66,6 +66,10 @@ export default async function Home() {
         p.scentProfile.top,
       image: getPerfumeCutoutImage(p),
       notesImage: getPerfumeNotesImage(p),
+      occasions:
+        p.occasions && p.occasions.length > 0
+          ? p.occasions
+          : fallback?.occasions,
     };
   });
 

@@ -60,10 +60,6 @@ const nextConfig = (phase: string): NextConfig => {
             "**/node_modules/**",
             "**/.next/**",
             "**/.next-dev/**",
-            "**/UI Reference/**",
-            "**/Perfumes Cutouts/**",
-            "**/.studio_backup/**",
-            "**/.freebuff/**",
           ],
         };
       }

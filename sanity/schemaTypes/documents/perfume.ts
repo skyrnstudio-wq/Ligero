@@ -29,7 +29,7 @@ export const perfume = defineType({
       name: 'volume',
       title: 'Volume & Concentration String',
       type: 'string',
-      initialValue: '50 ml · Extrait de Parfum',
+      initialValue: '50 ml · Eau de Parfum',
     }),
     defineField({
       name: 'price',
@@ -42,7 +42,7 @@ export const perfume = defineType({
       name: 'badge',
       title: 'Curation Badge',
       type: 'string',
-      description: 'e.g. EXTRAIT DE PARFUM, BEST-SELLER, PRIVATE RESERVE',
+      description: 'e.g. BEST-SELLER, PRIVATE RESERVE, NEW',
     }),
     defineField({
       name: 'oneLiner',
@@ -134,7 +134,7 @@ export const perfume = defineType({
       title: 'Wear Occasions',
       type: 'array',
       of: [{ type: 'string' }],
-      description: 'Occasions where this fragrance shines (e.g. Party, Sports, Gym, Date Night, Office, Wedding)',
+      description: 'Occasions where this fragrance shines (e.g. Morning, Office, Gym, Wedding, Date Night, Party). The first 3–4 occasions appear on collection cards, and all occasions appear on the product page.',
     }),
   ],
   preview: {
@@ -147,7 +147,7 @@ export const perfume = defineType({
     prepare({ title, subtitle, price, media }) {
       return {
         title,
-        subtitle: `${subtitle || 'Extrait de Parfum'} — ₹${price || ''}`,
+        subtitle: `${subtitle || 'Eau de Parfum'} — ₹${price || ''}`,
         media,
       }
     },

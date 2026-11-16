@@ -93,7 +93,8 @@ export const OBJECTS_QUERY = groq`
     badge,
     description,
     spec,
-    "image": image.asset->url
+    "image": image.asset->url,
+    occasions
   }
 `
 
@@ -108,7 +109,8 @@ export const OBJECT_BY_SLUG_QUERY = groq`
     badge,
     description,
     spec,
-    "image": image.asset->url
+    "image": image.asset->url,
+    occasions
   }
 `
 

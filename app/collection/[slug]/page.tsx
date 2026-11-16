@@ -125,6 +125,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
       } across humid and temperate conditions.`,
     },
     {
+      question: `Which occasions is ${product.name} best suited for?`,
+      answer: `${product.name} is formulated for ${(product.occasions && product.occasions.length > 0 ? product.occasions : ["Daily Wear", "Evening"]).join(", ")}. ${product.ritual}`,
+    },
+    {
       question: `Can I sample ${product.name} before ordering the 50 ml flacon?`,
       answer: `Yes. The Discovery Set pairs 10 ml travel atomizers of ${product.name} and every other permanent perfume in a single rigid box for INR 999 with complimentary domestic shipping, allowing extended skin testing across seasons before committing to a full 50 ml flacon.`,
     },
@@ -286,6 +290,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
                       <p className="mt-0.5 hidden max-w-[26ch] font-body text-[11px] leading-snug text-pdp-muted sm:block">
                         {relNotes}
                       </p>
+                      {rel.occasions && rel.occasions.length > 0 && (
+                        <p className="mt-1 hidden font-body text-[9.5px] uppercase tracking-[0.14em] text-pdp-accent sm:block">
+                          {rel.occasions.slice(0, 3).join(" · ")}
+                        </p>
+                      )}
                       <p className="mt-0.5 font-body text-[11px] tabular-nums text-pdp-text sm:mt-1.5 sm:text-xs">
                         ₹{rel.price.toLocaleString("en-IN")}
                       </p>

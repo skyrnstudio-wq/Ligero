@@ -365,6 +365,17 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                 <p className="font-body line-clamp-2 text-xs font-light leading-relaxed text-aube-text text-pretty">
                   {fragrance.atmosphere}
                 </p>
+
+                {fragrance.occasions && fragrance.occasions.length > 0 && (
+                  <div className="mt-2.5 flex flex-wrap items-center gap-1 pt-2 border-t border-aube-hairline/60">
+                    <span className="mr-1 font-body text-[9px] uppercase tracking-[0.16em] text-aube-text-muted">
+                      Occasions:
+                    </span>
+                    <span className="font-body text-[10px] uppercase tracking-[0.12em] text-aube-text/85">
+                      {fragrance.occasions.slice(0, 4).join(" · ")}
+                    </span>
+                  </div>
+                )}
               </article>
             );
           })}

@@ -209,7 +209,7 @@ export default function NavDrawer({ isOpen, onClose, isDark = false }: NavDrawer
 
         <div className="border-t border-[#382a20] pt-6">
           <p className="text-xs leading-relaxed text-[#b09f8f]">
-            Handcrafted with pure botanical extraits.
+            Handcrafted with pure botanical extracts.
           </p>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-4 text-[11px] uppercase tracking-[0.2em] text-[#b09f8f]">
             <div className="flex items-center gap-5">

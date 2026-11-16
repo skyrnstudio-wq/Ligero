@@ -122,6 +122,24 @@ export default function ProductOrderPanel({
           {product.oneLiner} {product.material}
         </p>
 
+        {product.occasions && product.occasions.length > 0 && (
+          <div className="border-y border-pdp-hairline/80 py-2.5">
+            <p className="font-body text-[9.5px] font-semibold uppercase tracking-[0.2em] text-pdp-muted">
+              Wear Occasions
+            </p>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {product.occasions.map((occasion) => (
+                <span
+                  key={occasion}
+                  className="inline-flex items-center border border-pdp-hairline bg-pdp-surface/60 px-2.5 py-1 font-body text-[10px] uppercase tracking-[0.14em] text-pdp-text"
+                >
+                  {occasion}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Format Toggle (50 ml Flacon vs 7 × 10 ml Coffret) */}
         <div
           role="group"
@@ -181,7 +199,7 @@ export default function ProductOrderPanel({
         {/* Sub-CTA Utility Links */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1 font-body text-[10.5px] text-pdp-muted">
           <span>Complimentary tracked shipping</span>
-          <span>Cold-rested botanical extrait</span>
+          <span>Handcrafted in small batches</span>
         </div>
       </div>
 

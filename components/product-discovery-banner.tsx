@@ -45,7 +45,7 @@ export default function ProductDiscoveryBanner({
             Sample {fragranceName} in the Coffret
           </h4>
           <p className="mt-1 text-[11px] leading-relaxed text-pdp-muted">
-            Receive all seven 10 ml flacons for ₹999 with 100% redeemable credit toward your 50 ml flacon.
+            Receive all seven 10 ml travel atomizers in one coffret for ₹999 with complimentary shipping.
           </p>
         </div>
 

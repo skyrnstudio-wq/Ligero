@@ -12,7 +12,7 @@ import {
 export const metadata = {
   title: "Help & House Policies",
   description:
-    "Answers on domestic surface shipping, seven-day sealed bottle returns, batch authenticity, extrait application, storage, and accepted payment methods.",
+    "Answers on domestic surface shipping, seven-day sealed bottle returns, batch authenticity, parfum application, storage, and accepted payment methods.",
   alternates: {
     canonical: "/help",
   },
@@ -68,7 +68,7 @@ const GROUPS = [
       },
       {
         q: "Why does the colour of a perfume vary slightly between batches?",
-        a: "We formulate exclusively with pure botanical extracts and absolutes, adding zero artificial dyes or stabilisers. Natural extraits vary subtly across batches just as seasonal vintages do.",
+        a: "We formulate exclusively with pure botanical extracts and absolutes, adding zero artificial dyes or stabilisers. Natural extracts vary subtly across batches just as seasonal vintages do.",
       },
     ],
   },
@@ -76,7 +76,7 @@ const GROUPS = [
     title: "How to wear and store",
     items: [
       {
-        q: "How should I apply an extrait de parfum?",
+        q: "How should I apply an eau de parfum?",
         a: "Two sprays on warm skin: wrists, throat, or coat collar. Let the mist settle on its own. Do not rub your wrists together.",
       },
       {

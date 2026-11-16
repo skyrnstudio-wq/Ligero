@@ -3,14 +3,10 @@
 Thumbs.db
 
 # Tooling & editor artifacts
-.freebuff/
 .backup/
 .*_backup/
 .vscode/
 .idea/
-Perfumes Cutouts/
-Perfume Gallery/
-.agents/teamwork/
 
 # Testing
 test-results/

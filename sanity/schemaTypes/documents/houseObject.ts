@@ -35,7 +35,7 @@ export const houseObject = defineType({
       name: 'badge',
       title: 'Badge',
       type: 'string',
-      description: 'e.g. 100% REDEEMABLE, TRAVEL RITUAL',
+      description: 'e.g. TRAVEL RITUAL, COFFRET',
     }),
     defineField({
       name: 'description',
@@ -56,6 +56,13 @@ export const houseObject = defineType({
       type: 'image',
       options: { hotspot: true },
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'occasions',
+      title: 'Wear / Use Occasions',
+      type: 'array',
+      of: [{ type: 'string' }],
+      description: 'Occasions where this object shines (e.g. Gifting, Travel, Drive, Commute, Daily Wear)',
     }),
   ],
   preview: {

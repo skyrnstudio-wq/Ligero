@@ -95,7 +95,7 @@ export const PERFUMES: Product[] = [
     ],
     ritual: "Morning awakening. Apply two delicate presses to warm pulse points: wrists, hollow of the throat, and the collar of a crisp shirt. Inhale the dewy freshness as it unfolds into radiant floral elegance.",
     material: "Crisp green mint leaves and dewy water jasmine, anchored by freshly distilled green cedar.",
-    provenance: "Formulated with pure botanical extraits and natural absolutes.",
+    provenance: "Formulated with pure botanical extracts and natural absolutes.",
     image: "/images/perfumes/aube-scene.webp",
     gallery: [
       "/images/perfumes/cutouts/aube.webp?v=2",
@@ -106,7 +106,7 @@ export const PERFUMES: Product[] = [
       "/images/perfumes/tray.webp",
     ],
     relatedSlugs: ["blanc", "fleur"],
-    occasions: ["Gym", "Sports", "Morning", "Office", "Daily Wear", "Summer", "Brunch", "Casual"],
+    occasions: ["Morning", "Office", "Gym", "Sports", "Daily Wear", "Summer", "Brunch", "Casual"],
   },
   {
     slug: "fleur",
@@ -153,7 +153,7 @@ export const PERFUMES: Product[] = [
     ],
     ritual: "Pure daytime elegance. Spray once onto the nape of the neck, behind each earlobe, and across the ends of hair. The sillage whispers with every turn of the head.",
     material: "Exquisite magnolia blossoms, velvety rose petals, and skin-soft luxury musk.",
-    provenance: "Formulated with pure botanical extraits and natural absolutes.",
+    provenance: "Formulated with pure botanical extracts and natural absolutes.",
     image: "/images/perfumes/fleur-scene.webp",
     gallery: [
       "/images/perfumes/cutouts/fleur.webp?v=2",
@@ -211,7 +211,7 @@ export const PERFUMES: Product[] = [
     ],
     ritual: "An evening signature. Apply to the nape of the neck, inside the elbows, and across your coat collar. Let the heat of your skin ignite the saffron and warm amber as twilight settles.",
     material: "Precious radiant saffron threads, golden crystalline amber resin, and polished silken woods.",
-    provenance: "Formulated with pure botanical extraits and natural absolutes.",
+    provenance: "Formulated with pure botanical extracts and natural absolutes.",
     image: "/images/perfumes/ambre-doux-scene.webp",
     gallery: [
       "/images/perfumes/cutouts/ambre-doux.webp?v=2",
@@ -222,7 +222,7 @@ export const PERFUMES: Product[] = [
       "/images/perfumes/tray.webp",
     ],
     relatedSlugs: ["noctis", "noir-cacao"],
-    occasions: ["Party", "Wedding", "Festive", "Evening", "Dinner", "Formal", "Winter"],
+    occasions: ["Wedding", "Festive", "Party", "Evening", "Dinner", "Formal", "Winter"],
   },
   {
     slug: "noctis",
@@ -269,7 +269,7 @@ export const PERFUMES: Product[] = [
     ],
     ritual: "On pulse points, after dark. Two deliberate sprays on the chest and collarbone. Mysterious, enigmatic, and unforgettable in dimly lit spaces and nighttime conversations.",
     material: "Rich dark plum and oceanic grey amber resting on weathered coastal driftwood.",
-    provenance: "Formulated with pure botanical extraits and natural absolutes.",
+    provenance: "Formulated with pure botanical extracts and natural absolutes.",
     image: "/images/perfumes/noctis-scene.webp",
     gallery: [
       "/images/perfumes/cutouts/noctis.webp?v=2",
@@ -328,7 +328,7 @@ export const PERFUMES: Product[] = [
     ],
     ritual: "Soft, decadent comfort. An irresistible daily indulgence that melts into the skin. Apply behind the ears, across wrists, and into warm hollows. Pure cashmere comfort.",
     material: "Lush wild strawberries folded into rich whipped cream and pure rich vanilla.",
-    provenance: "Formulated with pure botanical extraits and natural absolutes.",
+    provenance: "Formulated with pure botanical extracts and natural absolutes.",
     image: "/images/perfumes/blanc-scene.webp",
     gallery: [
       "/images/perfumes/cutouts/blanc.webp?v=2",
@@ -339,7 +339,7 @@ export const PERFUMES: Product[] = [
       "/images/perfumes/tray.webp",
     ],
     relatedSlugs: ["aube", "fleur"],
-    occasions: ["Date Night", "Casual", "Cozy", "Evening", "Brunch", "Gifting", "Winter"],
+    occasions: ["Date Night", "Cozy", "Brunch", "Casual", "Evening", "Gifting", "Winter"],
   },
   {
     slug: "maree",
@@ -386,7 +386,7 @@ export const PERFUMES: Product[] = [
     ],
     ritual: "Wear it for an invigorating, fresh coastal sillage. Apply across the collar, wrists, and forearms before stepping out. Carries the invigorating spirit of open sea tides wherever you go.",
     material: "Pure marine accord paired with aromatic rosemary and weathered mineral woods.",
-    provenance: "Formulated with pure botanical extraits and natural absolutes.",
+    provenance: "Formulated with pure botanical extracts and natural absolutes.",
     image: "/images/perfumes/maree-scene.webp",
     gallery: [
       "/images/perfumes/cutouts/maree.webp?v=2",
@@ -397,7 +397,7 @@ export const PERFUMES: Product[] = [
       "/images/perfumes/tray.webp",
     ],
     relatedSlugs: ["aube", "blanc"],
-    occasions: ["Sports", "Gym", "Beach", "Summer", "Travel", "Outdoor", "Daytime", "Casual"],
+    occasions: ["Beach", "Travel", "Sports", "Gym", "Summer", "Outdoor", "Daytime", "Casual"],
   },
   {
     slug: "noir-cacao",
@@ -444,7 +444,7 @@ export const PERFUMES: Product[] = [
     ],
     ritual: "An addictive after-dark statement. Irresistible. Unforgettable. Two presses to the throat and wrists before dusk. Let the warmth of your skin reveal dark cacao, smoked patchouli, and roasted vanilla.",
     material: "Deep cacao absolute, spiced bergamot, and rich dark vanilla over smoked patchouli and sandalwood.",
-    provenance: "Formulated with pure botanical extraits and natural absolutes.",
+    provenance: "Formulated with pure botanical extracts and natural absolutes.",
     image: "/images/perfumes/noir-cacao-scene.webp",
     gallery: [
       "/images/perfumes/cutouts/noir-cacao.webp?v=2",
@@ -455,7 +455,7 @@ export const PERFUMES: Product[] = [
       "/images/perfumes/tray.webp",
     ],
     relatedSlugs: ["noctis", "ambre-doux"],
-    occasions: ["Party", "Date Night", "Wedding", "Winter", "Evening", "Club", "Dinner", "Festive"],
+    occasions: ["Date Night", "Party", "Dinner", "Evening", "Wedding", "Festive", "Winter", "Club"],
     isDark: true,
   },
 ];
@@ -477,7 +477,7 @@ export const OBJECTS: HouseObject[] = [
     description: "For the drive.",
     spec: "Refillable cabin diffuser. Cedar, bergamot, and warm amber.",
     image: "/images/objects/car-perfume-floating.webp",
-    occasions: ["Travel", "Drive", "Commute", "Road Trip", "Gifting"],
+    occasions: ["Drive", "Commute", "Road Trip", "Travel", "Gifting"],
   },
 ];
 
@@ -573,6 +573,7 @@ export interface FragranceItem {
   notesSummary: string;
   image: string;
   notesImage?: string;
+  occasions?: string[];
 }
 
 export const DEFAULT_FRAGRANCES: FragranceItem[] = [
@@ -590,6 +591,7 @@ export const DEFAULT_FRAGRANCES: FragranceItem[] = [
     notesSummary: "Wild Garden Mint · Water Jasmine · Green Cedar",
     image: "/images/perfumes/cutouts/aube.webp?v=2",
     notesImage: "/images/perfumes/notes/aube.webp",
+    occasions: ["Morning", "Office", "Gym", "Sports", "Daily Wear", "Summer", "Brunch", "Casual"],
   },
   {
     name: "Fleur",
@@ -603,6 +605,7 @@ export const DEFAULT_FRAGRANCES: FragranceItem[] = [
     notesSummary: "Star Magnolia · Velvet Rose · Luxury Musk",
     image: "/images/perfumes/cutouts/fleur.webp?v=2",
     notesImage: "/images/perfumes/notes/fleur.webp",
+    occasions: ["Wedding", "Date Night", "Brunch", "Office", "Daytime", "Festive", "Formal", "Gifting"],
   },
   {
     name: "Ambre Doux",
@@ -616,6 +619,7 @@ export const DEFAULT_FRAGRANCES: FragranceItem[] = [
     notesSummary: "Saffron Threads · Amber Resin · Polished Cedar",
     image: "/images/perfumes/cutouts/ambre-doux.webp?v=2",
     notesImage: "/images/perfumes/notes/ambre-doux.webp",
+    occasions: ["Wedding", "Festive", "Party", "Evening", "Dinner", "Formal", "Winter"],
   },
   {
     name: "Noctis",
@@ -629,6 +633,7 @@ export const DEFAULT_FRAGRANCES: FragranceItem[] = [
     notesSummary: "Dark Plum · Grey Ambergris · Sea Driftwood",
     image: "/images/perfumes/cutouts/noctis.webp?v=2",
     notesImage: "/images/perfumes/notes/noctis.webp",
+    occasions: ["Party", "Club", "Night Out", "Date Night", "Evening", "Concert", "Formal"],
   },
   {
     name: "Blanc",
@@ -644,6 +649,7 @@ export const DEFAULT_FRAGRANCES: FragranceItem[] = [
     notesSummary: "Wild Strawberry · Whipped Cream · Rich Vanilla",
     image: "/images/perfumes/cutouts/blanc.webp?v=2",
     notesImage: "/images/perfumes/notes/blanc.webp",
+    occasions: ["Date Night", "Cozy", "Brunch", "Casual", "Evening", "Gifting", "Winter"],
   },
   {
     name: "Marée",
@@ -657,6 +663,7 @@ export const DEFAULT_FRAGRANCES: FragranceItem[] = [
     notesSummary: "Saline Ocean Mist · Coastal Rosemary · Wild Vetiver",
     image: "/images/perfumes/cutouts/maree.webp?v=2",
     notesImage: "/images/perfumes/notes/maree.webp",
+    occasions: ["Beach", "Travel", "Sports", "Gym", "Summer", "Outdoor", "Daytime", "Casual"],
   },
   {
     name: "Noir Cacao",
@@ -670,5 +677,6 @@ export const DEFAULT_FRAGRANCES: FragranceItem[] = [
     notesSummary: "Raw Cacao 85% · Dark Chocolate · Rich Vanilla",
     image: "/images/perfumes/cutouts/noir-cacao.webp?v=2",
     notesImage: "/images/perfumes/notes/noir-cacao.webp",
+    occasions: ["Date Night", "Party", "Dinner", "Evening", "Wedding", "Festive", "Winter", "Club"],
   },
 ];

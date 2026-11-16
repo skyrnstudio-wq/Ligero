@@ -70,7 +70,7 @@ export const homePage = defineType({
       name: 'featuredSubtitle',
       title: 'Featured Banner Subtitle',
       type: 'string',
-      initialValue: 'Extrait de Parfum',
+      initialValue: 'Eau de Parfum',
     }),
     defineField({
       name: 'featuredDescription',
@@ -116,7 +116,7 @@ export const homePage = defineType({
       title: 'Objects Section Narrative',
       type: 'text',
       rows: 2,
-      initialValue: 'Designed to accompany the senses across thresholds. Crafted with small-batch extrait maceration standards.',
+      initialValue: 'Designed to accompany the senses across thresholds. Crafted with small-batch maceration standards.',
     }),
 
     // Section 4: Patrons / Private Salon
@@ -137,7 +137,7 @@ export const homePage = defineType({
       title: 'Patrons Narrative',
       type: 'text',
       rows: 3,
-      initialValue: 'Receive private allocations, seasonal extraits before public release, and correspondence from the perfumer.',
+      initialValue: 'Receive private allocations, seasonal creations before public release, and correspondence from the perfumer.',
     }),
     defineField({
       name: 'patronsPromise',

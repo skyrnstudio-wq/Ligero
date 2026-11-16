@@ -42,6 +42,7 @@ interface CatalogItem {
   badge?: string;
   badgeVariant?: "solid" | "outline";
   categories: CatalogCategory[];
+  occasions?: string[];
   featuredRank: number;
   bestsellerRank: number;
 }
@@ -162,7 +163,8 @@ function buildCatalogItems(
 
     const featuredRank = meta?.featuredRank ?? nextRank++;
     const bestsellerRank = meta?.bestsellerRank ?? featuredRank + 10;
-    const badge = p.badge || meta?.badge;
+    const rawBadge = p.badge && !/extrait|eau de parfum/i.test(p.badge) ? p.badge : undefined;
+    const badge = rawBadge || meta?.badge;
 
     return {
       id: p.slug,
@@ -177,6 +179,7 @@ function buildCatalogItems(
       badge,
       badgeVariant: badge ? (meta?.badgeVariant ?? "solid") : undefined,
       categories: meta?.categories ?? derivePerfumeCategories(p),
+      occasions: p.occasions,
       featuredRank,
       bestsellerRank,
     };
@@ -198,9 +201,10 @@ function buildCatalogItems(
         volume: o.volume ? `${o.volume} Coffret` : "7 × 10 ml Coffret",
         primaryImage: o.image || "/images/objects/discovery-set-floating.webp",
         isPhotoCard: false,
-        badge: o.badge || "Save ₹400",
+        badge: o.badge && !/redeemable/i.test(o.badge) ? o.badge : undefined,
         badgeVariant: "outline",
         categories: ["all", "sets"],
+        occasions: o.occasions,
         featuredRank: 100 + index,
         bestsellerRank: 1,
       };
@@ -221,6 +225,7 @@ function buildCatalogItems(
         badge: o.badge || "Car Perfume",
         badgeVariant: "outline",
         categories: ["all", "sets", "amber", "fresh"],
+        occasions: o.occasions,
         featuredRank: 100 + index,
         bestsellerRank: 9,
       };
@@ -240,6 +245,7 @@ function buildCatalogItems(
       badge: o.badge || "House Object",
       badgeVariant: "outline",
       categories: ["all", "sets"],
+      occasions: o.occasions,
       featuredRank: 100 + index,
       bestsellerRank: 100 + index,
     };
@@ -466,6 +472,11 @@ export default function CollectionCatalog({
             <p className="mt-1 max-w-[26ch] font-body text-[11px] leading-snug text-aube-text-muted">
               {item.notesLine}
             </p>
+            {item.occasions && item.occasions.length > 0 && (
+              <p className="mt-1 font-body text-[9.5px] uppercase tracking-[0.14em] text-[#8C5A32]">
+                {item.occasions.slice(0, 3).join(" · ")}
+              </p>
+            )}
           </div>
 
           <div className="mt-2 flex items-center justify-center gap-2 font-body text-xs tabular-nums">

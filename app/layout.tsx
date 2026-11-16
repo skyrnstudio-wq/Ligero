@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     template: "%s | Ligero Parfum",
   },
   description:
-    "Seven permanent eau de parfum extraits formulated in India with botanical absolutes and resins. Shop 50 ml flacons, the Discovery Set, and En Route.",
+    "Seven permanent eau de parfum creations formulated in India with botanical absolutes and resins. Shop 50 ml flacons, the Discovery Set, and En Route.",
   alternates: {
     canonical: "/",
     types: {
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     siteName: "Ligero Parfum",
     title: "Ligero Parfum | Independent Perfume House",
     description:
-      "Seven permanent eau de parfum extraits formulated in India with botanical absolutes and resins.",
+      "Seven permanent eau de parfum creations formulated in India with botanical absolutes and resins.",
     images: [
       {
         url: "/images/perfumes/aube-scene.webp",
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Ligero Parfum | Independent Perfume House",
     description:
-      "Seven permanent eau de parfum extraits formulated in India with botanical absolutes and resins.",
+      "Seven permanent eau de parfum creations formulated in India with botanical absolutes and resins.",
     images: ["/images/perfumes/aube-scene.webp"],
   },
   robots: {

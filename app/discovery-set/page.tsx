@@ -221,6 +221,11 @@ export default async function DiscoverySetPage() {
                       <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-aube-text-muted sm:line-clamp-none sm:text-xs">
                         {p.oneLiner}
                       </p>
+                      {p.occasions && p.occasions.length > 0 && (
+                        <p className="mt-2 font-body text-[9.5px] uppercase tracking-[0.14em] text-aube-accent">
+                          {p.occasions.slice(0, 3).join(" · ")}
+                        </p>
+                      )}
                     </div>
                   </Link>
                 );

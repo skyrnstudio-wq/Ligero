@@ -99,7 +99,7 @@ ${objectSections}
 - Return Policy: Unopened, factory-sealed bottles may be returned within 7 days of delivery. Refunds issue to the original payment method within 7 working days of receipt. Opened bottles cannot be returned.
 - Damaged in Transit: Send photographs of the outer carton and bottle to sales@ligeroparfums.com within 48 hours of delivery for complimentary replacement or refund.
 - Payment Methods: UPI, major credit and debit cards, and netbanking.
-- Storage & Application: Apply two sprays to warm pulse points (wrists, throat, collar) and allow the extrait to settle without rubbing. Store closed away from direct light and humidity.
+- Storage & Application: Apply two sprays to warm pulse points (wrists, throat, collar) and allow the parfum to settle without rubbing. Store closed away from direct light and humidity.
 `;
 
   return new NextResponse(body, {

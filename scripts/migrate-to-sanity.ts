@@ -125,13 +125,14 @@ async function migrate() {
       subtitle: p.subtitle,
       volume: p.volume,
       price: p.price,
-      badge: (p as any).badge || 'EXTRAIT DE PARFUM',
+      ...((p as any).badge ? { badge: (p as any).badge } : {}),
       oneLiner: p.oneLiner,
       notesUppercase: p.notesUppercase,
       notesPoem: p.notesPoem,
       ritual: p.ritual,
       material: p.material,
       provenance: p.provenance,
+      occasions: p.occasions ?? [],
       isDark: Boolean(p.isDark),
       scentProfile: p.scentProfile,
       keyIngredients: p.keyIngredients?.map((ing, i) => ({
@@ -176,9 +177,10 @@ async function migrate() {
       slug: { _type: 'slug', current: obj.slug },
       price: obj.price,
       volume: obj.slug === 'discovery-set' ? '7 × 10 ml' : 'Car Diffuser',
-      badge: obj.slug === 'discovery-set' ? '100% REDEEMABLE' : 'TRAVEL RITUAL',
+      ...(obj.slug === 'en-route' ? { badge: 'TRAVEL RITUAL' } : {}),
       description: obj.description,
       spec: obj.spec,
+      occasions: obj.occasions ?? [],
       ...(objAsset ? { image: objAsset } : {}),
     }
 
@@ -189,8 +191,8 @@ async function migrate() {
   // 4. Initialize Homepage & Site Settings Singletons
   console.log('\n🏛️ 4/4 Initializing Singletons (Homepage Editorial & Settings)...')
   const heroAsset = await uploadImageIfFileExists(
-    '/images/hero/perfume-mist.webp',
-    'Hero Perfume Mist Photography'
+    '/images/hero/ligero-parfum-cutout.webp',
+    'Ligéro Parfums Signature Amber Flacon'
   )
   const aubeCutout = await uploadImageIfFileExists(
     '/images/perfumes/cutouts/aube.webp',
@@ -209,16 +211,16 @@ async function migrate() {
     ...(heroAsset ? { heroImage: heroAsset } : {}),
     featuredBadge: 'NEW RELEASE',
     featuredTitle: 'Aubé',
-    featuredSubtitle: 'Extrait de Parfum',
+    featuredSubtitle: 'Eau de Parfum',
     featuredDescription: 'Wild mountain mint and water jasmine hydro-distilled before sunrise.',
     featuredProductSlug: 'aube',
     ...(aubeCutout ? { featuredBottleCutout: aubeCutout } : {}),
     objectsEyebrow: 'Objects of Scent',
     objectsHeading: 'Vessels and travel rituals.',
-    objectsDescription: 'Designed to accompany the senses across thresholds. Crafted with small-batch extrait maceration standards.',
+    objectsDescription: 'Designed to accompany the senses across thresholds. Crafted with small-batch maceration standards.',
     patronsEyebrow: 'Patrons',
     patronsHeading: 'The Private Salon',
-    patronsDescription: 'Receive private allocations, seasonal extraits before public release, and correspondence from the perfumer.',
+    patronsDescription: 'Receive private allocations, seasonal creations before public release, and correspondence from the perfumer.',
     patronsPromise: 'Four letters a year. Nothing else.',
   }
   await client.createOrReplace(homeDoc)
