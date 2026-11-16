@@ -4,6 +4,40 @@ import path from "node:path";
 import process from "node:process";
 
 const LOCK_FILE = path.resolve(".next-build.lock");
+const NEXT_FONT_LOADER = path.resolve(
+  "node_modules/next/dist/compiled/@next/font/dist/google/loader.js"
+);
+
+/**
+ * Next.js 15 crashes in `next/font/google` when Google Fonts serves an
+ * extensionless URL (e.g. `https://fonts.gstatic.com/l/font?kit=...`)
+ * because `/\.(woff|woff2|eot|ttf|otf)$/.exec(url)[1]` dereferences `null`.
+ * Fall back to `'woff2'` and prefer matching `.woff2` before `.woff`.
+ */
+function patchNextFontLoader() {
+  if (!fs.existsSync(NEXT_FONT_LOADER)) return;
+  const original = fs.readFileSync(NEXT_FONT_LOADER, "utf8");
+  const safeLine =
+    "const ext = (/\\.(woff2|woff|eot|ttf|otf)/.exec(googleFontFileUrl) || [])[1] || 'woff2';";
+
+  if (original.includes(safeLine)) return;
+
+  let updated = original;
+  // Clean up any previous local debug wrapper if present
+  updated = updated.replace(
+    /[ \t]*if \(!\/\\\.\(woff\|woff2\|eot\|ttf\|otf\)\$\/\.test\(googleFontFileUrl\)\) \{\s*\n[ \t]*console\.error\("OFFENDING_URL:", JSON\.stringify\(googleFontFileUrl\), "FONT:", fontFamily\);\s*\n[ \t]*\}\s*\n/g,
+    ""
+  );
+  updated = updated.replace(
+    /const ext = .*?\.exec\(googleFontFileUrl\)[^;]*;/,
+    safeLine
+  );
+
+  if (updated !== original) {
+    fs.writeFileSync(NEXT_FONT_LOADER, updated, "utf8");
+    console.log("Patched @next/font/google loader for extensionless font URLs.");
+  }
+}
 
 function isPidAlive(pid) {
   try {
@@ -51,6 +85,11 @@ async function acquireLock() {
 }
 
 async function main() {
+  patchNextFontLoader();
+  if (process.argv.includes("--patch-only")) {
+    return;
+  }
+
   const releaseLock = await acquireLock();
 
   const cleanup = () => {

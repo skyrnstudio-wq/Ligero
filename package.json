@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "node scripts/build.mjs",
     "start": "next start",
+    "postinstall": "node scripts/build.mjs --patch-only",
     "test:e2e": "playwright test",
     "test:e2e:smoke": "playwright test tests/e2e/routes-smoke.spec.ts",
     "test:e2e:tier1": "playwright test tests/e2e/tier1-features.spec.ts",
