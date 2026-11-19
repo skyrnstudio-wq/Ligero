@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 import {
   getRazorpayClient,
   isRazorpayConfigured,
   resolveVerifiedCartItems,
-  type VerifiedOrderItem,
 } from "@/lib/razorpay";
-import { savePendingOrderToSanity } from "@/lib/orders";
+import { isOrderStorageConfigured, savePendingOrderToSanity } from "@/lib/orders";
 
 interface RazorpayApiError {
   statusCode?: number;
@@ -18,34 +18,25 @@ interface RazorpayApiError {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { items, customer, giftNote, customOrderId, amount, currency, receipt } = body;
+    const { items, customer, giftNote } = body;
 
-    const hasItems = Array.isArray(items) && items.length > 0;
-    const hasDirectAmount = amount !== undefined && amount !== null;
-
-    if (!hasItems && !hasDirectAmount) {
+    if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
         { success: false, error: "Your case is empty." },
         { status: 400 }
       );
     }
 
-    let verifiedItems: VerifiedOrderItem[] | undefined;
-    let amountInPaise = 0;
-
-    if (hasItems) {
-      const resolved = await resolveVerifiedCartItems(items);
-      if (!resolved.valid) {
-        return NextResponse.json(
-          { success: false, error: resolved.error },
-          { status: 400 }
-        );
-      }
-      verifiedItems = resolved.items;
-      amountInPaise = resolved.amountPaise;
-    } else {
-      amountInPaise = Math.round(Number(amount));
+    const resolved = await resolveVerifiedCartItems(items);
+    if (!resolved.valid) {
+      return NextResponse.json(
+        { success: false, error: resolved.error },
+        { status: 400 }
+      );
     }
+
+    const verifiedItems = resolved.items;
+    const amountInPaise = resolved.amountPaise;
 
     if (!Number.isFinite(amountInPaise) || amountInPaise < 100) {
       return NextResponse.json(
@@ -54,9 +45,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const referenceId =
-      customOrderId ||
-      `LGP-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
+    // Always generate order reference on the server with cryptographic randomness
+    const referenceId = `LGP-${crypto.randomBytes(3).toString("hex").toUpperCase()}-${crypto.randomInt(100, 1000)}`;
 
     if (!isRazorpayConfigured()) {
       return NextResponse.json(
@@ -66,6 +56,17 @@ export async function POST(req: NextRequest) {
           error: "Razorpay API credentials are not configured.",
         },
         { status: 401 }
+      );
+    }
+
+    if (!isOrderStorageConfigured()) {
+      return NextResponse.json(
+        {
+          success: false,
+          configured: false,
+          error: "Order ledger storage credentials are not configured on the server.",
+        },
+        { status: 503 }
       );
     }
 
@@ -81,18 +82,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const orderCurrency =
-      typeof currency === "string" && currency.trim()
-        ? currency.trim().toUpperCase()
-        : "INR";
-    const orderReceipt = String(receipt || referenceId).slice(0, 40);
+    // Catalog prices are strictly in INR; ignore any client-supplied currency
+    const orderCurrency = "INR";
+    const orderReceipt = referenceId.slice(0, 40);
 
     const itemsSummary = verifiedItems
-      ? verifiedItems
-          .map((item) => `${item.name} (${item.volume}) × ${item.quantity}`)
-          .join("; ")
-          .slice(0, 240)
-      : "Direct Order";
+      .map((item) => `${item.name} (${item.volume}) × ${item.quantity}`)
+      .join("; ")
+      .slice(0, 240);
 
     const shippingAddress = [customer?.address, customer?.apartment]
       .filter(Boolean)
@@ -119,15 +116,25 @@ export async function POST(req: NextRequest) {
 
     const razorpayOrder = await razorpay.orders.create(orderOptions);
 
-    await savePendingOrderToSanity({
+    const persisted = await savePendingOrderToSanity({
       razorpayOrderId: razorpayOrder.id,
       orderReference: referenceId,
       amountPaise: Number(razorpayOrder.amount) || amountInPaise,
-      currency: razorpayOrder.currency || orderCurrency,
+      currency: orderCurrency,
       customer,
       items: verifiedItems,
       giftNote,
     });
+
+    if (!persisted) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Unable to record order in the atelier ledger. Please try again shortly.",
+        },
+        { status: 503 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
@@ -135,8 +142,8 @@ export async function POST(req: NextRequest) {
       order_id: razorpayOrder.id,
       razorpayOrderId: razorpayOrder.id,
       amount: razorpayOrder.amount,
-      currency: razorpayOrder.currency,
-      keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID,
+      currency: orderCurrency,
+      keyId: process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
       orderReference: referenceId,
     });
   } catch (error) {

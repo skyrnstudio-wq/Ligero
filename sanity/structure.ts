@@ -146,5 +146,44 @@ export const structure: StructureResolver = (S) =>
                 ),
             ])
         ),
+      S.listItem()
+        .title('The Correspondence')
+        .id('correspondence')
+        .child(
+          S.list()
+            .title('The Correspondence')
+            .items([
+              S.listItem()
+                .title('Subscribed')
+                .id('correspondence-subscribed')
+                .child(
+                  S.documentList()
+                    .title('Subscribed')
+                    .schemaType('correspondenceSubscriber')
+                    .filter('_type == "correspondenceSubscriber" && status == "subscribed"')
+                    .defaultOrdering([{ field: 'subscribedAt', direction: 'desc' }])
+                ),
+              S.listItem()
+                .title('Unsubscribed')
+                .id('correspondence-unsubscribed')
+                .child(
+                  S.documentList()
+                    .title('Unsubscribed')
+                    .schemaType('correspondenceSubscriber')
+                    .filter('_type == "correspondenceSubscriber" && status == "unsubscribed"')
+                    .defaultOrdering([{ field: 'lastSubmittedAt', direction: 'desc' }])
+                ),
+              S.listItem()
+                .title('All Subscribers')
+                .id('correspondence-all')
+                .child(
+                  S.documentList()
+                    .title('All Subscribers')
+                    .schemaType('correspondenceSubscriber')
+                    .filter('_type == "correspondenceSubscriber"')
+                    .defaultOrdering([{ field: 'subscribedAt', direction: 'desc' }])
+                ),
+            ])
+        ),
       S.documentTypeListItem('legalPage').title('Legal & Compliance Policies'),
     ])

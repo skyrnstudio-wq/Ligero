@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyRazorpayWebhookSignature } from "@/lib/razorpay";
-import { markOrderFailedInSanity, markOrderPaidInSanity } from "@/lib/orders";
+import {
+  getPendingOrderSummaryFromSanity,
+  markOrderFailedInSanity,
+  markOrderPaidInSanity,
+  markOrderRefundedInSanity,
+  sendOrderConfirmationNotifications,
+} from "@/lib/orders";
 
 export const runtime = "nodejs";
 
@@ -26,6 +32,15 @@ interface RazorpayWebhookPayload {
         notes?: Record<string, string>;
       };
     };
+    refund?: {
+      entity?: {
+        id?: string;
+        payment_id?: string;
+        amount?: number;
+        currency?: string;
+        status?: string;
+      };
+    };
   };
 }
 
@@ -38,6 +53,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { success: false, error: "Missing webhook payload or signature header." },
         { status: 400 }
+      );
+    }
+
+    if (!process.env.RAZORPAY_WEBHOOK_SECRET) {
+      return NextResponse.json(
+        { success: false, error: "Razorpay webhook secret is not configured on server." },
+        { status: 500 }
       );
     }
 
@@ -57,21 +79,61 @@ export async function POST(req: NextRequest) {
     const event = data.event || "";
     const paymentEntity = data.payload?.payment?.entity;
     const orderEntity = data.payload?.order?.entity;
+    const refundEntity = data.payload?.refund?.entity;
 
     const razorpayOrderId = paymentEntity?.order_id || orderEntity?.id || "";
-    const razorpayPaymentId = paymentEntity?.id || "";
-    const amountPaise = paymentEntity?.amount || orderEntity?.amount;
-    const currency = paymentEntity?.currency || orderEntity?.currency || "INR";
+    const razorpayPaymentId = paymentEntity?.id || refundEntity?.payment_id || "";
+    const amountPaise =
+      paymentEntity?.amount || orderEntity?.amount || refundEntity?.amount;
     const notes = paymentEntity?.notes || orderEntity?.notes || {};
     const orderReference = notes.orderReference || orderEntity?.receipt || razorpayOrderId;
 
-    if ((event === "payment.captured" || event === "order.paid") && razorpayOrderId && razorpayPaymentId) {
-      await markOrderPaidInSanity({
+    if (
+      (event === "payment.captured" || event === "order.paid") &&
+      razorpayOrderId &&
+      razorpayPaymentId
+    ) {
+      const eventCurrency = (
+        paymentEntity?.currency ||
+        orderEntity?.currency ||
+        "INR"
+      ).toUpperCase();
+      if (eventCurrency !== "INR") {
+        console.error("[Razorpay Webhook] Rejected non-INR payment event:", {
+          razorpayOrderId,
+          razorpayPaymentId,
+          eventCurrency,
+        });
+        return NextResponse.json(
+          { success: false, error: "Unsupported payment currency." },
+          { status: 400 }
+        );
+      }
+
+      const pendingOrder = await getPendingOrderSummaryFromSanity(razorpayOrderId);
+      if (
+        pendingOrder?.amountPaise &&
+        amountPaise !== undefined &&
+        Number(amountPaise) !== pendingOrder.amountPaise
+      ) {
+        console.error("[Razorpay Webhook] Payment amount mismatch:", {
+          razorpayOrderId,
+          razorpayPaymentId,
+          expectedPaise: pendingOrder.amountPaise,
+          receivedPaise: amountPaise,
+        });
+        return NextResponse.json(
+          { success: false, error: "Captured webhook amount does not match order total." },
+          { status: 400 }
+        );
+      }
+
+      const persisted = await markOrderPaidInSanity({
         razorpayOrderId,
         razorpayPaymentId,
-        orderReference,
-        amountPaise,
-        currency,
+        orderReference: pendingOrder?.orderReference || orderReference,
+        amountPaise: pendingOrder?.amountPaise ?? amountPaise,
+        currency: "INR",
         customer: notes.customerName
           ? {
               fullName: notes.customerName,
@@ -85,12 +147,49 @@ export async function POST(req: NextRequest) {
           : undefined,
         giftNote: notes.giftNote,
       });
+
+      if (!persisted) {
+        return NextResponse.json(
+          { success: false, error: "Failed to persist paid order state to Sanity." },
+          { status: 500 }
+        );
+      }
+
+      await sendOrderConfirmationNotifications(razorpayOrderId).catch((err) => {
+        console.error("[Razorpay Webhook] Order confirmation email error:", err);
+      });
     } else if (event === "payment.failed" && razorpayOrderId) {
-      await markOrderFailedInSanity({
+      const persisted = await markOrderFailedInSanity({
         razorpayOrderId,
         razorpayPaymentId,
         reason: paymentEntity?.error_description,
       });
+
+      if (!persisted) {
+        return NextResponse.json(
+          { success: false, error: "Failed to persist failed order state to Sanity." },
+          { status: 500 }
+        );
+      }
+    } else if (
+      (event === "refund.processed" ||
+        event === "payment.refunded" ||
+        (event === "refund.created" && refundEntity?.status === "processed")) &&
+      (razorpayOrderId || razorpayPaymentId)
+    ) {
+      const persisted = await markOrderRefundedInSanity({
+        razorpayOrderId,
+        razorpayPaymentId,
+        razorpayRefundId: refundEntity?.id,
+        amountPaise: refundEntity?.amount ?? amountPaise,
+      });
+
+      if (!persisted) {
+        return NextResponse.json(
+          { success: false, error: "Failed to persist refunded order state to Sanity." },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json({

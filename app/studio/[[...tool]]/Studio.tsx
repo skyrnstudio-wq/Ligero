@@ -1,8 +1,13 @@
 'use client'
 
-import { NextStudio } from 'next-sanity/studio'
+import { NextStudio } from 'next-sanity/studio/client-component'
 import config from '@/sanity.config'
+import { StudioChunkErrorBoundary } from '@/sanity/components/StudioChunkErrorBoundary'
 
 export function Studio() {
-  return <NextStudio config={config} />
+  return (
+    <StudioChunkErrorBoundary label="Studio">
+      <NextStudio config={config} />
+    </StudioChunkErrorBoundary>
+  )
 }

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCase } from "@/context/case-context";
 import { loadRazorpayScript } from "@/lib/load-razorpay";
 
@@ -123,11 +123,95 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [postPaymentStage, setPostPaymentStage] = useState<
+    "idle" | "verifying" | "redirecting" | "failed"
+  >("idle");
+  const paymentSettledRef = useRef(false);
 
-  // Pre-load Razorpay checkout script
+  // Restore saved guest checkout draft when returning from a failed payment attempt
+  useEffect(() => {
+    try {
+      const savedDraft = sessionStorage.getItem("ligero_checkout_draft");
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft);
+        if (parsed && typeof parsed === "object") {
+          setFormData((prev) => ({
+            ...prev,
+            fullName: typeof parsed.fullName === "string" ? parsed.fullName : prev.fullName,
+            email: typeof parsed.email === "string" ? parsed.email : prev.email,
+            phone: typeof parsed.phone === "string" ? parsed.phone : prev.phone,
+            address: typeof parsed.address === "string" ? parsed.address : prev.address,
+            apartment: typeof parsed.apartment === "string" ? parsed.apartment : prev.apartment,
+            city: typeof parsed.city === "string" ? parsed.city : prev.city,
+            state: typeof parsed.state === "string" ? parsed.state : prev.state,
+            pincode: typeof parsed.pincode === "string" ? parsed.pincode : prev.pincode,
+            giftNote: typeof parsed.giftNote === "string" ? parsed.giftNote : prev.giftNote,
+          }));
+        }
+      }
+    } catch {
+      // Ignore sessionStorage unavailable
+    }
+  }, []);
+
+  // Pre-load Razorpay checkout script and prefetch status pages for instant handoff
   useEffect(() => {
     loadRazorpayScript();
-  }, []);
+    router.prefetch("/checkout/success");
+    router.prefetch("/checkout/failed");
+  }, [router]);
+
+  const redirectToFailurePage = ({
+    message,
+    code,
+    step,
+    source,
+    orderReference,
+    cancelled = false,
+  }: {
+    message: string;
+    code?: string;
+    step?: string;
+    source?: string;
+    orderReference?: string;
+    cancelled?: boolean;
+  }) => {
+    if (paymentSettledRef.current) return;
+    paymentSettledRef.current = true;
+
+    setPostPaymentStage("failed");
+    setPaymentError(message);
+
+    try {
+      sessionStorage.setItem("ligero_checkout_draft", JSON.stringify(formData));
+      sessionStorage.setItem(
+        "ligero_last_payment_failure",
+        JSON.stringify({
+          reason: message,
+          code,
+          step,
+          source,
+          cancelled,
+          orderReference,
+          amount: subtotal,
+          itemCount: totalCount,
+          timestamp: new Date().toISOString(),
+        })
+      );
+    } catch {
+      // Ignore sessionStorage unavailable
+    }
+
+    const failParams = new URLSearchParams();
+    if (orderReference) failParams.set("orderId", orderReference);
+    if (code) failParams.set("code", code);
+    if (cancelled) failParams.set("cancelled", "1");
+
+    const query = failParams.toString();
+    setTimeout(() => {
+      router.push(query ? `/checkout/failed?${query}` : "/checkout/failed");
+    }, 550);
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -179,12 +263,17 @@ export default function CheckoutPage() {
       return;
     }
 
+    paymentSettledRef.current = false;
     setIsProcessing(true);
     setPaymentError(null);
 
     try {
-      const orderRef = `LGP-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
+      sessionStorage.setItem("ligero_checkout_draft", JSON.stringify(formData));
+    } catch {
+      // Ignore sessionStorage unavailable
+    }
 
+    try {
       // 1. Create order on server via Razorpay API
       const res = await fetch("/api/razorpay/create-order", {
         method: "POST",
@@ -193,7 +282,6 @@ export default function CheckoutPage() {
           items,
           customer: formData,
           giftNote: formData.giftNote,
-          customOrderId: orderRef,
         }),
       });
 
@@ -227,6 +315,7 @@ export default function CheckoutPage() {
         order_id: resolvedOrderId,
         image: checkoutImage,
         handler: async function (response: RazorpaySuccessResponse) {
+          setPostPaymentStage("verifying");
           try {
             // 2. Verify payment cryptographic signature on server and persist paid order
             const verifyRes = await fetch("/api/razorpay/verify", {
@@ -251,9 +340,19 @@ export default function CheckoutPage() {
               );
             }
 
-            // Store order metadata for confirmation
+            paymentSettledRef.current = true;
+            setPostPaymentStage("redirecting");
+
+            // Store order metadata for confirmation using server-verified total
+            const verifiedSubtotal =
+              typeof verifyData.totalInr === "number" && verifyData.totalInr > 0
+                ? verifyData.totalInr
+                : typeof orderData.amount === "number" && orderData.amount > 0
+                  ? Math.round(orderData.amount / 100)
+                  : subtotal;
+
             const orderRecord = {
-              orderId: orderData.orderReference,
+              orderId: verifyData.orderReference || orderData.orderReference,
               paymentId: response.razorpay_payment_id,
               razorpayOrderId: response.razorpay_order_id,
               date: new Date().toLocaleDateString("en-IN", {
@@ -263,21 +362,34 @@ export default function CheckoutPage() {
               }),
               customer: formData,
               items,
-              subtotal,
+              subtotal: verifiedSubtotal,
               giftNote: formData.giftNote,
               status: "Verified (Razorpay)",
             };
 
-            sessionStorage.setItem("ligero_last_order", JSON.stringify(orderRecord));
-            clearCase();
-            router.push(
-              `/checkout/success?orderId=${orderData.orderReference}&paymentId=${response.razorpay_payment_id}`
-            );
+            try {
+              sessionStorage.setItem("ligero_last_order", JSON.stringify(orderRecord));
+              sessionStorage.removeItem("ligero_checkout_draft");
+              sessionStorage.removeItem("ligero_last_payment_failure");
+            } catch {
+              // Ignore sessionStorage unavailable
+            }
+
+            const successParams = new URLSearchParams({
+              orderId: verifyData.orderReference || orderData.orderReference,
+              paymentId: response.razorpay_payment_id,
+            });
+            if (verifyData.lookupToken) {
+              successParams.set("token", verifyData.lookupToken);
+            }
+            router.replace(`/checkout/success?${successParams.toString()}`);
           } catch (err) {
-            setIsProcessing(false);
-            setPaymentError(
-              err instanceof Error ? err.message : "Payment verification failed."
-            );
+            redirectToFailurePage({
+              message:
+                err instanceof Error ? err.message : "Payment verification failed.",
+              code: "VERIFICATION_FAILED",
+              orderReference: orderData.orderReference,
+            });
           }
         },
         prefill: {
@@ -295,18 +407,28 @@ export default function CheckoutPage() {
         },
         modal: {
           ondismiss: function () {
-            setIsProcessing(false);
-            setPaymentError("Payment was cancelled. You can retry whenever you are ready.");
+            redirectToFailurePage({
+              message:
+                "Payment was cancelled before completion. Your case and details are saved so you can retry whenever you are ready.",
+              code: "PAYMENT_CANCELLED",
+              orderReference: orderData.orderReference,
+              cancelled: true,
+            });
           },
         },
       };
 
       const rzp = new window.Razorpay(options);
       rzp.on("payment.failed", function (failRes: RazorpayFailureResponse) {
-        setIsProcessing(false);
-        setPaymentError(
-          failRes.error?.description || "Payment was declined or cancelled. Please try again."
-        );
+        redirectToFailurePage({
+          message:
+            failRes.error?.description ||
+            "Your payment was declined by the bank or payment provider. Please try again or choose another payment method.",
+          code: failRes.error?.code,
+          step: failRes.error?.step,
+          source: failRes.error?.source,
+          orderReference: orderData.orderReference,
+        });
       });
       rzp.open();
     } catch (err) {
@@ -321,6 +443,98 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-aube-base text-aube-text">
+      {/* Full-Screen Post-Payment Verification & Transition Loader */}
+      {postPaymentStage !== "idle" && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`fixed inset-0 z-50 flex flex-col items-center justify-center px-6 text-center backdrop-blur-md ${
+            postPaymentStage === "redirecting"
+              ? "bg-[#edf6ef]/95"
+              : postPaymentStage === "failed"
+              ? "bg-[#fcf0ee]/95"
+              : "bg-aube-base/95"
+          }`}
+        >
+          <div
+            className={`w-full max-w-md border p-8 sm:p-12 shadow-[0_12px_44px_rgba(43,33,24,0.10)] ${
+              postPaymentStage === "redirecting"
+                ? "border-[#b5d8bf] bg-[#fcfefb]"
+                : postPaymentStage === "failed"
+                ? "border-[#e7bbb5] bg-[#fffcfb]"
+                : "border-aube-hairline bg-aube-surface"
+            }`}
+          >
+            <div
+              className={`mx-auto flex h-12 w-12 items-center justify-center rounded-full border ${
+                postPaymentStage === "redirecting"
+                  ? "border-[#86c99a] bg-[#e3f5e8]"
+                  : postPaymentStage === "failed"
+                  ? "border-[#eba9a1] bg-[#fde9e7]"
+                  : "border-aube-accent/30 bg-aube-accent/10"
+              }`}
+            >
+              <span
+                className={`h-5 w-5 animate-spin rounded-full border-2 border-t-transparent ${
+                  postPaymentStage === "redirecting"
+                    ? "border-[#14532d]"
+                    : postPaymentStage === "failed"
+                    ? "border-[#991b22]"
+                    : "border-aube-accent"
+                }`}
+              />
+            </div>
+
+            <p
+              className={`mt-6 text-[10px] font-medium uppercase tracking-[0.24em] ${
+                postPaymentStage === "redirecting"
+                  ? "text-[#156237]"
+                  : postPaymentStage === "failed"
+                  ? "text-[#991b22]"
+                  : "text-aube-accent"
+              }`}
+            >
+              {postPaymentStage === "redirecting"
+                ? "Payment Verified"
+                : postPaymentStage === "failed"
+                ? "Transaction Unsuccessful"
+                : "Ligero Parfum Atelier"}
+            </p>
+
+            <h2
+              className={`mt-2 font-display text-3xl font-light italic sm:text-4xl ${
+                postPaymentStage === "redirecting"
+                  ? "text-[#113320]"
+                  : postPaymentStage === "failed"
+                  ? "text-[#581117]"
+                  : "text-aube-text"
+              }`}
+            >
+              {postPaymentStage === "verifying" && "Verifying your payment..."}
+              {postPaymentStage === "redirecting" && "Scent, set in motion..."}
+              {postPaymentStage === "failed" && "Payment not completed..."}
+            </h2>
+
+            <p
+              className={`mt-3 text-xs leading-relaxed ${
+                postPaymentStage === "redirecting"
+                  ? "text-[#3d5e4b]"
+                  : postPaymentStage === "failed"
+                  ? "text-[#7a3b3e]"
+                  : "text-aube-text-muted"
+              }`}
+            >
+              {postPaymentStage === "verifying" &&
+                "Confirming payment signature with Razorpay and recording your order in the atelier ledger."}
+              {postPaymentStage === "redirecting" &&
+                "Payment verified. Opening your order confirmation..."}
+              {postPaymentStage === "failed" &&
+                "Opening transaction details with your saved case..."}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Checkout Header */}
       <header className="border-b border-aube-hairline bg-nav-silk/90 backdrop-blur-md">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 sm:px-10">
@@ -465,7 +679,7 @@ export default function CheckoutPage() {
                       htmlFor="phone"
                       className="block text-[11px] uppercase tracking-[0.16em] text-aube-text-muted"
                     >
-                      Mobile Number (for Courier SMS updates) *
+                      Mobile Number (for Courier Delivery Coordination) *
                     </label>
                     <div className="mt-2 flex">
                       <span className="flex items-center border border-r-0 border-aube-hairline bg-aube-surface/60 px-3 text-xs font-medium text-aube-text-muted">
@@ -641,38 +855,10 @@ export default function CheckoutPage() {
 
               {/* Section 4: Payment Confirmation via Razorpay */}
               <div>
-                <div className="rounded-[2px] border border-aube-hairline bg-aube-surface p-5">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-xs uppercase tracking-[0.16em] text-aube-text">
-                          Razorpay Secure Payment
-                        </span>
-                        <span className="bg-aube-accent/10 text-aube-accent text-[9px] uppercase tracking-[0.15em] px-2 py-0.5 border border-aube-accent/20">
-                          Instant
-                        </span>
-                      </div>
-                      <p className="mt-1.5 text-xs text-aube-text-muted">
-                        Supports UPI (Google Pay, PhonePe, Paytm, BHIM), Credit/Debit Cards (Visa, Mastercard, RuPay, Amex), and 50+ NetBanking portals.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Payment Methods Badges */}
-                  <div className="mt-4 flex flex-wrap items-center gap-2 pt-3 border-t border-aube-hairline/60 text-[10px] uppercase tracking-[0.15em] text-aube-text-muted">
-                    <span className="border border-aube-hairline px-2 py-1 bg-aube-base/40">UPI</span>
-                    <span className="border border-aube-hairline px-2 py-1 bg-aube-base/40">Google Pay</span>
-                    <span className="border border-aube-hairline px-2 py-1 bg-aube-base/40">PhonePe</span>
-                    <span className="border border-aube-hairline px-2 py-1 bg-aube-base/40">Paytm</span>
-                    <span className="border border-aube-hairline px-2 py-1 bg-aube-base/40">Cards</span>
-                    <span className="border border-aube-hairline px-2 py-1 bg-aube-base/40">NetBanking</span>
-                  </div>
-                </div>
-
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="mt-6 flex w-full items-center justify-center border border-aube-text bg-aube-text py-4 text-xs uppercase tracking-[0.24em] text-aube-base transition-all hover:border-aube-accent hover:bg-aube-accent disabled:opacity-60"
+                  className="flex w-full items-center justify-center border border-aube-text bg-aube-text py-4 text-xs uppercase tracking-[0.24em] text-aube-base transition-all hover:border-aube-accent hover:bg-aube-accent disabled:opacity-60"
                 >
                   {isProcessing ? (
                     <span className="flex items-center gap-2">
@@ -680,9 +866,25 @@ export default function CheckoutPage() {
                       Connecting to Razorpay...
                     </span>
                   ) : (
-                    `Pay ₹${subtotal.toLocaleString("en-IN")} via Razorpay`
+                    `Pay ₹${subtotal.toLocaleString("en-IN")} with Razorpay`
                   )}
                 </button>
+
+                <div className="mt-3 flex items-center justify-center gap-2 text-[10px] uppercase tracking-[0.16em] text-aube-text-muted">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    aria-hidden="true"
+                  >
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  <span>Secured by Razorpay</span>
+                </div>
 
                 <p className="mt-4 text-center text-[11px] leading-relaxed text-aube-text-muted">
                   By placing your order, you agree to Ligero Parfum's{" "}
@@ -853,7 +1055,7 @@ export default function CheckoutPage() {
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                     <circle cx="12" cy="10" r="3" />
                   </svg>
-                  <span>Express courier with end-to-end SMS tracking</span>
+                  <span>Express courier with email tracking updates</span>
                 </div>
                 <div className="flex items-center gap-2.5 text-aube-accent">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">

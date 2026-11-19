@@ -7,6 +7,7 @@ import { houseObject } from './documents/houseObject'
 import { customerReview } from './documents/customerReview'
 import { legalPage } from './documents/legalPage'
 import { order } from './documents/order'
+import { correspondenceSubscriber } from './documents/correspondenceSubscriber'
 import { homePage } from './singletons/homePage'
 import { siteSettings } from './singletons/siteSettings'
 
@@ -21,6 +22,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     perfume,
     houseObject,
     customerReview,
+    correspondenceSubscriber,
     legalPage,
 
     // Objects

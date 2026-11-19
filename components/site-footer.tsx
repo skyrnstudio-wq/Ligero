@@ -109,6 +109,17 @@ export default function SiteFooter() {
           <p className="font-body mt-2 text-xs text-noctis-text-muted">
             © {new Date().getFullYear()} Ligero Parfum Private Limited. All rights reserved.
           </p>
+          <p className="font-body mt-1 text-xs text-noctis-text-muted">
+            Designed by{" "}
+            <a
+              href="https://www.skyrnstudio.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center text-noctis-text underline underline-offset-4 transition-colors hover:text-noctis-accent"
+            >
+              Skyrn Studio
+            </a>
+          </p>
           <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-1 sm:gap-x-6 sm:gap-y-2">
             {LEGAL.map((link) => (
               <li key={link.href}>

@@ -80,9 +80,10 @@
   }
 }
 
-/* Eradicate unwanted scrollbars cross-browser while preserving scroll functionality */
+/* Eradicate unwanted scrollbars cross-browser while preserving scroll functionality (exempting Sanity Studio) */
 .no-scrollbar::-webkit-scrollbar,
-::-webkit-scrollbar {
+html:not(:has(#sanity))::-webkit-scrollbar,
+html:not(:has(#sanity)) ::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
@@ -92,10 +93,20 @@
 
 .no-scrollbar::-webkit-scrollbar-thumb,
 .no-scrollbar::-webkit-scrollbar-track,
-::-webkit-scrollbar-thumb,
-::-webkit-scrollbar-track {
+html:not(:has(#sanity))::-webkit-scrollbar-thumb,
+html:not(:has(#sanity))::-webkit-scrollbar-track,
+html:not(:has(#sanity)) ::-webkit-scrollbar-thumb,
+html:not(:has(#sanity)) ::-webkit-scrollbar-track {
   display: none !important;
   background: transparent !important;
+}
+
+html:has(#sanity),
+body:has(#sanity) {
+  background-color: #101418;
+  overflow: hidden;
+  height: 100%;
+  margin: 0;
 }
 
 .touch-pan-x {
@@ -216,6 +227,102 @@
     .hero-bottle-straighten {
       animation: none;
     }
+  }
+}
+
+/* ------------------------------------------------------------------
+   Checkout Status Pages (Success & Failure)
+   Default to static final states; opt into motion only under
+   prefers-reduced-motion: no-preference.
+------------------------------------------------------------------- */
+@keyframes checkout-card-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes checkout-badge-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes checkout-ring-ripple {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.55);
+  }
+}
+
+@keyframes checkout-stroke-draw {
+  from {
+    stroke-dashoffset: 48;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.checkout-status-card {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: checkout-card-enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+.checkout-status-badge {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: checkout-badge-pop 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+  }
+}
+
+.checkout-status-ripple {
+  opacity: 0;
+  @media (prefers-reduced-motion: no-preference) {
+    animation: checkout-ring-ripple 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.25s 2 both;
+  }
+}
+
+.checkout-icon-stroke {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 0;
+  @media (prefers-reduced-motion: no-preference) {
+    animation: checkout-stroke-draw 0.55s cubic-bezier(0.65, 0, 0.35, 1) 0.28s both;
+  }
+}
+
+@media (forced-colors: active) {
+  .checkout-status-surface,
+  .checkout-status-hero,
+  .checkout-status-pill,
+  .checkout-status-callout {
+    border: 1px solid CanvasText;
+  }
+  .checkout-status-cta {
+    border: 2px solid ButtonText;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
   }
 }
 

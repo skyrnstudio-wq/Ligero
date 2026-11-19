@@ -5,7 +5,8 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: true, // Leverage Sanity Edge CDN for public storefront reads alongside Next.js ISR tags
+  useCdn: false, // Read directly from Sanity Content Lake on the server; Next.js ISR/tags handle edge caching
+  perspective: 'published',
 })
 
 export async function sanityFetch<T = any, const QueryString extends string = string>({
@@ -21,7 +22,7 @@ export async function sanityFetch<T = any, const QueryString extends string = st
 }): Promise<T> {
   return client.fetch<T>(query, params, {
     next: {
-      revalidate: tags.length ? false : revalidate,
+      revalidate,
       tags,
     },
   })

@@ -17,19 +17,57 @@ export default function PrivateSalon({
   variant?: "default" | "strip";
 }) {
   const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
   const [received, setReceived] = useState(false);
 
   const promise = data?.patronsPromise || "Four letters a year. Nothing else.";
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.includes("@")) {
+    if (sending) return;
+
+    const trimmed = email.trim();
+    if (!trimmed.includes("@")) {
       setError("This email is missing an @. Check the address.");
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)) {
+      setError("This email is not valid. Check the address.");
+      return;
+    }
+
     setError(null);
-    setReceived(true);
+    setSending(true);
+    try {
+      const res = await fetch("/api/correspondence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: trimmed,
+          source: variant,
+          pagePath: typeof window !== "undefined" ? window.location.pathname : undefined,
+          website,
+        }),
+      });
+      const payload = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+      };
+      if (res.ok && payload.ok) {
+        setEmail("");
+        setReceived(true);
+      } else {
+        setError(
+          payload.error || "Could not save your email right now. Please try again in a moment."
+        );
+      }
+    } catch {
+      setError("Could not save your email right now. Check your connection and try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   if (variant === "strip") {
@@ -69,6 +107,16 @@ export default function PrivateSalon({
               </p>
             ) : (
               <form onSubmit={submit} noValidate>
+                <input
+                  type="text"
+                  name="website"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="hidden"
+                />
                 <label
                   htmlFor="correspondence-strip-email"
                   className="block font-body text-[10px] uppercase tracking-[0.18em] text-pdp-muted"
@@ -92,8 +140,9 @@ export default function PrivateSalon({
                   />
                   <button
                     type="submit"
+                    disabled={sending}
                     aria-label="Subscribe to the Correspondence"
-                    className="ml-2 inline-flex h-11 w-11 min-h-11 min-w-11 shrink-0 items-center justify-center text-pdp-text transition-transform duration-200 hover:translate-x-1 hover:text-pdp-accent"
+                    className="ml-2 inline-flex h-11 w-11 min-h-11 min-w-11 shrink-0 items-center justify-center text-pdp-text transition-transform duration-200 hover:translate-x-1 hover:text-pdp-accent disabled:opacity-50"
                   >
                     <span aria-hidden="true" className="text-base leading-none">
                       →
@@ -143,6 +192,16 @@ export default function PrivateSalon({
           </div>
         ) : (
           <form onSubmit={submit} noValidate className="mt-8">
+            <input
+              type="text"
+              name="website"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              className="hidden"
+            />
             <label
               htmlFor="correspondence-email"
               className="block text-xs uppercase tracking-[0.18em] text-aube-text-muted"
@@ -153,6 +212,7 @@ export default function PrivateSalon({
               <input
                 id="correspondence-email"
                 type="email"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
@@ -164,9 +224,10 @@ export default function PrivateSalon({
               />
               <button
                 type="submit"
-                className="min-h-12 border border-aube-text bg-aube-text px-7 py-3.5 text-xs uppercase tracking-[0.22em] text-aube-base transition-colors hover:border-aube-accent hover:bg-aube-accent whitespace-nowrap"
+                disabled={sending}
+                className="min-h-12 border border-aube-text bg-aube-text px-7 py-3.5 text-xs uppercase tracking-[0.22em] text-aube-base transition-colors hover:border-aube-accent hover:bg-aube-accent disabled:opacity-50 whitespace-nowrap"
               >
-                Request the Correspondence
+                {sending ? "Sending…" : "Request the Correspondence"}
               </button>
             </div>
             {error && (

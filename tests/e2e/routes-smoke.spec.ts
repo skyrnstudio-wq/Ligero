@@ -14,6 +14,7 @@ test.describe("Routes Smoke Suite — All 34 Static, SSG, & Dynamic Routes", () 
     { path: "/help", title: "Help & Client Care" },
     { path: "/checkout", title: "Checkout" },
     { path: "/checkout/success", title: "Order Confirmation" },
+    { path: "/checkout/failed", title: "Payment Failed" },
     { path: "/legal", title: "Legal Policies" },
     { path: "/legal/privacy", title: "Privacy Policy" },
     { path: "/legal/terms", title: "Terms of Sale" },
@@ -147,12 +148,18 @@ test.describe("Routes Smoke Suite — All 34 Static, SSG, & Dynamic Routes", () 
   });
 
   // 31-34: Dynamic API Server Endpoints
-  test("API Route: /api/razorpay/create-order validates invalid payload with 400", async ({ request }) => {
+  test("API Route: /api/razorpay/create-order validates invalid payload and blocks raw amount tampering with 400", async ({ request }) => {
     const res = await request.post("/api/razorpay/create-order", {
       data: {},
     });
     // Should gracefully reject empty request body
     expect([400, 422, 500]).toContain(res.status());
+
+    // Direct amount without verified catalog items must be rejected with 400
+    const tamperedRes = await request.post("/api/razorpay/create-order", {
+      data: { amount: 100, currency: "USD" },
+    });
+    expect(tamperedRes.status()).toBe(400);
   });
 
   test("API Route: /api/razorpay/verify rejects unauthenticated verification", async ({ request }) => {
@@ -160,6 +167,26 @@ test.describe("Routes Smoke Suite — All 34 Static, SSG, & Dynamic Routes", () 
       data: { razorpay_order_id: "test" },
     });
     expect([400, 401, 403, 500]).toContain(res.status());
+  });
+
+  test("API Route: /api/orders/lookup requires signed HMAC lookup token", async ({ request }) => {
+    const missingTokenRes = await request.get(
+      "/api/orders/lookup?orderId=LGP-601677-909&paymentId=pay_test123"
+    );
+    expect(missingTokenRes.status()).toBe(401);
+
+    const forgedTokenRes = await request.get(
+      "/api/orders/lookup?orderId=LGP-601677-909&paymentId=pay_test123&token=forged_token"
+    );
+    expect(forgedTokenRes.status()).toBe(401);
+  });
+
+  test("API Route: /api/razorpay/webhook rejects unsigned or forged webhooks", async ({ request }) => {
+    const res = await request.post("/api/razorpay/webhook", {
+      headers: { "x-razorpay-signature": "invalid_signature" },
+      data: { event: "payment.captured" },
+    });
+    expect([400, 500]).toContain(res.status());
   });
 
   test("API Route: /api/reviews handles review submission endpoint", async ({ request }) => {

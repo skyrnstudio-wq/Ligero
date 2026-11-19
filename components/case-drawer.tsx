@@ -306,11 +306,11 @@ export default function CaseDrawer() {
               Proceed to Checkout
             </Link>
             <div className="mt-3 flex items-center justify-center gap-2 text-[10px] uppercase tracking-[0.16em] text-aube-text-muted">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
-              <span>Razorpay Secure · UPI · Cards · NetBanking</span>
+              <span>Razorpay Secure</span>
             </div>
           </div>
         )}

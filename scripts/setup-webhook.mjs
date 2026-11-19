@@ -4,6 +4,7 @@
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'zqurgqiq';
 const token = process.env.SANITY_API_WRITE_TOKEN;
 const secret = process.env.SANITY_REVALIDATE_SECRET;
+const orderWebhookSecret = process.env.SANITY_ORDER_WEBHOOK_SECRET || secret;
 
 if (!token) {
   console.error('❌ Error: SANITY_API_WRITE_TOKEN is missing in environment.');
@@ -72,7 +73,7 @@ async function createWebhook(rawUrl) {
     rule: {
       on: ['create', 'update', 'delete'],
       filter: '_type in ["perfume", "houseObject", "homePage", "siteSettings", "legalPage", "customerReview"]',
-      projection: '{ _type, "slug": slug.current, "perfumeSlug": perfume->slug.current }'
+      projection: '{ _type, slug, perfumeSlug }'
     },
     ...(secret ? { secret } : {})
   };
@@ -100,12 +101,67 @@ async function createWebhook(rawUrl) {
   console.log(`\nWhen any fragrance, object, homepage, or review is published in Sanity Studio, Sanity will immediately POST to ${targetUrl} to invalidate and re-render the cache.\n`);
 }
 
+async function createOrderDispatchWebhook(rawUrl) {
+  let targetUrl = rawUrl.trim();
+  if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+    targetUrl = `https://${targetUrl}`;
+  }
+  if (!targetUrl.endsWith('/api/orders/dispatch-webhook')) {
+    targetUrl = targetUrl.replace(/\/$/, '') + '/api/orders/dispatch-webhook';
+  }
+
+  console.log(`\n📦 Registering Order Dispatch Notification Webhook for Ligero Parfum...`);
+  console.log(`   Target Endpoint: ${targetUrl}`);
+  console.log(`   Project ID:      ${projectId}`);
+  console.log(`   Dataset:         production`);
+  console.log(`   Drafts Enabled:  true (required for drafts.order-* documents)`);
+  console.log(`   Secret Config:   ${orderWebhookSecret ? 'Protected with HMAC-SHA256 signature' : 'None (WARN: /api/orders/dispatch-webhook requires a secret)'}`);
+
+  const payload = {
+    type: 'document',
+    name: 'Ligero Order Dispatch Email',
+    url: targetUrl,
+    dataset: 'production',
+    includeDrafts: true,
+    apiVersion: 'v2025-02-19',
+    httpMethod: 'POST',
+    rule: {
+      on: ['create', 'update'],
+      filter: '_type == "order" && fulfilmentStatus == "dispatched" && paymentStatus == "paid" && !defined(dispatchEmailSentAt)',
+      projection: '{ _id, _type, razorpayOrderId, orderReference, fulfilmentStatus }'
+    },
+    ...(orderWebhookSecret ? { secret: orderWebhookSecret } : {})
+  };
+
+  const res = await fetch(`https://api.sanity.io/v2025-02-19/hooks/projects/${projectId}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) {
+    const error = await res.text();
+    console.error(`\n❌ Failed to create dispatch webhook (${res.status}):\n${error}`);
+    process.exit(1);
+  }
+
+  const result = await res.json();
+  console.log(`\n✔ Order Dispatch Webhook created successfully!`);
+  console.log(`   Webhook ID: ${result.id}`);
+  console.log(`   Created At: ${result.createdAt}`);
+  console.log(`   Rule Filter: ${result.rule?.filter}\n`);
+}
+
 async function main() {
   if (args.includes('--list') || args.length === 0) {
     await listWebhooks();
     if (args.length === 0) {
       console.log('Usage:');
       console.log('  node --env-file=.env.local scripts/setup-webhook.mjs <https://your-public-url.com>');
+      console.log('  node --env-file=.env.local scripts/setup-webhook.mjs --orders <https://your-public-url.com>');
       console.log('  node --env-file=.env.local scripts/setup-webhook.mjs --delete <webhook-id>');
       console.log('  node --env-file=.env.local scripts/setup-webhook.mjs --list\n');
     }
@@ -119,6 +175,16 @@ async function main() {
       process.exit(1);
     }
     await deleteWebhook(id);
+    return;
+  }
+
+  if (args[0] === '--orders') {
+    const url = args[1];
+    if (!url) {
+      console.error('❌ Please specify target base URL: --orders <https://your-public-url.com>');
+      process.exit(1);
+    }
+    await createOrderDispatchWebhook(url);
     return;
   }
 

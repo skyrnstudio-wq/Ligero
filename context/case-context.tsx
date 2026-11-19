@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 
 export interface CaseItem {
   slug: string;
@@ -91,7 +91,7 @@ export function CaseProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
-  const clearCase = () => {
+  const clearCase = useCallback(() => {
     setItems([]);
     setGiftNoteState("");
     try {
@@ -100,7 +100,7 @@ export function CaseProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Ignore
     }
-  };
+  }, []);
 
   const totalCount = items.reduce((acc, i) => acc + i.quantity, 0);
   const subtotal = items.reduce((acc, i) => acc + i.price * i.quantity, 0);

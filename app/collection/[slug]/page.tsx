@@ -18,7 +18,7 @@ import {
   getApprovedReviews,
 } from "@/lib/sanity/data";
 import { summarizeReviews } from "@/lib/reviews";
-import { getPerfumeCutoutImage, type Product } from "@/lib/products";
+import { getPerfumeCutoutImage, isStaticPerfumeSlug, type Product } from "@/lib/products";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -172,7 +172,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   return (
     <div
-      data-pdp-theme={product.slug}
+      data-pdp-theme={
+        isStaticPerfumeSlug(product.slug)
+          ? product.slug
+          : product.isDark
+            ? "noctis"
+            : "aube"
+      }
       className="relative min-h-screen overflow-x-clip bg-pdp-base text-pdp-text transition-colors duration-300"
     >
       {/* Ambient background mesh gradients for atmospheric depth */}

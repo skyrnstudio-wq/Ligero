@@ -36,6 +36,7 @@ export const order = defineType({
       name: 'fulfilmentStatus',
       title: 'Fulfilment Status',
       type: 'string',
+      description: 'Enter Courier Partner and Tracking Number before switching to Dispatched so the dispatch email includes tracking details.',
       options: {
         list: [
           { title: 'Processing (Atelier)', value: 'processing' },
@@ -164,6 +165,18 @@ export const order = defineType({
     defineField({
       name: 'paidAt',
       title: 'Paid At',
+      type: 'datetime',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'confirmationEmailSentAt',
+      title: 'Confirmation Email Sent At',
+      type: 'datetime',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'dispatchEmailSentAt',
+      title: 'Dispatch Email Sent At',
       type: 'datetime',
       readOnly: true,
     }),
