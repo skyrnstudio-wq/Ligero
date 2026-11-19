@@ -190,32 +190,10 @@ async function migrate() {
 
   // 4. Initialize Homepage & Site Settings Singletons
   console.log('\n🏛️ 4/4 Initializing Singletons (Homepage Editorial & Settings)...')
-  const aubeCutout = await uploadImageIfFileExists(
-    '/images/perfumes/cutouts/aube.webp',
-    'Aubé Bottle Cutout'
-  )
-
   const homeDoc = {
     _id: 'homePage',
     _type: 'homePage',
     title: 'Homepage Editorial',
-    heroEyebrow: 'LIGERO PARFUM',
-    heroHeading: 'An intimate obsession.',
-    heroHeadingItalic: 'Crafted to be unforgettable.',
-    heroCtaText: 'Explore the Collection',
-    heroCtaLink: '/collection',
-    featuredBadge: 'NEW RELEASE',
-    featuredTitle: 'Aubé',
-    featuredSubtitle: 'Eau de Parfum',
-    featuredDescription: 'Wild mountain mint and water jasmine hydro-distilled before sunrise.',
-    featuredProductSlug: 'aube',
-    ...(aubeCutout ? { featuredBottleCutout: aubeCutout } : {}),
-    objectsEyebrow: 'Objects of Scent',
-    objectsHeading: 'Vessels and travel rituals.',
-    objectsDescription: 'Designed to accompany the senses across thresholds. Crafted with small-batch maceration standards.',
-    patronsEyebrow: 'Patrons',
-    patronsHeading: 'The Private Salon',
-    patronsDescription: 'Receive private allocations, seasonal creations before public release, and correspondence from the perfumer.',
     patronsPromise: 'Four letters a year. Nothing else.',
   }
   await client.createOrReplace(homeDoc)

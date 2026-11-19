@@ -211,24 +211,6 @@ export const getLiveObjectBySlug = cache(async (slug: string): Promise<HouseObje
 })
 
 export interface HomepageData {
-  heroEyebrow?: string
-  heroHeading?: string
-  heroHeadingItalic?: string
-  heroCtaText?: string
-  heroCtaLink?: string
-  featuredBadge?: string
-  featuredTitle?: string
-  featuredSubtitle?: string
-  featuredDescription?: string
-  featuredProductSlug?: string
-  featuredBannerImage?: string
-  featuredBottleCutout?: string
-  objectsEyebrow?: string
-  objectsHeading?: string
-  objectsDescription?: string
-  patronsEyebrow?: string
-  patronsHeading?: string
-  patronsDescription?: string
   patronsPromise?: string
 }
 
@@ -241,12 +223,7 @@ export const getLiveHomepage = cache(async (): Promise<HomepageData | null> => {
       query: HOMEPAGE_QUERY,
       tags: ['homePage'],
     })
-    if (!data) return null
-    return {
-      ...data,
-      featuredBannerImage: optimizeSanityImageUrl(data.featuredBannerImage, 1200),
-      featuredBottleCutout: optimizeSanityImageUrl(data.featuredBottleCutout, 1000),
-    }
+    return data || null
   } catch (error) {
     console.warn('[Sanity] Fetch failed for homepage content:', error)
     return null

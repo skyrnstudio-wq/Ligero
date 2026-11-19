@@ -117,24 +117,6 @@ export const OBJECT_BY_SLUG_QUERY = groq`
 // Fetch Homepage Editorial Singleton
 export const HOMEPAGE_QUERY = groq`
   *[_type == "homePage"][0] {
-    heroEyebrow,
-    heroHeading,
-    heroHeadingItalic,
-    heroCtaText,
-    heroCtaLink,
-    featuredBadge,
-    featuredTitle,
-    featuredSubtitle,
-    featuredDescription,
-    featuredProductSlug,
-    "featuredBannerImage": featuredBannerImage.asset->url,
-    "featuredBottleCutout": featuredBottleCutout.asset->url,
-    objectsEyebrow,
-    objectsHeading,
-    objectsDescription,
-    patronsEyebrow,
-    patronsHeading,
-    patronsDescription,
     patronsPromise
   }
 `
