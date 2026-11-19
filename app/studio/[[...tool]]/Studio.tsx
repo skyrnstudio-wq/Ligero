@@ -6,7 +6,7 @@ import { StudioChunkErrorBoundary } from '@/sanity/components/StudioChunkErrorBo
 
 export function Studio() {
   return (
-    <StudioChunkErrorBoundary label="Studio">
+    <StudioChunkErrorBoundary label="Studio" fullScreen>
       <NextStudio config={config} />
     </StudioChunkErrorBoundary>
   )

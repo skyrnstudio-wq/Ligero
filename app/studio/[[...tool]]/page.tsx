@@ -1,9 +1,11 @@
 'use client'
 
 import dynamic from 'next/dynamic'
+import { retryChunkImport } from '@/lib/chunk-error'
+import { StudioChunkErrorBoundary } from '@/sanity/components/StudioChunkErrorBoundary'
 
 const Studio = dynamic(
-  () => import('./Studio').then((mod) => mod.Studio),
+  () => retryChunkImport(() => import('./Studio')).then((mod) => mod.Studio),
   {
     ssr: false,
     loading: () => (
@@ -28,5 +30,9 @@ const Studio = dynamic(
 )
 
 export default function StudioPage() {
-  return <Studio />
+  return (
+    <StudioChunkErrorBoundary label="Studio" fullScreen listenUnhandledRejections>
+      <Studio />
+    </StudioChunkErrorBoundary>
+  )
 }

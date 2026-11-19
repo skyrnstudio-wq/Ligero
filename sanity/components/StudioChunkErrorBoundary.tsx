@@ -1,21 +1,15 @@
 'use client'
 
 import React from 'react'
+import { attemptChunkErrorReload, isChunkLoadError } from '@/lib/chunk-error'
 
-const RELOAD_STAMP_KEY = 'ligero_studio_chunk_reload_at'
-const RELOAD_COOLDOWN_MS = 15_000
-
-export function isChunkLoadError(error: Error | null | undefined): boolean {
-  if (!error) return false
-  if (error.name === 'ChunkLoadError') return true
-  return /Loading chunk [\w-]+ failed|Failed to fetch dynamically imported module|Importing a module script failed/i.test(
-    error.message || ''
-  )
-}
+export { isChunkLoadError }
 
 interface StudioChunkErrorBoundaryProps {
   children: React.ReactNode
   label?: string
+  fullScreen?: boolean
+  listenUnhandledRejections?: boolean
 }
 
 interface StudioChunkErrorBoundaryState {
@@ -40,22 +34,35 @@ export class StudioChunkErrorBoundary extends React.Component<
     return { error }
   }
 
+  componentDidMount() {
+    if (this.props.listenUnhandledRejections && typeof window !== 'undefined') {
+      window.addEventListener('unhandledrejection', this.handleUnhandledRejection)
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.listenUnhandledRejections && typeof window !== 'undefined') {
+      window.removeEventListener('unhandledrejection', this.handleUnhandledRejection)
+    }
+  }
+
   componentDidCatch(error: Error) {
-    if (!isChunkLoadError(error) || typeof window === 'undefined') {
+    if (isChunkLoadError(error)) {
+      attemptChunkErrorReload()
+    }
+  }
+
+  private handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+    if (!isChunkLoadError(event.reason)) {
       return
     }
-
-    try {
-      const now = Date.now()
-      const lastReloadRaw = window.sessionStorage.getItem(RELOAD_STAMP_KEY)
-      const lastReload = lastReloadRaw ? Number(lastReloadRaw) : 0
-
-      if (!lastReload || Number.isNaN(lastReload) || now - lastReload > RELOAD_COOLDOWN_MS) {
-        window.sessionStorage.setItem(RELOAD_STAMP_KEY, String(now))
-        window.location.reload()
-      }
-    } catch {
-      // sessionStorage may be restricted; fall back to manual reload UI
+    event.preventDefault()
+    if (!attemptChunkErrorReload()) {
+      const error =
+        event.reason instanceof Error
+          ? event.reason
+          : new Error(String(event.reason || 'Loading chunk failed'))
+      this.setState({ error })
     }
   }
 
@@ -78,8 +85,8 @@ export class StudioChunkErrorBoundary extends React.Component<
       <div
         role="alert"
         style={{
-          minHeight: '100%',
-          height: '100%',
+          minHeight: this.props.fullScreen ? '100dvh' : '100%',
+          height: this.props.fullScreen ? 'auto' : '100%',
           width: '100%',
           display: 'flex',
           alignItems: 'center',
