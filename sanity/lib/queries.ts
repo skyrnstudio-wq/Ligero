@@ -122,7 +122,6 @@ export const HOMEPAGE_QUERY = groq`
     heroHeadingItalic,
     heroCtaText,
     heroCtaLink,
-    "heroImage": heroImage.asset->url,
     featuredBadge,
     featuredTitle,
     featuredSubtitle,

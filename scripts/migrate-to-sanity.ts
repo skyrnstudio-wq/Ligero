@@ -190,10 +190,6 @@ async function migrate() {
 
   // 4. Initialize Homepage & Site Settings Singletons
   console.log('\n🏛️ 4/4 Initializing Singletons (Homepage Editorial & Settings)...')
-  const heroAsset = await uploadImageIfFileExists(
-    '/images/hero/ligero-parfum-cutout.webp',
-    'Ligéro Parfums Signature Amber Flacon'
-  )
   const aubeCutout = await uploadImageIfFileExists(
     '/images/perfumes/cutouts/aube.webp',
     'Aubé Bottle Cutout'
@@ -208,7 +204,6 @@ async function migrate() {
     heroHeadingItalic: 'Crafted to be unforgettable.',
     heroCtaText: 'Explore the Collection',
     heroCtaLink: '/collection',
-    ...(heroAsset ? { heroImage: heroAsset } : {}),
     featuredBadge: 'NEW RELEASE',
     featuredTitle: 'Aubé',
     featuredSubtitle: 'Eau de Parfum',

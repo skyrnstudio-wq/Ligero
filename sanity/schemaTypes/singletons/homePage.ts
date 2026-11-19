@@ -45,13 +45,6 @@ export const homePage = defineType({
       type: 'string',
       initialValue: '/collection',
     }),
-    defineField({
-      name: 'heroImage',
-      title: 'Hero Photography Asset',
-      type: 'image',
-      description: 'Zero-zoom mist photography asset displayed on raw-silk background',
-      options: { hotspot: true },
-    }),
 
     // Section 2: Featured Campaign Banner (e.g. Aubé)
     defineField({

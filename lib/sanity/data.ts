@@ -216,7 +216,6 @@ export interface HomepageData {
   heroHeadingItalic?: string
   heroCtaText?: string
   heroCtaLink?: string
-  heroImage?: string
   featuredBadge?: string
   featuredTitle?: string
   featuredSubtitle?: string
@@ -245,7 +244,6 @@ export const getLiveHomepage = cache(async (): Promise<HomepageData | null> => {
     if (!data) return null
     return {
       ...data,
-      heroImage: optimizeSanityImageUrl(data.heroImage, 1440),
       featuredBannerImage: optimizeSanityImageUrl(data.featuredBannerImage, 1200),
       featuredBottleCutout: optimizeSanityImageUrl(data.featuredBottleCutout, 1000),
     }
