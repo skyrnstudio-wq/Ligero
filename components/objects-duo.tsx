@@ -124,7 +124,7 @@ export default function ObjectsDuo({ objects }: { objects?: HouseObject[] }) {
                 src={discoveryImage}
                 alt="Ligero Parfums Floating Signature Collection, seven 10 ml pocket perfume sprays: Aube, Maree, Blanc, Ambre Doux, Noctis, Fleur, and Noir Cacao"
                 fill
-                loading="eager"
+                loading="lazy"
                 quality={80}
                 sizes="(max-width: 640px) 280px, (max-width: 1024px) 44vw, 38vw"
                 className="relative z-10 object-contain object-center p-4 sm:p-8 lg:p-12 md:[filter:drop-shadow(0_18px_24px_rgba(28,20,14,0.20))] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
@@ -206,7 +206,7 @@ export default function ObjectsDuo({ objects }: { objects?: HouseObject[] }) {
                 src={enRouteImage}
                 alt="Ligero En Route Car Perfume, luxury diffuser flat-lay with cedarwood and dried bergamot peel"
                 fill
-                loading="eager"
+                loading="lazy"
                 quality={80}
                 sizes="(max-width: 640px) 280px, (max-width: 1024px) 44vw, 38vw"
                 className="relative z-10 object-contain object-center p-4 sm:p-8 lg:p-12 md:[filter:drop-shadow(0_16px_22px_rgba(28,20,14,0.18))] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"

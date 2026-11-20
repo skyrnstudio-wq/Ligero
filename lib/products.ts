@@ -1,3 +1,10 @@
+export interface SeoMetadata {
+  title?: string;
+  description?: string;
+  image?: string;
+  noIndex?: boolean;
+}
+
 export interface KeyIngredient {
   name: string;
   note: string;
@@ -7,6 +14,8 @@ export interface KeyIngredient {
 
 export interface Product {
   slug: string;
+  updatedAt?: string;
+  seo?: SeoMetadata;
   name: string;
   subtitle: string;
   volume: string;
@@ -39,6 +48,8 @@ export interface Product {
 
 export interface HouseObject {
   slug: string;
+  updatedAt?: string;
+  seo?: SeoMetadata;
   name: string;
   price: number;
   volume?: string;

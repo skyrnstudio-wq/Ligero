@@ -1,3 +1,5 @@
+import { safeJsonLd } from "@/lib/seo/schema";
+
 /**
  * Browser-native Speculation Rules for near-instant MPA / initial-document transitions
  * on pointer hover / intent for public catalog and house routes.
@@ -32,7 +34,7 @@ export default function SpeculationRules() {
   return (
     <script
       type="speculationrules"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(SPECULATION_RULES) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(SPECULATION_RULES) }}
     />
   );
 }

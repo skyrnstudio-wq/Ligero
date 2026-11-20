@@ -27,10 +27,13 @@ export default defineConfig({
     }
   },
   document: {
-    // Keep Order and Correspondence Subscriber documents stored under their private `drafts.*`
-    // paths so they are never published to the public root path of the dataset.
+    // Keep Order, Customer Review, and Correspondence Subscriber documents stored under their
+    // private `drafts.*` paths so customer PII (emails, phone numbers, addresses) is never
+    // published to the public root path of the dataset.
     actions: (prev, context) =>
-      context.schemaType === 'order' || context.schemaType === 'correspondenceSubscriber'
+      context.schemaType === 'order' ||
+      context.schemaType === 'correspondenceSubscriber' ||
+      context.schemaType === 'customerReview'
         ? prev.filter(
             (action) =>
               action.action !== 'publish' &&

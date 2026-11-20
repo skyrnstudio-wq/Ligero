@@ -25,6 +25,7 @@ export const order = defineType({
           { title: 'Pending', value: 'pending' },
           { title: 'Paid', value: 'paid' },
           { title: 'Failed', value: 'failed' },
+          { title: 'Partially Refunded', value: 'partially_refunded' },
           { title: 'Refunded', value: 'refunded' },
         ],
         layout: 'radio',
@@ -84,6 +85,19 @@ export const order = defineType({
       name: 'razorpaySignature',
       title: 'Razorpay Signature',
       type: 'string',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'refundedAmountPaise',
+      title: 'Refunded Amount (Paise)',
+      type: 'number',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'processedRefundIds',
+      title: 'Processed Razorpay Refund IDs',
+      type: 'array',
+      of: [{ type: 'string' }],
       readOnly: true,
     }),
     defineField({

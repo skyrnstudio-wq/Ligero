@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { parseBody } from "next-sanity/webhook";
 import { sendOrderDispatchNotification } from "@/lib/orders";
+import { NO_STORE_HEADERS } from "@/lib/razorpay";
 
 export const runtime = "nodejs";
+
+function jsonNoStore(body: unknown, status = 200) {
+  return NextResponse.json(body, { status, headers: NO_STORE_HEADERS });
+}
 
 interface SanityOrderWebhookPayload {
   _id?: string;
@@ -14,6 +19,14 @@ interface SanityOrderWebhookPayload {
 
 export async function POST(req: NextRequest) {
   try {
+    const contentLength = Number(req.headers.get("content-length") || "0");
+    if (Number.isFinite(contentLength) && contentLength > 64 * 1024) {
+      return jsonNoStore(
+        { success: false, error: "Webhook payload exceeds maximum allowed size." },
+        413
+      );
+    }
+
     const webhookSecret = (
       process.env.SANITY_ORDER_WEBHOOK_SECRET ||
       process.env.SANITY_REVALIDATE_SECRET ||
@@ -21,9 +34,9 @@ export async function POST(req: NextRequest) {
     ).trim();
 
     if (!webhookSecret) {
-      return NextResponse.json(
+      return jsonNoStore(
         { success: false, error: "Sanity order webhook secret is not configured." },
-        { status: 503 }
+        503
       );
     }
 
@@ -33,14 +46,14 @@ export async function POST(req: NextRequest) {
     );
 
     if (isValidSignature !== true) {
-      return NextResponse.json(
+      return jsonNoStore(
         { success: false, error: "Invalid Sanity webhook signature." },
-        { status: 401 }
+        401
       );
     }
 
     if (!body || body._type !== "order") {
-      return NextResponse.json({
+      return jsonNoStore({
         success: true,
         skipped: "non_order_document",
       });
@@ -53,27 +66,28 @@ export async function POST(req: NextRequest) {
     });
 
     if (result.attempted && !result.sent) {
-      return NextResponse.json(
+      console.error("[Order Dispatch Webhook] Email send failed:", result.error);
+      return jsonNoStore(
         {
           success: false,
-          error: result.error || "Failed to send order dispatch email.",
+          error: "Failed to send order dispatch email.",
         },
-        { status: 500 }
+        500
       );
     }
 
-    return NextResponse.json({
+    return jsonNoStore({
       success: true,
       ...result,
     });
   } catch (error) {
     console.error("[Order Dispatch Webhook] Error:", error);
-    return NextResponse.json(
+    return jsonNoStore(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Dispatch webhook processing failed.",
+        error: "Dispatch webhook processing failed.",
       },
-      { status: 500 }
+      500
     );
   }
 }

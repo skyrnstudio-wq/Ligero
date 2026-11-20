@@ -8,6 +8,7 @@ import SmoothScrollProvider from "@/components/smooth-scroll";
 import IntroLoader from "@/components/intro-loader";
 import SpeculationRules from "@/components/speculation-rules";
 import { getLiveObjects, getLivePerfumes } from "@/lib/sanity/data";
+import { BASE_URL } from "@/lib/seo/schema";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -32,42 +33,37 @@ const schibsted = Schibsted_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ligeroparfums.com"),
+  metadataBase: new URL(BASE_URL),
   title: {
-    default: "Ligero Parfum | Independent Perfume House",
+    default: "Ligero Parfum | Independent Indian Perfume House",
     template: "%s | Ligero Parfum",
   },
   description:
-    "Seven permanent eau de parfum creations formulated in India with botanical absolutes and resins. Shop 50 ml flacons, the Discovery Set, and En Route.",
+    "Seven permanent Eau de Parfum creations formulated in India with botanical absolutes and resins. 50 ml flacons, The Discovery Set, and En Route.",
+  applicationName: "Ligero Parfum",
+  authors: [{ name: "Ligero Parfum", url: BASE_URL }],
+  creator: "Ligero Parfum Private Limited",
+  publisher: "Ligero Parfum Private Limited",
   alternates: {
-    canonical: "/",
     types: {
       "text/plain": "/llms.txt",
+      "text/markdown": "/pricing.md",
     },
   },
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://ligeroparfums.com",
+    url: BASE_URL,
     siteName: "Ligero Parfum",
-    title: "Ligero Parfum | Independent Perfume House",
+    title: "Ligero Parfum | Independent Indian Perfume House",
     description:
-      "Seven permanent eau de parfum creations formulated in India with botanical absolutes and resins.",
-    images: [
-      {
-        url: "/images/perfumes/aube-scene.webp",
-        width: 1440,
-        height: 1075,
-        alt: "Ligero Parfum eau de parfum bottle",
-      },
-    ],
+      "Seven permanent Eau de Parfum creations formulated in India with botanical absolutes and resins.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ligero Parfum | Independent Perfume House",
+    title: "Ligero Parfum | Independent Indian Perfume House",
     description:
-      "Seven permanent eau de parfum creations formulated in India with botanical absolutes and resins.",
-    images: ["/images/perfumes/aube-scene.webp"],
+      "Seven permanent Eau de Parfum creations formulated in India with botanical absolutes and resins.",
   },
   robots: {
     index: true,

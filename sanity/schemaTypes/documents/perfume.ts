@@ -136,6 +136,11 @@ export const perfume = defineType({
       of: [{ type: 'string' }],
       description: 'Occasions where this fragrance shines (e.g. Morning, Office, Gym, Wedding, Date Night, Party). The first 3–4 occasions appear on collection cards, and all occasions appear on the product page.',
     }),
+    defineField({
+      name: 'seo',
+      title: 'SEO & Social Sharing',
+      type: 'seo',
+    }),
   ],
   preview: {
     select: {

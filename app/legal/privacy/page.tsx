@@ -1,19 +1,59 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
+import {
+  buildBreadcrumbSchema,
+  buildGraph,
+  buildOrganizationSchema,
+  buildWebPageSchema,
+  safeJsonLd,
+} from "@/lib/seo/schema";
 
-export const metadata = {
-  title: "Privacy Policy",
-  description:
-    "Privacy policy for Ligero Parfum under the Digital Personal Data Protection Act, 2023.",
+const PRIVACY_DESC =
+  "Privacy policy for Ligero Parfum under India's Digital Personal Data Protection Act, 2023. Zero advertising trackers, zero data resale, guest checkout only.";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy (DPDP Act 2023)",
+  description: PRIVACY_DESC,
   alternates: {
     canonical: "/legal/privacy",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    title: "Privacy Policy | Ligero Parfum",
+    description: PRIVACY_DESC,
+    url: "/legal/privacy",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Privacy Policy | Ligero Parfum",
+    description: PRIVACY_DESC,
   },
 };
 
 export default function PrivacyPolicyPage() {
+  const jsonLd = buildGraph([
+    buildOrganizationSchema(),
+    buildWebPageSchema({
+      path: "/legal/privacy",
+      name: "Privacy Policy | Ligero Parfum",
+      description: PRIVACY_DESC,
+    }),
+    buildBreadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Legal Policies", path: "/legal" },
+      { name: "Privacy Policy", path: "/legal/privacy" },
+    ]),
+  ]);
+
   return (
     <div className="min-h-screen bg-aube-base text-aube-text">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
+      />
       <SiteHeader />
 
       <main className="mx-auto max-w-3xl px-6 pb-28 pt-[calc(var(--header-offset)+2rem)] sm:px-10 sm:pt-[calc(var(--header-offset)+3rem)]">

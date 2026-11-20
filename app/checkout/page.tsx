@@ -5,43 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useCase } from "@/context/case-context";
+import { useCatalog } from "@/context/catalog-context";
 import { loadRazorpayScript } from "@/lib/load-razorpay";
-
-const SHIPPING_REGIONS = [
-  "Andhra Pradesh",
-  "Arunachal Pradesh",
-  "Assam",
-  "Bihar",
-  "Chhattisgarh",
-  "Goa",
-  "Gujarat",
-  "Haryana",
-  "Himachal Pradesh",
-  "Jharkhand",
-  "Karnataka",
-  "Kerala",
-  "Madhya Pradesh",
-  "Maharashtra",
-  "Manipur",
-  "Meghalaya",
-  "Mizoram",
-  "Nagaland",
-  "Odisha",
-  "Punjab",
-  "Rajasthan",
-  "Sikkim",
-  "Tamil Nadu",
-  "Telangana",
-  "Tripura",
-  "Uttar Pradesh",
-  "Uttarakhand",
-  "West Bengal",
-  "Delhi NCR",
-  "Chandigarh",
-  "Jammu & Kashmir",
-  "Ladakh",
-  "Puducherry",
-];
+import {
+  MAX_QUANTITY_PER_SKU,
+  SHIPPING_REGIONS,
+  validateCheckoutCustomer,
+} from "@/lib/checkout-validation";
 
 interface RazorpaySuccessResponse {
   razorpay_payment_id: string;
@@ -84,6 +54,8 @@ interface RazorpayOptions {
   };
   modal?: {
     ondismiss?: () => void;
+    escape?: boolean;
+    confirm_close?: boolean;
   };
 }
 
@@ -95,6 +67,8 @@ declare global {
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { objects } = useCatalog();
+  const discoverySetObj = objects.find((o) => o.slug === "discovery-set");
   const {
     items,
     subtotal,
@@ -102,6 +76,7 @@ export default function CheckoutPage() {
     addToCase,
     updateQuantity,
     removeFromCase,
+    reconcileItems,
     clearCase,
     giftNote,
     setGiftNote,
@@ -126,7 +101,11 @@ export default function CheckoutPage() {
   const [postPaymentStage, setPostPaymentStage] = useState<
     "idle" | "verifying" | "redirecting" | "failed"
   >("idle");
+  const isSubmittingRef = useRef(false);
+  const paymentHandlingRef = useRef(false);
   const paymentSettledRef = useRef(false);
+  const lastFailureRef = useRef<RazorpayFailureResponse["error"] | null>(null);
+  const redirectTimerRef = useRef<number | null>(null);
 
   // Restore saved guest checkout draft when returning from a failed payment attempt
   useEffect(() => {
@@ -154,11 +133,30 @@ export default function CheckoutPage() {
     }
   }, []);
 
-  // Pre-load Razorpay checkout script and prefetch status pages for instant handoff
+  // Pre-load Razorpay checkout script, prefetch status pages, and reset state on bfcache restore
   useEffect(() => {
     loadRazorpayScript();
     router.prefetch("/checkout/success");
     router.prefetch("/checkout/failed");
+
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        isSubmittingRef.current = false;
+        paymentHandlingRef.current = false;
+        paymentSettledRef.current = false;
+        lastFailureRef.current = null;
+        setIsProcessing(false);
+        setPostPaymentStage("idle");
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow);
+      if (redirectTimerRef.current !== null) {
+        window.clearTimeout(redirectTimerRef.current);
+      }
+    };
   }, [router]);
 
   const redirectToFailurePage = ({
@@ -167,17 +165,22 @@ export default function CheckoutPage() {
     step,
     source,
     orderReference,
+    paymentId,
     cancelled = false,
+    verificationPending = false,
   }: {
     message: string;
     code?: string;
     step?: string;
     source?: string;
     orderReference?: string;
+    paymentId?: string;
     cancelled?: boolean;
+    verificationPending?: boolean;
   }) => {
     if (paymentSettledRef.current) return;
     paymentSettledRef.current = true;
+    isSubmittingRef.current = false;
 
     setPostPaymentStage("failed");
     setPaymentError(message);
@@ -192,7 +195,9 @@ export default function CheckoutPage() {
           step,
           source,
           cancelled,
+          verificationPending,
           orderReference,
+          paymentId,
           amount: subtotal,
           itemCount: totalCount,
           timestamp: new Date().toISOString(),
@@ -204,11 +209,12 @@ export default function CheckoutPage() {
 
     const failParams = new URLSearchParams();
     if (orderReference) failParams.set("orderId", orderReference);
+    if (paymentId) failParams.set("paymentId", paymentId);
     if (code) failParams.set("code", code);
     if (cancelled) failParams.set("cancelled", "1");
 
     const query = failParams.toString();
-    setTimeout(() => {
+    redirectTimerRef.current = window.setTimeout(() => {
       router.push(query ? `/checkout/failed?${query}` : "/checkout/failed");
     }, 550);
   };
@@ -227,84 +233,105 @@ export default function CheckoutPage() {
     }
   };
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required";
-    } else if (!/^\d{10}$/.test(formData.phone.replace(/\D/g, ""))) {
-      newErrors.phone = "Please enter a valid 10-digit mobile number";
-    }
-
-    if (!formData.address.trim()) newErrors.address = "Delivery address is required";
-    if (!formData.city.trim()) newErrors.city = "City is required";
-    if (!formData.pincode.trim()) {
-      newErrors.pincode = "PIN code is required";
-    } else if (!/^\d{6}$/.test(formData.pincode.trim())) {
-      newErrors.pincode = "Please enter a valid 6-digit PIN code";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (isSubmittingRef.current || isProcessing) return;
+
+    const validation = validateCheckoutCustomer(formData);
+    setErrors(validation.errors);
+    if (!validation.valid) return;
+
     if (items.length === 0) {
-      setPaymentError("Your case is currently empty. Add a fragrance or Discovery Set before completing payment.");
+      setPaymentError(
+        "Your case is currently empty. Add a fragrance or Discovery Set before completing payment."
+      );
       return;
     }
 
+    const validatedCustomer = validation.customer;
+    isSubmittingRef.current = true;
+    paymentHandlingRef.current = false;
     paymentSettledRef.current = false;
+    lastFailureRef.current = null;
     setIsProcessing(true);
     setPaymentError(null);
 
     try {
-      sessionStorage.setItem("ligero_checkout_draft", JSON.stringify(formData));
+      sessionStorage.setItem(
+        "ligero_checkout_draft",
+        JSON.stringify({ ...formData, ...validatedCustomer })
+      );
     } catch {
       // Ignore sessionStorage unavailable
     }
 
     try {
-      // 1. Create order on server via Razorpay API
+      // 1. Create order on server via Razorpay API with price-drift protection
       const res = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items,
-          customer: formData,
+          items: items.map((item) => ({ slug: item.slug, quantity: item.quantity })),
+          customer: validatedCustomer,
           giftNote: formData.giftNote,
+          expectedAmountPaise: Math.round(subtotal * 100),
         }),
       });
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error || "Unable to initiate payment session.");
+      const orderData = await res.json().catch(() => ({}));
+
+      if (res.status === 409 && orderData.priceChanged && Array.isArray(orderData.items)) {
+        reconcileItems(
+          orderData.items.map(
+            (item: {
+              slug: string;
+              name: string;
+              price: number;
+              volume?: string;
+              image?: string;
+              quantity: number;
+            }) => ({
+              slug: item.slug,
+              name: item.name,
+              price: item.price,
+              volume: item.volume || "",
+              image: item.image || "/images/objects/discovery-set-floating.webp",
+              quantity: item.quantity,
+            })
+          )
+        );
+        throw new Error(
+          orderData.error ||
+            "Catalog pricing has been updated. Please review your updated total and try again."
+        );
       }
 
-      const orderData = await res.json();
+      if (!res.ok) {
+        if (orderData.fieldErrors && typeof orderData.fieldErrors === "object") {
+          setErrors(orderData.fieldErrors);
+        }
+        throw new Error(orderData.error || "Unable to initiate payment session.");
+      }
 
       // Open Razorpay Standard Checkout modal
       const resolvedOrderId = orderData.order_id || orderData.razorpayOrderId;
       if (!orderData.configured || !resolvedOrderId) {
-        throw new Error(orderData.error || "Payment gateway is not configured. Please contact support.");
+        throw new Error(
+          orderData.error || "Payment gateway is not configured. Please contact support."
+        );
       }
 
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded || typeof window === "undefined" || !window.Razorpay) {
-        throw new Error("Unable to connect to Razorpay payment gateway. Please check your network connection.");
+        throw new Error(
+          "Unable to connect to Razorpay payment gateway. Please check your network connection and try again."
+        );
       }
 
       const checkoutImage =
         typeof window !== "undefined" ? `${window.location.origin}/icon.png` : "/icon.png";
+
+      const serverItems = Array.isArray(orderData.items) ? orderData.items : items;
 
       const options: RazorpayOptions = {
         key: orderData.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
@@ -315,35 +342,72 @@ export default function CheckoutPage() {
         order_id: resolvedOrderId,
         image: checkoutImage,
         handler: async function (response: RazorpaySuccessResponse) {
+          // Lock synchronously before any await so modal.ondismiss can never hijack active verification.
+          paymentHandlingRef.current = true;
           setPostPaymentStage("verifying");
-          try {
-            // 2. Verify payment cryptographic signature on server and persist paid order
-            const verifyRes = await fetch("/api/razorpay/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                orderReference: orderData.orderReference,
-                customer: formData,
-                items,
-                giftNote: formData.giftNote,
-              }),
-            });
 
-            const verifyData = await verifyRes.json();
+          let verifyData: Record<string, unknown> | null = null;
+          let lastErrorMessage = "Payment verification failed.";
+          let isRetryableFailure = true;
 
-            if (!verifyRes.ok || !verifyData.verified) {
-              throw new Error(
-                verifyData.error || "Payment signature verification failed. Please contact concierge."
-              );
+          // Retry up to 3 times on transient network drops or 5xx responses (common on mobile UPI app switches).
+          const retryDelaysMs = [0, 800, 1600];
+          for (let attempt = 0; attempt < retryDelaysMs.length; attempt++) {
+            if (retryDelaysMs[attempt] > 0) {
+              await new Promise((resolve) => window.setTimeout(resolve, retryDelaysMs[attempt]));
             }
 
+            const controller = new AbortController();
+            const timeoutId = window.setTimeout(() => controller.abort(), 20_000);
+            try {
+              const verifyRes = await fetch("/api/razorpay/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                signal: controller.signal,
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  orderReference: orderData.orderReference,
+                  customer: validatedCustomer,
+                  items: items.map((item) => ({ slug: item.slug, quantity: item.quantity })),
+                  giftNote: formData.giftNote,
+                }),
+              });
+
+              const parsed = (await verifyRes.json().catch(() => ({}))) as Record<string, unknown>;
+
+              if (verifyRes.ok && parsed.verified === true) {
+                verifyData = parsed;
+                break;
+              }
+
+              lastErrorMessage =
+                typeof parsed.error === "string"
+                  ? parsed.error
+                  : "Payment signature verification failed. Please contact concierge.";
+              isRetryableFailure = verifyRes.status >= 500 || parsed.retryable === true;
+
+              if (!isRetryableFailure) {
+                break;
+              }
+            } catch (err) {
+              lastErrorMessage =
+                err instanceof Error && err.name === "AbortError"
+                  ? "Payment confirmation timed out while contacting the server."
+                  : "Network connection interrupted while confirming your payment.";
+              isRetryableFailure = true;
+            } finally {
+              window.clearTimeout(timeoutId);
+            }
+          }
+
+          if (verifyData && verifyData.verified === true) {
             paymentSettledRef.current = true;
+            isSubmittingRef.current = false;
             setPostPaymentStage("redirecting");
 
-            // Store order metadata for confirmation using server-verified total
+            // Store order metadata for confirmation using server-verified total & items
             const verifiedSubtotal =
               typeof verifyData.totalInr === "number" && verifyData.totalInr > 0
                 ? verifyData.totalInr
@@ -351,8 +415,13 @@ export default function CheckoutPage() {
                   ? Math.round(orderData.amount / 100)
                   : subtotal;
 
+            const finalOrderRef =
+              typeof verifyData.orderReference === "string" && verifyData.orderReference
+                ? verifyData.orderReference
+                : orderData.orderReference;
+
             const orderRecord = {
-              orderId: verifyData.orderReference || orderData.orderReference,
+              orderId: finalOrderRef,
               paymentId: response.razorpay_payment_id,
               razorpayOrderId: response.razorpay_order_id,
               date: new Date().toLocaleDateString("en-IN", {
@@ -360,8 +429,8 @@ export default function CheckoutPage() {
                 month: "long",
                 year: "numeric",
               }),
-              customer: formData,
-              items,
+              customer: validatedCustomer,
+              items: serverItems,
               subtotal: verifiedSubtotal,
               giftNote: formData.giftNote,
               status: "Verified (Razorpay)",
@@ -375,38 +444,66 @@ export default function CheckoutPage() {
               // Ignore sessionStorage unavailable
             }
 
+            // Clear cart immediately once verified (behind full-screen redirecting overlay)
+            // so closing the tab mid-redirect cannot leave already-paid items behind.
+            clearCase();
+
             const successParams = new URLSearchParams({
-              orderId: verifyData.orderReference || orderData.orderReference,
+              orderId: finalOrderRef,
               paymentId: response.razorpay_payment_id,
             });
-            if (verifyData.lookupToken) {
+            if (typeof verifyData.lookupToken === "string" && verifyData.lookupToken) {
               successParams.set("token", verifyData.lookupToken);
             }
             router.replace(`/checkout/success?${successParams.toString()}`);
-          } catch (err) {
-            redirectToFailurePage({
-              message:
-                err instanceof Error ? err.message : "Payment verification failed.",
-              code: "VERIFICATION_FAILED",
-              orderReference: orderData.orderReference,
-            });
+            return;
           }
+
+          // Razorpay already returned a payment_id, so funds may have been captured even if client verification failed/timed out.
+          redirectToFailurePage({
+            message: isRetryableFailure
+              ? "Razorpay received your payment, but browser confirmation timed out. Do not pay again — our automated server webhook will finalize your order and email your confirmation shortly."
+              : lastErrorMessage,
+            code: isRetryableFailure ? "VERIFICATION_PENDING" : "VERIFICATION_FAILED",
+            orderReference: orderData.orderReference,
+            paymentId: response.razorpay_payment_id,
+            verificationPending: isRetryableFailure,
+          });
         },
         prefill: {
-          name: formData.fullName,
-          email: formData.email,
-          contact: formData.phone,
+          name: validatedCustomer.fullName,
+          email: validatedCustomer.email,
+          contact: `+91${validatedCustomer.phone}`,
         },
         notes: {
           orderReference: orderData.orderReference,
-          city: formData.city,
-          pincode: formData.pincode,
+          city: validatedCustomer.city,
+          pincode: validatedCustomer.pincode,
         },
         theme: {
           color: "#A64B24", // Burnt Apricot
         },
         modal: {
+          confirm_close: true,
+          escape: false,
           ondismiss: function () {
+            if (paymentHandlingRef.current || paymentSettledRef.current) {
+              return;
+            }
+            const lastFailure = lastFailureRef.current;
+            if (lastFailure) {
+              redirectToFailurePage({
+                message:
+                  lastFailure.description ||
+                  "Your payment was declined by the bank or payment provider. Please try again or choose another payment method.",
+                code: lastFailure.code,
+                step: lastFailure.step,
+                source: lastFailure.source,
+                orderReference: orderData.orderReference,
+                cancelled: false,
+              });
+              return;
+            }
             redirectToFailurePage({
               message:
                 "Payment was cancelled before completion. Your case and details are saved so you can retry whenever you are ready.",
@@ -420,23 +517,21 @@ export default function CheckoutPage() {
 
       const rzp = new window.Razorpay(options);
       rzp.on("payment.failed", function (failRes: RazorpayFailureResponse) {
-        redirectToFailurePage({
-          message:
-            failRes.error?.description ||
+        // Record failure details without tearing down Razorpay's in-modal retry flow.
+        // If the customer closes the modal without succeeding, modal.ondismiss reports this failure.
+        lastFailureRef.current = failRes.error || {
+          description:
             "Your payment was declined by the bank or payment provider. Please try again or choose another payment method.",
-          code: failRes.error?.code,
-          step: failRes.error?.step,
-          source: failRes.error?.source,
-          orderReference: orderData.orderReference,
-        });
+        };
       });
       rzp.open();
     } catch (err) {
+      isSubmittingRef.current = false;
       setIsProcessing(false);
       setPaymentError(
         err instanceof Error
           ? err.message
-          : "Unable to complete transaction. Please check your details or write to sales@ligeroparfums.com."
+          : "Unable to complete transaction. Please check your details or write to sales@ligeroparfum.com."
       );
     }
   };
@@ -690,7 +785,7 @@ export default function CheckoutPage() {
                         type="tel"
                         name="phone"
                         autoComplete="tel-national"
-                        maxLength={10}
+                        maxLength={16}
                         value={formData.phone}
                         onChange={handleInputChange}
                         placeholder="98765 43210"
@@ -932,16 +1027,19 @@ export default function CheckoutPage() {
                       type="button"
                       onClick={() =>
                         addToCase({
-                          slug: "discovery-set",
-                          name: "The Discovery Set",
-                          price: 999,
-                          volume: "7 × 10 ml",
-                          image: "/images/objects/discovery-set-floating.webp",
+                          slug: discoverySetObj?.slug || "discovery-set",
+                          name: discoverySetObj?.name || "The Discovery Set",
+                          price: discoverySetObj?.price || 999,
+                          volume: discoverySetObj?.volume || "7 × 10 ml",
+                          image:
+                            discoverySetObj?.image ||
+                            "/images/objects/discovery-set-floating.webp",
                         })
                       }
                       className="min-h-11 border border-aube-text bg-aube-text px-5 py-2.5 text-[10.5px] uppercase tracking-[0.2em] text-aube-base transition-colors hover:border-aube-accent hover:bg-aube-accent"
                     >
-                      Add Discovery Set · ₹999
+                      Add Discovery Set · ₹
+                      {(discoverySetObj?.price || 999).toLocaleString("en-IN")}
                     </button>
                     <Link
                       href="/collection"
@@ -995,8 +1093,9 @@ export default function CheckoutPage() {
                             <button
                               type="button"
                               aria-label="Increase quantity"
+                              disabled={item.quantity >= MAX_QUANTITY_PER_SKU}
                               onClick={() => updateQuantity(item.slug, 1)}
-                              className="flex h-11 w-11 min-h-11 min-w-11 items-center justify-center text-sm hover:text-aube-accent"
+                              className="flex h-11 w-11 min-h-11 min-w-11 items-center justify-center text-sm hover:text-aube-accent disabled:opacity-40"
                             >
                               +
                             </button>

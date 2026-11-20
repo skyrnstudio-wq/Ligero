@@ -387,10 +387,11 @@ export default function CollectionCatalog({
               />
               <Image
                 src={item.primaryImage}
-                alt={`${item.name}`}
+                alt={`${item.name} ${item.typeLabel}`}
                 fill
                 priority={index < 2}
-                loading={index < 2 ? undefined : "eager"}
+                fetchPriority={index < 2 ? "high" : undefined}
+                loading={index < 2 ? undefined : "lazy"}
                 quality={80}
                 sizes="150px"
                 className="object-contain object-center md:[filter:drop-shadow(-10px_14px_16px_rgba(28,20,14,0.18))]"
@@ -599,9 +600,12 @@ export default function CollectionCatalog({
 
       {/* Clean Compact 3-Column / 4-Column Architectural Product Grid */}
       <section
-        aria-label="Perfume catalog"
+        aria-labelledby="catalog-grid-heading"
         className="mx-auto max-w-[112rem] px-4 pt-6 pb-20 sm:px-8 sm:pt-8 lg:px-14"
       >
+        <h2 id="catalog-grid-heading" className="sr-only">
+          Perfumes and Scented Objects
+        </h2>
         <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-3 xl:grid-cols-4">
           {filteredItems.map((item, idx) => renderProductCard(item, idx))}
         </div>

@@ -15,16 +15,65 @@ import {
   type FragranceItem,
 } from "@/lib/products";
 import {
+  buildCollectionListSchema,
   buildGraph,
   buildOrganizationSchema,
+  buildWebPageSchema,
   buildWebsiteSchema,
+  formatMetaDescription,
+  safeJsonLd,
 } from "@/lib/seo/schema";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/",
-  },
-};
+const DEFAULT_HOME_TITLE = "Ligero Parfum | Independent Indian Perfume House";
+const DEFAULT_HOME_DESCRIPTION =
+  "Seven permanent Eau de Parfum creations formulated in India with botanical absolutes and resins. 50 ml flacons, The Discovery Set, and En Route.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const homepage = await getLiveHomepage();
+  const title = homepage?.seo?.title || DEFAULT_HOME_TITLE;
+  const description = formatMetaDescription(
+    homepage?.seo?.description || DEFAULT_HOME_DESCRIPTION
+  );
+
+  return {
+    title: {
+      absolute: title,
+    },
+    description,
+    alternates: {
+      canonical: "/",
+    },
+    openGraph: {
+      type: "website",
+      locale: "en_IN",
+      url: "/",
+      siteName: "Ligero Parfum",
+      title,
+      description,
+      ...(homepage?.seo?.image
+        ? {
+            images: [
+              {
+                url: homepage.seo.image,
+                width: 1200,
+                height: 630,
+                alt: "Ligero Parfum permanent collection",
+              },
+            ],
+          }
+        : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      ...(homepage?.seo?.image ? { images: [homepage.seo.image] } : {}),
+    },
+    ...(homepage?.seo?.noIndex
+      ? { robots: { index: false, follow: false } }
+      : {}),
+  };
+}
 
 export default async function Home() {
   preload("/images/textures/raw-silk-canvas.webp", {
@@ -41,6 +90,16 @@ export default async function Home() {
   const jsonLd = buildGraph([
     buildOrganizationSchema(),
     buildWebsiteSchema(),
+    buildWebPageSchema({
+      path: "/",
+      name: homepageData?.seo?.title || DEFAULT_HOME_TITLE,
+      description: formatMetaDescription(
+        homepageData?.seo?.description || DEFAULT_HOME_DESCRIPTION
+      ),
+      dateModified: homepageData?.updatedAt,
+      primaryImage: "/images/hero/ligero-parfum-cutout.webp",
+    }),
+    buildCollectionListSchema(perfumes, objects, "Ligero Parfum Permanent Collection"),
   ]);
 
   const collectionItems: FragranceItem[] = perfumes.map((p) => {
@@ -77,7 +136,7 @@ export default async function Home() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
       />
       <SiteHeader />
       <main className="relative">

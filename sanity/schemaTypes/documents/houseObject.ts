@@ -64,6 +64,11 @@ export const houseObject = defineType({
       of: [{ type: 'string' }],
       description: 'Occasions where this object shines (e.g. Gifting, Travel, Drive, Commute, Daily Wear)',
     }),
+    defineField({
+      name: 'seo',
+      title: 'SEO & Social Sharing',
+      type: 'seo',
+    }),
   ],
   preview: {
     select: {

@@ -1,19 +1,59 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
+import {
+  buildBreadcrumbSchema,
+  buildGraph,
+  buildOrganizationSchema,
+  buildWebPageSchema,
+  safeJsonLd,
+} from "@/lib/seo/schema";
 
-export const metadata = {
-  title: "Statutory Disclosures & Compliance",
-  description:
-    "Statutory disclosures under the DPDP Act 2023 and Consumer Protection E-commerce Rules 2020.",
+const COMPLIANCE_DESC =
+  "Statutory Legal Metrology declarations, DPDP Act 2023 data safeguards, and Consumer Protection E-Commerce Rules disclosures for Ligero Parfum.";
+
+export const metadata: Metadata = {
+  title: "Statutory Disclosures & Legal Metrology",
+  description: COMPLIANCE_DESC,
   alternates: {
     canonical: "/legal/compliance-checklist",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    title: "Statutory Disclosures & Compliance | Ligero Parfum",
+    description: COMPLIANCE_DESC,
+    url: "/legal/compliance-checklist",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Statutory Disclosures & Compliance | Ligero Parfum",
+    description: COMPLIANCE_DESC,
   },
 };
 
 export default function CompliancePage() {
+  const jsonLd = buildGraph([
+    buildOrganizationSchema(),
+    buildWebPageSchema({
+      path: "/legal/compliance-checklist",
+      name: "Statutory Disclosures & Compliance | Ligero Parfum",
+      description: COMPLIANCE_DESC,
+    }),
+    buildBreadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Legal Policies", path: "/legal" },
+      { name: "Statutory Disclosures", path: "/legal/compliance-checklist" },
+    ]),
+  ]);
+
   return (
     <div className="min-h-screen bg-aube-base text-aube-text">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
+      />
       <SiteHeader />
 
       <main className="mx-auto max-w-3xl px-6 pb-28 pt-[calc(var(--header-offset)+2rem)] sm:px-10 sm:pt-[calc(var(--header-offset)+3rem)]">
@@ -45,7 +85,7 @@ export default function CompliancePage() {
               <li>Net quantity: 50 ml per flacon (10 ml per vial for the Discovery Set).</li>
               <li>Maximum Retail Price (MRP): Inclusive of all taxes, clearly stated on each product page and carton.</li>
               <li>Country of origin: Declared on product carton in compliance with statutory rules.</li>
-              <li>Consumer care details: sales@ligeroparfums.com.</li>
+              <li>Consumer care details: sales@ligeroparfum.com.</li>
             </ul>
           </section>
 
@@ -55,7 +95,7 @@ export default function CompliancePage() {
               2. Data Protection & Consumer Safeguards
             </h2>
             <p className="mt-4">
-              We process data strictly on legitimate purpose grounds (fulfillment and direct correspondence). We run no advertising tracking cookies, no cross-site pixels, and no automated profiling algorithms. Any questions or concerns regarding your personal data or orders may be directed to sales@ligeroparfums.com, or escalated to the Data Protection Board or the National Consumer Helpline.
+              We process data strictly on legitimate purpose grounds (fulfillment and direct correspondence). We run no advertising tracking cookies, no cross-site pixels, and no automated profiling algorithms. Any questions or concerns regarding your personal data or orders may be directed to sales@ligeroparfum.com, or escalated to the Data Protection Board or the National Consumer Helpline.
             </p>
           </section>
         </div>

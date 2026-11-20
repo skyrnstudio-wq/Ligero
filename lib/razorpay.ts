@@ -8,6 +8,12 @@ import {
   type HouseObject,
 } from "./products";
 import { getLiveObjects, getLivePerfumes } from "./sanity/data";
+import { MAX_DISTINCT_ITEMS, MAX_QUANTITY_PER_SKU } from "./checkout-validation";
+
+export const NO_STORE_HEADERS: Record<string, string> = {
+  "Cache-Control": "no-store, private, max-age=0",
+  Pragma: "no-cache",
+};
 
 export interface CartItemInput {
   slug: string;
@@ -37,15 +43,23 @@ export type CartResolutionResult =
       error: string;
     };
 
+export function getRazorpayKeyId(): string {
+  return (
+    process.env.RAZORPAY_KEY_ID ||
+    process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+    ""
+  ).trim();
+}
+
 export function isRazorpayConfigured(): boolean {
-  const keyId = process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  const keyId = getRazorpayKeyId();
+  const keySecret = (process.env.RAZORPAY_KEY_SECRET || "").trim();
   return Boolean(keyId && keySecret);
 }
 
 export function getRazorpayClient(): Razorpay | null {
-  const keyId = process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  const keyId = getRazorpayKeyId();
+  const keySecret = (process.env.RAZORPAY_KEY_SECRET || "").trim();
 
   if (!keyId || !keySecret) {
     return null;
@@ -57,6 +71,18 @@ export function getRazorpayClient(): Razorpay | null {
   });
 }
 
+export function isValidRazorpayOrderId(id: unknown): id is string {
+  return typeof id === "string" && /^order_[A-Za-z0-9]{10,40}$/.test(id.trim());
+}
+
+export function isValidRazorpayPaymentId(id: unknown): id is string {
+  return typeof id === "string" && /^pay_[A-Za-z0-9]{10,40}$/.test(id.trim());
+}
+
+export function isValidHexSignature(sig: unknown): sig is string {
+  return typeof sig === "string" && /^[a-f0-9]{64}$/i.test(sig.trim());
+}
+
 function resolveCatalogItems(
   items: CartItemInput[],
   perfumes: Product[],
@@ -65,7 +91,7 @@ function resolveCatalogItems(
   if (!Array.isArray(items) || items.length === 0) {
     return { valid: false, error: "Your case is empty." };
   }
-  if (items.length > 25) {
+  if (items.length > MAX_DISTINCT_ITEMS) {
     return { valid: false, error: "Too many items in a single order." };
   }
 
@@ -78,7 +104,7 @@ function resolveCatalogItems(
     if (!slug) {
       return { valid: false, error: "Order contains an item without a valid identifier." };
     }
-    if (!Number.isInteger(rawQty) || rawQty < 1 || rawQty > 50) {
+    if (!Number.isInteger(rawQty) || rawQty < 1 || rawQty > MAX_QUANTITY_PER_SKU) {
       return {
         valid: false,
         error: `Invalid quantity requested for "${slug}".`,
@@ -86,7 +112,7 @@ function resolveCatalogItems(
     }
 
     const nextQty = (mergedQuantities.get(slug) || 0) + rawQty;
-    if (nextQty > 50) {
+    if (nextQty > MAX_QUANTITY_PER_SKU) {
       return {
         valid: false,
         error: `Maximum quantity exceeded for "${slug}".`,
@@ -100,7 +126,7 @@ function resolveCatalogItems(
 
   for (const [slug, qty] of mergedQuantities.entries()) {
     const perfume = perfumes.find((p) => p.slug === slug);
-    if (perfume && perfume.price > 0) {
+    if (perfume && Number.isFinite(perfume.price) && perfume.price > 0) {
       const lineTotal = perfume.price * qty;
       totalInr += lineTotal;
       resolvedItems.push({
@@ -116,7 +142,7 @@ function resolveCatalogItems(
     }
 
     const houseObject = objects.find((o) => o.slug === slug);
-    if (houseObject && houseObject.price > 0) {
+    if (houseObject && Number.isFinite(houseObject.price) && houseObject.price > 0) {
       const lineTotal = houseObject.price * qty;
       totalInr += lineTotal;
       resolvedItems.push({
@@ -137,11 +163,19 @@ function resolveCatalogItems(
     };
   }
 
+  const amountPaise = Math.round(totalInr * 100);
+  if (!Number.isSafeInteger(amountPaise) || amountPaise < 100) {
+    return {
+      valid: false,
+      error: "Calculated order total is invalid.",
+    };
+  }
+
   return {
     valid: true,
     items: resolvedItems,
     totalInr,
-    amountPaise: Math.round(totalInr * 100),
+    amountPaise,
   };
 }
 
@@ -185,18 +219,29 @@ function verifyHmacSha256Signature(
   signature: string,
   secret: string
 ): boolean {
-  if (!secret || !payload || !signature) {
+  if (
+    typeof secret !== "string" ||
+    typeof payload !== "string" ||
+    typeof signature !== "string"
+  ) {
+    return false;
+  }
+
+  const cleanSecret = secret.trim();
+  const cleanSignature = signature.trim().toLowerCase();
+
+  if (!cleanSecret || !payload || !cleanSignature) {
     return false;
   }
 
   try {
     const expectedSignature = crypto
-      .createHmac("sha256", secret)
+      .createHmac("sha256", cleanSecret)
       .update(payload)
       .digest("hex");
 
     const expectedBuf = Buffer.from(expectedSignature, "utf-8");
-    const signatureBuf = Buffer.from(signature.trim(), "utf-8");
+    const signatureBuf = Buffer.from(cleanSignature, "utf-8");
 
     if (expectedBuf.length !== signatureBuf.length) {
       return false;
@@ -221,9 +266,12 @@ export function verifyRazorpaySignature({
   paymentId: string;
   signature: string;
 }): boolean {
-  const secret = process.env.RAZORPAY_KEY_SECRET || "";
-  if (!orderId || !paymentId) return false;
-  return verifyHmacSha256Signature(`${orderId}|${paymentId}`, signature, secret);
+  const secret = (process.env.RAZORPAY_KEY_SECRET || "").trim();
+  if (typeof orderId !== "string" || typeof paymentId !== "string") return false;
+  const cleanOrderId = orderId.trim();
+  const cleanPaymentId = paymentId.trim();
+  if (!cleanOrderId || !cleanPaymentId) return false;
+  return verifyHmacSha256Signature(`${cleanOrderId}|${cleanPaymentId}`, signature, secret);
 }
 
 /**
@@ -239,7 +287,7 @@ export function verifyRazorpayWebhookSignature({
   signature: string;
   secret?: string;
 }): boolean {
-  const resolvedSecret = secret || process.env.RAZORPAY_WEBHOOK_SECRET || "";
+  const resolvedSecret = (secret || process.env.RAZORPAY_WEBHOOK_SECRET || "").trim();
   return verifyHmacSha256Signature(rawBody, signature, resolvedSecret);
 }
 
@@ -249,7 +297,7 @@ function getOrderLookupSecret(): string {
     process.env.RAZORPAY_KEY_SECRET ||
     process.env.RAZORPAY_WEBHOOK_SECRET ||
     ""
-  );
+  ).trim();
 }
 
 /**
@@ -263,8 +311,8 @@ export function createOrderLookupToken({
   paymentId: string;
 }): string {
   const secret = getOrderLookupSecret();
-  const cleanOrderId = (orderId || "").trim();
-  const cleanPaymentId = (paymentId || "").trim();
+  const cleanOrderId = typeof orderId === "string" ? orderId.trim() : "";
+  const cleanPaymentId = typeof paymentId === "string" ? paymentId.trim() : "";
   if (!secret || !cleanOrderId || !cleanPaymentId) {
     return "";
   }
@@ -287,9 +335,9 @@ export function verifyOrderLookupToken({
   token: string;
 }): boolean {
   const secret = getOrderLookupSecret();
-  const cleanOrderId = (orderId || "").trim();
-  const cleanPaymentId = (paymentId || "").trim();
-  const cleanToken = (token || "").trim();
+  const cleanOrderId = typeof orderId === "string" ? orderId.trim() : "";
+  const cleanPaymentId = typeof paymentId === "string" ? paymentId.trim() : "";
+  const cleanToken = typeof token === "string" ? token.trim() : "";
   if (!secret || !cleanOrderId || !cleanPaymentId || !cleanToken) {
     return false;
   }

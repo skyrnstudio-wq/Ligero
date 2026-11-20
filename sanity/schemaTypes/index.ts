@@ -2,6 +2,7 @@ import { type SchemaTypeDefinition } from 'sanity'
 
 import { scentProfile } from './objects/scentProfile'
 import { keyIngredient } from './objects/keyIngredient'
+import { seo } from './objects/seo'
 import { perfume } from './documents/perfume'
 import { houseObject } from './documents/houseObject'
 import { customerReview } from './documents/customerReview'
@@ -28,5 +29,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     // Objects
     scentProfile,
     keyIngredient,
+    seo,
   ],
 }

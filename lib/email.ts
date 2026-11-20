@@ -1,3 +1,6 @@
+import { Resend } from "resend";
+import { stripHeaderNewlines } from "@/lib/security";
+
 export interface OrderEmailItem {
   name: string;
   volume?: string;
@@ -39,10 +42,9 @@ export interface EmailSendResult {
   error?: string;
 }
 
-const RESEND_ENDPOINT = "https://api.resend.com/emails";
-const DEFAULT_FROM = "Ligero Parfum <sales@ligeroparfums.com>";
-const DEFAULT_SUPPORT_EMAIL = "sales@ligeroparfums.com";
-const DEFAULT_SITE_URL = "https://ligeroparfums.com";
+const DEFAULT_FROM = "Ligero Parfum <sales@ligeroparfum.com>";
+const DEFAULT_SUPPORT_EMAIL = "sales@ligeroparfum.com";
+const DEFAULT_SITE_URL = "https://ligeroparfum.com";
 
 export function isEmailConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY?.trim());
@@ -174,7 +176,7 @@ function renderBrandedEmailShell(params: {
           <tr>
             <td style="padding:18px 32px;background-color:#ece3d3;border-top:1px solid #e0d7c7;font-size:11px;line-height:1.6;color:#6f6154;">
               <strong style="color:#2b2118;font-weight:500;">Ligero Parfum Private Limited</strong> · Mumbai, India ·
-              <a href="${siteUrl}" style="color:#6f6154;text-decoration:underline;">ligeroparfums.com</a>
+              <a href="${siteUrl}" style="color:#6f6154;text-decoration:underline;">${escapeHtml(getSiteUrl().replace(/^https?:\/\//, ""))}</a>
             </td>
           </tr>
         </table>
@@ -253,6 +255,22 @@ function renderAddressHtml(customer: OrderEmailCustomer): string {
   </div>`;
 }
 
+function delayMs(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getRetryDelayMs(
+  attempt: number,
+  headers?: Record<string, string> | null
+): number {
+  const retryAfterHeader = headers?.["retry-after"] || headers?.["Retry-After"];
+  const retryAfterSeconds = retryAfterHeader ? Number(retryAfterHeader) : NaN;
+  if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
+    return Math.min(retryAfterSeconds * 1000, 10_000);
+  }
+  return Math.min(400 * Math.pow(2, attempt), 3_200);
+}
+
 async function sendResendEmail(params: {
   to: string | string[];
   subject: string;
@@ -270,47 +288,62 @@ async function sendResendEmail(params: {
     };
   }
 
-  try {
-    const res = await fetch(RESEND_ENDPOINT, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        ...(params.idempotencyKey
-          ? { "Idempotency-Key": params.idempotencyKey.slice(0, 256) }
-          : {}),
-      },
-      body: JSON.stringify({
-        from: getFromAddress(),
-        to: Array.isArray(params.to) ? params.to : [params.to],
-        subject: params.subject,
-        html: params.html,
-        text: params.text,
-        ...(params.replyTo ? { reply_to: params.replyTo } : {}),
-      }),
-      signal: AbortSignal.timeout(10_000),
-    });
+  const resend = new Resend(apiKey);
+  const safeTo = (Array.isArray(params.to) ? params.to : [params.to]).map(
+    stripHeaderNewlines
+  );
+  const payload = {
+    from: stripHeaderNewlines(getFromAddress()),
+    to: safeTo,
+    subject: stripHeaderNewlines(params.subject),
+    html: params.html,
+    text: params.text,
+    ...(params.replyTo ? { replyTo: stripHeaderNewlines(params.replyTo) } : {}),
+  };
+  const requestOptions = params.idempotencyKey
+    ? { idempotencyKey: params.idempotencyKey.slice(0, 256) }
+    : undefined;
 
-    const payload = (await res.json().catch(() => ({}))) as {
-      id?: string;
-      message?: string;
-      name?: string;
-    };
+  const maxAttempts = 3;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      const { data, error, headers } = await resend.emails.send(
+        payload,
+        requestOptions
+      );
 
-    if (!res.ok) {
-      return {
-        ok: false,
-        error: payload.message || payload.name || `Resend HTTP ${res.status}`,
-      };
+      if (!error) {
+        if (data?.id) {
+          console.info("[Email] Sent via Resend:", {
+            id: data.id,
+            subject: params.subject,
+          });
+        }
+        return { ok: true, id: data?.id };
+      }
+
+      const status = error.statusCode ?? null;
+      const isRetryable = status === 429 || (status !== null && status >= 500);
+      if (!isRetryable || attempt === maxAttempts - 1) {
+        return {
+          ok: false,
+          error: error.message || error.name || "Resend email send failed.",
+        };
+      }
+
+      await delayMs(getRetryDelayMs(attempt, headers));
+    } catch (error) {
+      if (attempt === maxAttempts - 1) {
+        return {
+          ok: false,
+          error: error instanceof Error ? error.message : "Failed to call Resend SDK.",
+        };
+      }
+      await delayMs(getRetryDelayMs(attempt));
     }
-
-    return { ok: true, id: payload.id };
-  } catch (error) {
-    return {
-      ok: false,
-      error: error instanceof Error ? error.message : "Failed to call Resend API.",
-    };
   }
+
+  return { ok: false, error: "Failed to send email via Resend." };
 }
 
 export async function sendOrderConfirmationEmail(

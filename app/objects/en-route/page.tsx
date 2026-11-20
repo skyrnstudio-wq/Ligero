@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
@@ -6,35 +7,61 @@ import AddEnRouteButton from "@/components/add-en-route-button";
 import ProductReviews from "@/components/product-reviews";
 import { getApprovedReviews, getLiveObjectBySlug } from "@/lib/sanity/data";
 import { summarizeReviews } from "@/lib/reviews";
-
 import {
+  BASE_URL,
   buildBreadcrumbSchema,
   buildGraph,
+  buildOrganizationSchema,
   buildProductSchema,
+  buildWebPageSchema,
+  formatMetaDescription,
+  safeJsonLd,
 } from "@/lib/seo/schema";
 
-export const metadata = {
-  title: "En Route Car Perfume",
-  description:
-    "En Route cabin diffuser by Ligero Parfum, formulated for the drive at INR 499 with complimentary domestic surface shipping across India.",
-  alternates: {
-    canonical: "/objects/en-route",
-  },
-  openGraph: {
-    title: "En Route Car Perfume | Ligero Parfum",
-    description:
-      "En Route cabin diffuser formulated for the drive at INR 499.",
-    url: "/objects/en-route",
-    images: ["/images/objects/car-perfume-floating.webp"],
-  },
-  twitter: {
-    card: "summary_large_image" as const,
-    title: "En Route Car Perfume | Ligero Parfum",
-    description:
-      "En Route cabin diffuser formulated for the drive at INR 499.",
-    images: ["/images/objects/car-perfume-floating.webp"],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const enRoute = await getLiveObjectBySlug("en-route");
+  const objectName = enRoute?.name || "En Route";
+  const objectPrice = enRoute?.price ?? 499;
+  const title = enRoute?.seo?.title || `${objectName} Car Perfume Diffuser`;
+  const description = formatMetaDescription(
+    enRoute?.seo?.description ||
+      `${objectName} cabin diffuser by Ligero Parfum: cedarwood, bergamot, and warm amber for the drive. INR ${objectPrice} with complimentary shipping across India.`
+  );
+  const ogImage =
+    enRoute?.seo?.image ||
+    enRoute?.image ||
+    "/images/objects/car-perfume-floating.webp";
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: "/objects/en-route",
+    },
+    openGraph: {
+      type: "website",
+      locale: "en_IN",
+      title: `${title} | Ligero Parfum`,
+      description,
+      url: "/objects/en-route",
+      images: [
+        {
+          url: ogImage,
+          alt: `${objectName} car perfume cabin diffuser by Ligero Parfum`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | Ligero Parfum`,
+      description,
+      images: [ogImage],
+    },
+    ...(enRoute?.seo?.noIndex
+      ? { robots: { index: false, follow: false } }
+      : {}),
+  };
+}
 
 /**
  * En Route single-product page (site-blueprint.md §10).
@@ -56,6 +83,16 @@ export default async function EnRoutePage() {
     enRoute?.image || "/images/objects/car-perfume-floating.webp";
 
   const jsonLd = buildGraph([
+    buildOrganizationSchema(),
+    buildWebPageSchema({
+      path: "/objects/en-route",
+      name: `${objectName} Car Perfume Diffuser | Ligero Parfum`,
+      description: `${objectDescription} ${objectVolume}.`,
+      type: "ItemPage",
+      dateModified: enRoute?.updatedAt,
+      primaryImage: objectImage,
+      mainEntityId: `${BASE_URL}/objects/en-route#product`,
+    }),
     buildProductSchema({
       name: objectName,
       slug: "en-route",
@@ -65,6 +102,10 @@ export default async function EnRoutePage() {
       price: objectPrice,
       category: "Car Fragrance Diffuser",
       size: objectVolume,
+      properties: [
+        { name: "Format", value: objectVolume },
+        { name: "Notes", value: enRoute?.spec || "Cedar, bergamot, and warm amber" },
+      ],
       reviewSummary,
       reviews,
     }),
@@ -79,7 +120,7 @@ export default async function EnRoutePage() {
     <div className="min-h-screen bg-aube-base text-aube-text">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
       />
 
       <SiteHeader />
@@ -189,7 +230,7 @@ export default async function EnRoutePage() {
                     <div>
                       <dt className="inline font-medium">Marketed and customer care by:</dt>{" "}
                       <dd className="inline">
-                        Ligero Parfum Private Limited · sales@ligeroparfums.com
+                        Ligero Parfum Private Limited · sales@ligeroparfum.com
                       </dd>
                     </div>
                   </dl>

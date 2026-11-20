@@ -32,10 +32,16 @@ export async function generateStaticParams() {
 }
 
 import {
+  BASE_URL,
   buildBreadcrumbSchema,
   buildFaqSchema,
   buildGraph,
+  buildHowToSchema,
+  buildOrganizationSchema,
   buildProductSchema,
+  buildWebPageSchema,
+  formatMetaDescription,
+  safeJsonLd,
 } from "@/lib/seo/schema";
 
 export async function generateMetadata({
@@ -44,36 +50,52 @@ export async function generateMetadata({
   const { slug } = await params;
   const product = await getLivePerfumeBySlug(slug);
 
-  if (!product) return { title: "Not Found" };
+  if (!product) {
+    return {
+      title: "Perfume Not Found",
+      robots: { index: false, follow: false },
+    };
+  }
 
-  const description = `${product.oneLiner} ${product.scentProfile.family} (${product.volume}). Notes of ${product.scentProfile.top}, ${product.scentProfile.heart}, and ${product.scentProfile.base}. INR ${product.price}.`;
+  const notesShort = product.notesUppercase
+    .toLowerCase()
+    .replace(/\s*·\s*/g, ", ");
+  const fallbackDescription = `${product.oneLiner} ${product.volume} (${notesShort}). INR ${product.price} with complimentary shipping in India.`;
+  const description = formatMetaDescription(
+    product.seo?.description || fallbackDescription
+  );
+  const pageTitle = product.seo?.title || `${product.name} Eau de Parfum, 50 ml`;
   const canonicalPath = `/collection/${product.slug}`;
-  const ogImage = getPerfumeCutoutImage(product);
+  const ogImage = product.seo?.image || product.image || getPerfumeCutoutImage(product);
 
   return {
-    title: `${product.name} Eau de Parfum`,
+    title: pageTitle,
     description,
     alternates: {
       canonical: canonicalPath,
     },
     openGraph: {
       type: "website",
-      title: `${product.name} Eau de Parfum | Ligero Parfum`,
+      locale: "en_IN",
+      title: `${pageTitle} | Ligero Parfum`,
       description,
       url: canonicalPath,
       images: [
         {
           url: ogImage,
-          alt: `${product.name} 50 ml flacon by Ligero Parfum`,
+          alt: `${product.name} 50 ml Eau de Parfum flacon by Ligero Parfum`,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${product.name} Eau de Parfum | Ligero Parfum`,
+      title: `${pageTitle} | Ligero Parfum`,
       description,
       images: [ogImage],
     },
+    ...(product.seo?.noIndex
+      ? { robots: { index: false, follow: false } }
+      : {}),
   };
 }
 
@@ -148,25 +170,71 @@ export default async function ProductDetailPage({ params }: PageProps) {
     },
   ];
 
+  const productPath = `/collection/${product.slug}`;
+  const productUrl = `${BASE_URL}${productPath}`;
+  const productProperties = [
+    { name: "Concentration", value: product.scentProfile.concentration || "Eau de Parfum" },
+    { name: "Olfactive Family", value: product.scentProfile.family || "Eau de Parfum" },
+    { name: "Top Notes", value: product.scentProfile.top },
+    { name: "Heart Notes", value: product.scentProfile.heart },
+    { name: "Base Notes", value: product.scentProfile.base },
+    ...(product.scentProfile.longevity
+      ? [{ name: "Longevity", value: product.scentProfile.longevity }]
+      : []),
+    ...(product.scentProfile.sillage
+      ? [{ name: "Sillage", value: product.scentProfile.sillage }]
+      : []),
+  ];
+
   const jsonLd = buildGraph([
+    buildOrganizationSchema(),
+    buildWebPageSchema({
+      path: productPath,
+      name: `${product.name} Eau de Parfum | Ligero Parfum`,
+      description: formatMetaDescription(`${product.oneLiner} ${product.volume}.`),
+      type: "ItemPage",
+      dateModified: product.updatedAt,
+      primaryImage: galleryImages[0],
+      mainEntityId: `${productUrl}#product`,
+    }),
     buildProductSchema({
       name: product.name,
       slug: product.slug,
-      path: `/collection/${product.slug}`,
+      path: productPath,
       description: `${product.oneLiner} ${product.volume}.`,
       images: galleryImages,
       price: product.price,
       category: product.scentProfile.family || "Eau de Parfum",
       size: product.volume,
       material: product.material,
+      properties: productProperties,
       reviewSummary,
       reviews,
+    }),
+    buildHowToSchema({
+      name: `How to Wear ${product.name}`,
+      description: product.ritual,
+      path: productPath,
+      steps: [
+        {
+          name: "Pulse Point Contact",
+          text: "Apply two measured presses directly to warm pulse points: the carotid artery at the base of the throat, inner wrists, and collarbone.",
+        },
+        {
+          name: "The Three-Minute Bloom",
+          text: "Wait three minutes without rubbing wrists together so body heat activates the botanical formulation and heart notes.",
+        },
+        {
+          name: "Enduring Metamorphosis",
+          text: "Allow the base notes of woods and resins to settle into an enduring skin scent lasting 12+ hours.",
+        },
+      ],
     }),
     buildFaqSchema(faqs),
     buildBreadcrumbSchema([
       { name: "Home", path: "/" },
       { name: "Perfume Collection", path: "/collection" },
-      { name: product.name, path: `/collection/${product.slug}` },
+      { name: product.name, path: productPath },
     ]),
   ]);
 
@@ -193,7 +261,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
       />
 
       <SiteHeader />
@@ -270,9 +338,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
                           />
                           <Image
                             src={getPerfumeCutoutImage(rel)}
-                            alt={`${rel.name} bottle`}
+                            alt={`${rel.name} 50 ml bottle`}
                             fill
-                            loading="eager"
+                            loading="lazy"
                             quality={80}
                             sizes="(max-width: 640px) 110px, 190px"
                             className="object-contain object-center md:[filter:drop-shadow(-10px_14px_16px_rgba(28,20,14,0.18))]"

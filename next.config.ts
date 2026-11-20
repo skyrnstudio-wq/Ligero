@@ -6,6 +6,7 @@ const nextConfig = (phase: string): NextConfig => {
   const isDev = phase === PHASE_DEVELOPMENT_SERVER;
 
   return {
+    poweredByHeader: false,
     distDir: isDev ? ".next-dev" : ".next",
     outputFileTracingRoot: path.resolve(__dirname),
     serverExternalPackages: ["sanity", "@sanity/vision", "@sanity/ui"],
@@ -14,6 +15,9 @@ const nextConfig = (phase: string): NextConfig => {
       pagesBufferLength: 50,
     },
     images: {
+      dangerouslyAllowSVG: false,
+      contentDispositionType: "attachment",
+      contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
       formats: ["image/webp"],
       minimumCacheTTL: 31536000,
       imageSizes: [48, 96, 128, 256, 384, 480],
@@ -39,6 +43,10 @@ const nextConfig = (phase: string): NextConfig => {
               key: "Cache-Control",
               value: "public, max-age=31536000, immutable",
             },
+            {
+              key: "Cross-Origin-Resource-Policy",
+              value: "cross-origin",
+            },
           ],
         },
         {
@@ -47,6 +55,32 @@ const nextConfig = (phase: string): NextConfig => {
             {
               key: "Cache-Control",
               value: "public, max-age=3600, stale-while-revalidate=86400",
+            },
+          ],
+        },
+        {
+          source: "/checkout",
+          headers: [
+            {
+              key: "Cache-Control",
+              value: "no-store, private, max-age=0",
+            },
+            {
+              key: "Referrer-Policy",
+              value: "no-referrer",
+            },
+          ],
+        },
+        {
+          source: "/checkout/:path*",
+          headers: [
+            {
+              key: "Cache-Control",
+              value: "no-store, private, max-age=0",
+            },
+            {
+              key: "Referrer-Policy",
+              value: "no-referrer",
             },
           ],
         },
@@ -75,6 +109,21 @@ const nextConfig = (phase: string): NextConfig => {
         {
           source: "/products/:slug",
           destination: "/collection/:slug",
+          permanent: true,
+        },
+        {
+          source: "/perfumes",
+          destination: "/collection",
+          permanent: true,
+        },
+        {
+          source: "/perfumes/:slug",
+          destination: "/collection/:slug",
+          permanent: true,
+        },
+        {
+          source: "/car-perfume",
+          destination: "/objects/en-route",
           permanent: true,
         },
       ];

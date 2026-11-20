@@ -220,7 +220,7 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                           src={fragrance.image}
                           alt={`${fragrance.name} 50 ml Eau de Parfum`}
                           fill
-                          loading="eager"
+                          loading="lazy"
                           decoding="async"
                           quality={80}
                           sizes="(max-width: 640px) 220px, (max-width: 1024px) 300px, 340px"
@@ -243,6 +243,7 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                           alt={`Raw botanicals of ${fragrance.name}`}
                           fill
                           loading="lazy"
+                          fetchPriority="low"
                           quality={75}
                           sizes="(max-width: 640px) 260px, (max-width: 1024px) 380px, 440px"
                           className={`object-cover object-center transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
@@ -342,12 +343,14 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                 {/* Architectural Title & Ledger Price Row */}
                 <div className="mt-1 flex items-baseline justify-between gap-2 border-t border-aube-hairline pt-2">
                   <div className="min-w-0">
-                    <Link
-                      href={`/collection/${fragrance.slug}`}
-                      className="inline-flex min-h-11 items-center font-display text-base font-medium uppercase tracking-[0.16em] text-aube-text transition-colors duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:text-aube-accent focus-visible:outline-1 focus-visible:outline-aube-text"
-                    >
-                      {fragrance.name}
-                    </Link>
+                    <h3>
+                      <Link
+                        href={`/collection/${fragrance.slug}`}
+                        className="inline-flex min-h-11 items-center font-display text-base font-medium uppercase tracking-[0.16em] text-aube-text transition-colors duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:text-aube-accent focus-visible:outline-1 focus-visible:outline-aube-text"
+                      >
+                        {fragrance.name}
+                      </Link>
+                    </h3>
                     <p className="mt-0.5 font-body text-[9.5px] uppercase tracking-[0.18em] text-aube-text-muted">
                       {fragrance.concentration}
                     </p>

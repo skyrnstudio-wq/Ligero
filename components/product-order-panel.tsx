@@ -304,7 +304,7 @@ export default function ProductOrderPanel({
                 Marketed and customer care by:
               </dt>{" "}
               <dd className="inline">
-                Ligero Parfum Private Limited · sales@ligeroparfums.com
+                Ligero Parfum Private Limited · sales@ligeroparfum.com
               </dd>
             </div>
           </dl>

@@ -1,26 +1,37 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import PrivateSalon from "@/components/private-salon";
-
 import {
   buildBreadcrumbSchema,
   buildFaqSchema,
   buildGraph,
+  buildOrganizationSchema,
+  buildWebPageSchema,
+  safeJsonLd,
 } from "@/lib/seo/schema";
 
-export const metadata = {
-  title: "Help & House Policies",
-  description:
-    "Answers on domestic surface shipping, seven-day sealed bottle returns, batch authenticity, parfum application, storage, and accepted payment methods.",
+const HELP_DESCRIPTION =
+  "Answers on domestic surface shipping, seven-day sealed bottle returns, batch authenticity, parfum application, storage, and accepted payment methods.";
+
+export const metadata: Metadata = {
+  title: "Help, Shipping & Return Policies",
+  description: HELP_DESCRIPTION,
   alternates: {
     canonical: "/help",
   },
   openGraph: {
-    title: "Help & House Policies | Ligero Parfum",
-    description:
-      "Shipping timelines, sealed returns, batch authenticity, wear guidance, and payment methods.",
+    type: "website",
+    locale: "en_IN",
+    title: "Help, Shipping & Return Policies | Ligero Parfum",
+    description: HELP_DESCRIPTION,
     url: "/help",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Help, Shipping & Return Policies | Ligero Parfum",
+    description: HELP_DESCRIPTION,
   },
 };
 
@@ -55,7 +66,7 @@ const GROUPS = [
       },
       {
         q: "What if a bottle arrives damaged?",
-        a: "Photograph the outer carton and the bottle within forty-eight hours of delivery and write to sales@ligeroparfums.com. We replace or refund at our cost.",
+        a: "Photograph the outer carton and the bottle within forty-eight hours of delivery and write to sales@ligeroparfum.com. We replace or refund at our cost.",
       },
     ],
   },
@@ -110,6 +121,12 @@ const FAQ_ENTRIES = GROUPS.flatMap((group) =>
  */
 export default function HelpPage() {
   const jsonLd = buildGraph([
+    buildOrganizationSchema(),
+    buildWebPageSchema({
+      path: "/help",
+      name: "Help, Shipping & Return Policies | Ligero Parfum",
+      description: HELP_DESCRIPTION,
+    }),
     buildFaqSchema(FAQ_ENTRIES),
     buildBreadcrumbSchema([
       { name: "Home", path: "/" },
@@ -121,7 +138,7 @@ export default function HelpPage() {
     <div className="min-h-screen bg-aube-base text-aube-text">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
       />
       <SiteHeader />
 
@@ -163,12 +180,26 @@ export default function HelpPage() {
             <p className="font-display text-2xl font-light italic text-aube-text">
               Need an answer a page cannot give?{" "}
               <a
-                href="mailto:sales@ligeroparfums.com"
+                href="mailto:sales@ligeroparfum.com"
                 className="text-aube-accent underline underline-offset-4"
               >
-                sales@ligeroparfums.com
+                sales@ligeroparfum.com
               </a>
             </p>
+            <nav aria-label="Related house policies" className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.18em] text-aube-text-muted">
+              <Link href="/discovery-set" className="inline-flex min-h-11 items-center underline underline-offset-4 hover:text-aube-accent">
+                The Discovery Set
+              </Link>
+              <Link href="/legal/shipping-returns" className="inline-flex min-h-11 items-center underline underline-offset-4 hover:text-aube-accent">
+                Shipping &amp; Returns
+              </Link>
+              <Link href="/legal/privacy" className="inline-flex min-h-11 items-center underline underline-offset-4 hover:text-aube-accent">
+                Privacy Policy
+              </Link>
+              <Link href="/legal" className="inline-flex min-h-11 items-center underline underline-offset-4 hover:text-aube-accent">
+                All Legal Policies
+              </Link>
+            </nav>
           </div>
         </div>
 

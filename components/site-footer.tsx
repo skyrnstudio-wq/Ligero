@@ -23,6 +23,8 @@ const LEGAL = [
   { label: "Privacy Policy", href: "/legal/privacy" },
   { label: "Terms of Sale", href: "/legal/terms" },
   { label: "Shipping and Returns", href: "/legal/shipping-returns" },
+  { label: "Statutory Disclosures", href: "/legal/compliance-checklist" },
+  { label: "All Policies", href: "/legal" },
 ];
 
 export default function SiteFooter() {
@@ -78,10 +80,10 @@ export default function SiteFooter() {
             </p>
             <div className="mt-4">
               <a
-                href="mailto:sales@ligeroparfums.com"
+                href="mailto:sales@ligeroparfum.com"
                 className="inline-flex min-h-11 items-center font-body text-xs text-noctis-text underline underline-offset-4 transition-colors hover:text-noctis-accent"
               >
-                sales@ligeroparfums.com
+                sales@ligeroparfum.com
               </a>
             </div>
             <div className="mt-2">

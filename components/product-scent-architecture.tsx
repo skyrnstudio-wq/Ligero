@@ -129,9 +129,9 @@ export default function ProductScentArchitecture({
                   <div className="relative aspect-[4/4.5] w-full overflow-hidden bg-pdp-surface2 md:aspect-[3/4]">
                     <Image
                       src={imgSrc}
-                      alt={`${item.name} (${item.note}) — ${product.name} olfactory note`}
+                      alt={`${item.name} (${item.note}) for ${product.name}`}
                       fill
-                      loading="eager"
+                      loading="lazy"
                       quality={78}
                       sizes="(max-width: 768px) 200px, 240px"
                       className="object-cover object-center transition-transform duration-700 ease-out hover:scale-105"

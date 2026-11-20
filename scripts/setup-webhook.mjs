@@ -68,11 +68,12 @@ async function createWebhook(rawUrl) {
     name: 'Ligero Next.js On-Demand ISR',
     url: targetUrl,
     dataset: 'production',
+    includeDrafts: true,
     apiVersion: 'v2025-02-19',
     httpMethod: 'POST',
     rule: {
       on: ['create', 'update', 'delete'],
-      filter: '_type in ["perfume", "houseObject", "homePage", "siteSettings", "legalPage", "customerReview"]',
+      filter: '(_type == "customerReview" && status == "approved") || (!(_id in path("drafts.**")) && _type in ["perfume", "houseObject", "homePage", "siteSettings", "legalPage"])',
       projection: '{ _type, slug, perfumeSlug }'
     },
     ...(secret ? { secret } : {})

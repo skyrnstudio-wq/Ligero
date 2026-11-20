@@ -261,8 +261,8 @@ export default function ProductGallery({
                       src={imgUrl}
                       alt={`${displayName} gallery view ${idx + 1}`}
                       fill
-                      priority={idx === 1}
-                      loading={idx < 4 ? "eager" : "lazy"}
+                      loading="lazy"
+                      fetchPriority="low"
                       quality={82}
                       sizes="(max-width: 640px) 100vw, 50vw"
                       className="object-cover object-center"

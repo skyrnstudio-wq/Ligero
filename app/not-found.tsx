@@ -1,6 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
+
+export const metadata: Metadata = {
+  title: "Page Not Found",
+  description: "This page does not exist. Explore the Ligero Parfum permanent collection.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 /**
  * 404 page (site-blueprint.md §11d, brand-voice/SKILL.md §5):

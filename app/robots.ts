@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { BASE_URL } from "@/lib/seo/schema";
 
 const DISALLOWED_PATHS = ["/checkout", "/checkout/", "/api/", "/studio", "/studio/"];
 
@@ -14,6 +15,10 @@ const AI_CRAWLERS = [
   "Google-Extended",
   "Applebot-Extended",
   "Bingbot",
+  "Amazonbot",
+  "DuckAssistBot",
+  "Meta-ExternalAgent",
+  "YouBot",
 ];
 
 export default function robots(): MetadataRoute.Robots {
@@ -30,7 +35,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: DISALLOWED_PATHS,
       })),
     ],
-    sitemap: "https://ligeroparfums.com/sitemap.xml",
-    host: "https://ligeroparfums.com",
+    sitemap: `${BASE_URL}/sitemap.xml`,
+    host: BASE_URL,
   };
 }

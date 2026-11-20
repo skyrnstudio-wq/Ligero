@@ -31,5 +31,10 @@ export const legalPage = defineType({
       rows: 20,
       description: 'Full legal text compliant with E-commerce and DPDP regulations',
     }),
+    defineField({
+      name: 'seo',
+      title: 'SEO & Social Sharing',
+      type: 'seo',
+    }),
   ],
 })

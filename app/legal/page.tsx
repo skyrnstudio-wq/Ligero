@@ -1,13 +1,35 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
+import {
+  buildBreadcrumbSchema,
+  buildGraph,
+  buildOrganizationSchema,
+  buildWebPageSchema,
+  safeJsonLd,
+} from "@/lib/seo/schema";
 
-export const metadata = {
+const LEGAL_DESC =
+  "Statutory disclosures, terms of sale, DPDP Act 2023 privacy policy, and shipping and return guidelines for Ligero Parfum.";
+
+export const metadata: Metadata = {
   title: "Legal & House Policies",
-  description:
-    "Statutory disclosures, terms of sale, privacy policy, and shipping guidelines for Ligero Parfum.",
+  description: LEGAL_DESC,
   alternates: {
     canonical: "/legal",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    title: "Legal & House Policies | Ligero Parfum",
+    description: LEGAL_DESC,
+    url: "/legal",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Legal & House Policies | Ligero Parfum",
+    description: LEGAL_DESC,
   },
 };
 
@@ -35,8 +57,25 @@ const POLICIES = [
 ];
 
 export default function LegalIndexPage() {
+  const jsonLd = buildGraph([
+    buildOrganizationSchema(),
+    buildWebPageSchema({
+      path: "/legal",
+      name: "Legal & House Policies | Ligero Parfum",
+      description: LEGAL_DESC,
+    }),
+    buildBreadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Legal Policies", path: "/legal" },
+    ]),
+  ]);
+
   return (
     <div className="min-h-screen bg-aube-base text-aube-text">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
+      />
       <SiteHeader />
 
       <main className="mx-auto max-w-4xl px-6 pb-28 pt-[calc(var(--header-offset)+2rem)] sm:px-10 sm:pt-[calc(var(--header-offset)+3rem)]">

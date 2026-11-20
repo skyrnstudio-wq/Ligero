@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { preload } from "react-dom";
 import SiteHeader from "@/components/site-header";
@@ -5,32 +6,44 @@ import SiteFooter from "@/components/site-footer";
 import PrivateSalon from "@/components/private-salon";
 import CollectionCatalog from "@/components/collection-catalog";
 import { getLiveObjects, getLivePerfumes } from "@/lib/sanity/data";
-
 import {
   buildBreadcrumbSchema,
   buildCollectionListSchema,
   buildGraph,
+  buildOrganizationSchema,
+  buildWebPageSchema,
+  safeJsonLd,
 } from "@/lib/seo/schema";
 
-export const metadata = {
-  title: "Perfume Collection",
-  description:
-    "Explore seven permanent Eau de Parfum bottles in 50 ml flacons alongside The Discovery Set and En Route. Direct INR pricing from Ligero Parfum.",
+const COLLECTION_DESCRIPTION =
+  "Seven permanent Eau de Parfum flacons (50 ml) alongside The Discovery Set and En Route car perfume. Direct INR pricing with free shipping across India.";
+
+export const metadata: Metadata = {
+  title: "Eau de Parfum Collection",
+  description: COLLECTION_DESCRIPTION,
   alternates: {
     canonical: "/collection",
   },
   openGraph: {
-    title: "Perfume Collection | Ligero Parfum",
-    description:
-      "Seven permanent Eau de Parfum creations in 50 ml flacons alongside The Discovery Set and En Route.",
+    type: "website",
+    locale: "en_IN",
+    title: "Eau de Parfum Collection | Ligero Parfum",
+    description: COLLECTION_DESCRIPTION,
     url: "/collection",
-    images: ["/images/perfumes/cutouts/aube.webp"],
+    images: [
+      {
+        url: "/images/perfumes/aube-scene.webp",
+        width: 1440,
+        height: 1075,
+        alt: "Ligero Parfum Eau de Parfum collection",
+      },
+    ],
   },
   twitter: {
-    card: "summary_large_image" as const,
-    title: "Perfume Collection | Ligero Parfum",
-    description:
-      "Seven permanent Eau de Parfum creations in 50 ml flacons alongside The Discovery Set and En Route.",
+    card: "summary_large_image",
+    title: "Eau de Parfum Collection | Ligero Parfum",
+    description: COLLECTION_DESCRIPTION,
+    images: ["/images/perfumes/aube-scene.webp"],
   },
 };
 
@@ -46,6 +59,15 @@ export default async function CollectionPage() {
   ]);
 
   const jsonLd = buildGraph([
+    buildOrganizationSchema(),
+    buildWebPageSchema({
+      path: "/collection",
+      name: "Eau de Parfum Collection | Ligero Parfum",
+      description: COLLECTION_DESCRIPTION,
+      type: "CollectionPage",
+      primaryImage: "/images/perfumes/aube-scene.webp",
+      mainEntityId: "https://www.ligeroparfum.com/collection#itemlist",
+    }),
     buildCollectionListSchema(perfumes, objects),
     buildBreadcrumbSchema([
       { name: "Home", path: "/" },
@@ -57,7 +79,7 @@ export default async function CollectionPage() {
     <div className="min-h-screen bg-[#FBF8F2] text-aube-text">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
       />
       <SiteHeader />
 
@@ -85,7 +107,7 @@ export default async function CollectionPage() {
                 src="/images/hero/ligero-parfum-cutout.webp"
                 alt=""
                 fill
-                priority
+                fetchPriority="low"
                 sizes="100vw"
                 className="object-contain scale-125"
               />
@@ -95,6 +117,7 @@ export default async function CollectionPage() {
                 src="/images/perfumes/cutouts/aube.webp?v=2"
                 alt=""
                 fill
+                fetchPriority="low"
                 sizes="60vw"
                 className="object-contain"
               />

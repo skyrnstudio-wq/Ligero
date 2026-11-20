@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
@@ -5,32 +6,43 @@ import SiteFooter from "@/components/site-footer";
 import PrivateSalon from "@/components/private-salon";
 import AddEnRouteButton from "@/components/add-en-route-button";
 import { getLiveObjects } from "@/lib/sanity/data";
-
 import {
+  BASE_URL,
   buildBreadcrumbSchema,
   buildCollectionListSchema,
   buildGraph,
+  buildOrganizationSchema,
+  buildWebPageSchema,
+  safeJsonLd,
 } from "@/lib/seo/schema";
 
-export const metadata = {
-  title: "Objects",
-  description:
-    "Scented objects from Ligero Parfum: The Discovery Set of seven 10 ml vials and En Route for the drive. Delivered free across serviceable Indian pin codes.",
+const OBJECTS_DESCRIPTION =
+  "Scented objects from Ligero Parfum: The Discovery Set of seven 10 ml vials and En Route car perfume diffuser. Complimentary domestic shipping across India.";
+
+export const metadata: Metadata = {
+  title: "Objects of Scent: Discovery Set & Car Perfume",
+  description: OBJECTS_DESCRIPTION,
   alternates: {
     canonical: "/objects",
   },
   openGraph: {
-    title: "Objects | Ligero Parfum",
-    description:
-      "The Discovery Set of seven 10 ml vials and En Route car perfume.",
+    type: "website",
+    locale: "en_IN",
+    title: "Objects of Scent | Ligero Parfum",
+    description: OBJECTS_DESCRIPTION,
     url: "/objects",
-    images: ["/images/objects/discovery-set-floating.webp"],
+    images: [
+      {
+        url: "/images/objects/discovery-set-floating.webp",
+        alt: "The Discovery Set and En Route by Ligero Parfum",
+      },
+    ],
   },
   twitter: {
-    card: "summary_large_image" as const,
-    title: "Objects | Ligero Parfum",
-    description:
-      "The Discovery Set of seven 10 ml vials and En Route car perfume.",
+    card: "summary_large_image",
+    title: "Objects of Scent | Ligero Parfum",
+    description: OBJECTS_DESCRIPTION,
+    images: ["/images/objects/discovery-set-floating.webp"],
   },
 };
 
@@ -68,7 +80,16 @@ export default async function ObjectsPage() {
   const enRouteCopy = `${enRoute?.description || "For the drive."} ${enRoutePrice}.`;
 
   const jsonLd = buildGraph([
-    buildCollectionListSchema([], objects),
+    buildOrganizationSchema(),
+    buildWebPageSchema({
+      path: "/objects",
+      name: "Objects of Scent | Ligero Parfum",
+      description: OBJECTS_DESCRIPTION,
+      type: "CollectionPage",
+      primaryImage: discoveryImage,
+      mainEntityId: `${BASE_URL}/collection#itemlist`,
+    }),
+    buildCollectionListSchema([], objects, "Ligero Parfum Objects of Scent"),
     buildBreadcrumbSchema([
       { name: "Home", path: "/" },
       { name: "Objects", path: "/objects" },
@@ -79,7 +100,7 @@ export default async function ObjectsPage() {
     <div className="min-h-screen bg-aube-base text-aube-text">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
       />
       <SiteHeader />
 
@@ -108,6 +129,7 @@ export default async function ObjectsPage() {
                   alt="The seven vials of the Discovery Set"
                   fill
                   priority
+                  fetchPriority="high"
                   decoding="sync"
                   quality={82}
                   sizes="(max-width: 640px) 92vw, (max-width: 1024px) 100vw, 58vw"
@@ -149,7 +171,7 @@ export default async function ObjectsPage() {
                   src={enRouteImage}
                   alt={`${enRouteName} car perfume`}
                   fill
-                  loading="eager"
+                  loading="lazy"
                   quality={82}
                   sizes="(max-width: 640px) 92vw, (max-width: 1024px) 100vw, 58vw"
                   className="relative z-10 object-contain p-4 md:[filter:drop-shadow(0_18px_26px_rgba(28,20,14,0.16))] transition-transform duration-700 ease-out group-hover:scale-[1.02] sm:p-6"

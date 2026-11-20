@@ -1,33 +1,24 @@
 import { createHash } from "node:crypto";
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 import { createClient } from "@sanity/client";
 import { apiVersion, dataset, projectId } from "@/sanity/env";
+import {
+  createRateLimiter,
+  getClientIp,
+  isSafePagePath,
+  rateLimitHeaders,
+  readBoundedJsonObject,
+  sanitizeText,
+  secureJson,
+} from "@/lib/security";
 
 export const runtime = "nodejs";
 
-const WINDOW_MS = 15 * 60 * 1000;
-const MAX_PER_WINDOW = 10;
-const hits = new Map<string, number[]>();
-
-function tooMany(ip: string): boolean {
-  const now = Date.now();
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
-  if (recent.length >= MAX_PER_WINDOW) {
-    hits.set(ip, recent);
-    return true;
-  }
-  recent.push(now);
-  hits.set(ip, recent);
-  return false;
-}
-
-function cleanText(value: unknown, max: number): string {
-  if (typeof value !== "string") return "";
-  return value
-    .replace(/[\u0000-\u001F\u007F]/g, "")
-    .trim()
-    .slice(0, max);
-}
+const MAX_BODY_BYTES = 8 * 1024;
+const correspondenceLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+});
 
 function getSubscriberDocId(normalizedEmail: string): string {
   const hash = createHash("sha256").update(normalizedEmail).digest("hex").slice(0, 24);
@@ -37,52 +28,58 @@ function getSubscriberDocId(normalizedEmail: string): string {
 export async function POST(req: NextRequest) {
   const token = process.env.SANITY_API_WRITE_TOKEN;
   if (!token) {
-    return NextResponse.json(
-      { ok: false, error: "The Correspondence is temporarily unavailable. Write to sales@ligeroparfums.com." },
-      { status: 503 }
+    return secureJson(
+      { ok: false, error: "The Correspondence is temporarily unavailable. Write to sales@ligeroparfum.com." },
+      503
     );
   }
 
-  let payload: Record<string, unknown>;
-  try {
-    payload = await req.json();
-  } catch {
-    return NextResponse.json(
-      { ok: false, error: "This request could not be read. Reload the page and try again." },
-      { status: 400 }
+  const parsed = await readBoundedJsonObject(req, MAX_BODY_BYTES);
+  if (!parsed.ok) {
+    return secureJson(
+      {
+        ok: false,
+        error:
+          parsed.status === 413
+            ? "This request is too large. Reload the page and try again."
+            : "This request could not be read. Reload the page and try again.",
+      },
+      parsed.status
     );
   }
+  const payload = parsed.data;
 
   // Honeypot: real visitors never fill this field.
   if (typeof payload.website === "string" && payload.website.trim() !== "") {
-    return NextResponse.json({ ok: true });
+    return secureJson({ ok: true });
   }
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (tooMany(ip)) {
-    return NextResponse.json(
+  const limit = correspondenceLimiter.check(getClientIp(req));
+  if (!limit.allowed) {
+    return secureJson(
       { ok: false, error: "Too many requests right now. Please try again in a few minutes." },
-      { status: 429 }
+      429,
+      rateLimitHeaders(limit)
     );
   }
 
-  const email = cleanText(payload.email, 160).toLowerCase();
+  const email = sanitizeText(payload.email, 160).toLowerCase();
   if (!email.includes("@")) {
-    return NextResponse.json(
+    return secureJson(
       { ok: false, error: "This email is missing an @. Check the address." },
-      { status: 422 }
+      422
     );
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-    return NextResponse.json(
+    return secureJson(
       { ok: false, error: "This email is not valid. Check the address." },
-      { status: 422 }
+      422
     );
   }
 
   const source = payload.source === "strip" ? "strip" : "default";
-  const rawPagePath = cleanText(payload.pagePath, 160);
-  const pagePath = rawPagePath.startsWith("/") ? rawPagePath : undefined;
+  const rawPagePath = sanitizeText(payload.pagePath, 160);
+  const pagePath = isSafePagePath(rawPagePath) ? rawPagePath : undefined;
 
   const client = createClient({
     projectId,
@@ -115,10 +112,8 @@ export async function POST(req: NextRequest) {
         })
         .commit();
 
-      return NextResponse.json({
-        ok: true,
-        alreadySubscribed: existing.status === "subscribed",
-      });
+      // Return identical success payload to avoid email enumeration
+      return secureJson({ ok: true }, 200, rateLimitHeaders(limit));
     }
 
     await client.create({
@@ -132,12 +127,12 @@ export async function POST(req: NextRequest) {
       lastSubmittedAt: now,
     });
 
-    return NextResponse.json({ ok: true, alreadySubscribed: false });
+    return secureJson({ ok: true }, 200, rateLimitHeaders(limit));
   } catch (error) {
     console.error("[Correspondence] Failed to save subscriber email:", error);
-    return NextResponse.json(
+    return secureJson(
       { ok: false, error: "Could not save your email right now. Please try again in a moment." },
-      { status: 502 }
+      502
     );
   }
 }

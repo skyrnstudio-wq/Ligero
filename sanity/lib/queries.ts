@@ -4,6 +4,7 @@ import { groq } from 'next-sanity'
 export const PERFUMES_QUERY = groq`
   *[_type == "perfume"] | order(price asc) {
     _id,
+    "updatedAt": _updatedAt,
     name,
     "slug": slug.current,
     subtitle,
@@ -37,7 +38,13 @@ export const PERFUMES_QUERY = groq`
       "image": image.asset->url
     },
     "relatedSlugs": relatedPerfumes[]->slug.current,
-    occasions
+    occasions,
+    "seo": {
+      "title": seo.title,
+      "description": seo.description,
+      "image": seo.image.asset->url,
+      "noIndex": seo.noIndex == true
+    }
   }
 `
 
@@ -45,6 +52,7 @@ export const PERFUMES_QUERY = groq`
 export const PERFUME_BY_SLUG_QUERY = groq`
   *[_type == "perfume" && slug.current == $slug][0] {
     _id,
+    "updatedAt": _updatedAt,
     name,
     "slug": slug.current,
     subtitle,
@@ -78,7 +86,13 @@ export const PERFUME_BY_SLUG_QUERY = groq`
       "image": image.asset->url
     },
     "relatedSlugs": relatedPerfumes[]->slug.current,
-    occasions
+    occasions,
+    "seo": {
+      "title": seo.title,
+      "description": seo.description,
+      "image": seo.image.asset->url,
+      "noIndex": seo.noIndex == true
+    }
   }
 `
 
@@ -86,6 +100,7 @@ export const PERFUME_BY_SLUG_QUERY = groq`
 export const OBJECTS_QUERY = groq`
   *[_type == "houseObject"] | order(price desc) {
     _id,
+    "updatedAt": _updatedAt,
     name,
     "slug": slug.current,
     price,
@@ -94,7 +109,13 @@ export const OBJECTS_QUERY = groq`
     description,
     spec,
     "image": image.asset->url,
-    occasions
+    occasions,
+    "seo": {
+      "title": seo.title,
+      "description": seo.description,
+      "image": seo.image.asset->url,
+      "noIndex": seo.noIndex == true
+    }
   }
 `
 
@@ -102,6 +123,7 @@ export const OBJECTS_QUERY = groq`
 export const OBJECT_BY_SLUG_QUERY = groq`
   *[_type == "houseObject" && slug.current == $slug][0] {
     _id,
+    "updatedAt": _updatedAt,
     name,
     "slug": slug.current,
     price,
@@ -110,14 +132,27 @@ export const OBJECT_BY_SLUG_QUERY = groq`
     description,
     spec,
     "image": image.asset->url,
-    occasions
+    occasions,
+    "seo": {
+      "title": seo.title,
+      "description": seo.description,
+      "image": seo.image.asset->url,
+      "noIndex": seo.noIndex == true
+    }
   }
 `
 
 // Fetch Homepage Editorial Singleton
 export const HOMEPAGE_QUERY = groq`
   *[_type == "homePage"][0] {
-    patronsPromise
+    "updatedAt": _updatedAt,
+    patronsPromise,
+    "seo": {
+      "title": seo.title,
+      "description": seo.description,
+      "image": seo.image.asset->url,
+      "noIndex": seo.noIndex == true
+    }
   }
 `
 

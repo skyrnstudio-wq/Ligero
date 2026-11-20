@@ -308,6 +308,104 @@ body:has(#sanity) {
   }
 }
 
+@layer components {
+  /* Editorial Fulfilment Ledger (Checkout Success) */
+  .fulfilment-steps {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fulfilment-step {
+    position: relative;
+    padding-inline-start: 1.5rem;
+    padding-block-end: 1.5rem;
+  }
+
+  .fulfilment-step:last-child {
+    padding-block-end: 0;
+  }
+
+  .fulfilment-step:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0.25rem;
+    inset-block-start: 0.875rem;
+    inset-block-end: -0.125rem;
+    inline-size: 1px;
+    border-inline-start: 1px solid #d5e6da;
+  }
+
+  .fulfilment-step[data-state="complete"]:not(:last-child)::before {
+    border-inline-start-color: #6ca07d;
+  }
+
+  .fulfilment-step::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0.0625rem;
+    inset-block-start: 0.28125rem;
+    inline-size: 0.4375rem;
+    block-size: 0.4375rem;
+    border-radius: 9999px;
+    background-color: #b7d3bf;
+    box-shadow: 0 0 0 3px #fcfefb;
+  }
+
+  .fulfilment-step[data-state="complete"]::after {
+    background-color: #14532d;
+  }
+
+  .fulfilment-step[data-state="current"]::after {
+    background-color: #fcfefb;
+    border: 1.5px solid #14532d;
+  }
+
+  .fulfilment-track {
+    position: relative;
+    block-size: 2px;
+    border-block-start: 1px solid #d5e6da;
+  }
+
+  .fulfilment-track-fill {
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: -1px;
+    border-block-start: 2px solid #14532d;
+  }
+
+  .fulfilment-track-fill[data-state="current"] {
+    inline-size: 40%;
+    border-block-start-color: #2d6a47;
+  }
+
+  .fulfilment-track-fill[data-state="complete"] {
+    inline-size: 100%;
+  }
+
+  @media (min-width: 640px) {
+    .fulfilment-steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: 1.75rem;
+      row-gap: 0;
+    }
+
+    .fulfilment-step {
+      padding-inline-start: 0;
+      padding-block-end: 0;
+      grid-row: span 3;
+      display: grid;
+      /* Same-cascade fallback: ignored when subgrid is supported. */
+      grid-template-rows: auto auto 1fr;
+      grid-template-rows: subgrid;
+    }
+
+    .fulfilment-step::before,
+    .fulfilment-step::after {
+      display: none;
+    }
+  }
+}
+
 @media (forced-colors: active) {
   .checkout-status-surface,
   .checkout-status-hero,
@@ -317,6 +415,26 @@ body:has(#sanity) {
   }
   .checkout-status-cta {
     border: 2px solid ButtonText;
+  }
+  .fulfilment-track {
+    border-block-start-color: GrayText;
+  }
+  .fulfilment-track-fill {
+    border-block-start-color: Highlight;
+  }
+  .fulfilment-step:not(:last-child)::before {
+    border-inline-start-color: GrayText;
+  }
+  .fulfilment-step[data-state="complete"]:not(:last-child)::before {
+    border-inline-start-color: Highlight;
+  }
+  .fulfilment-step::after {
+    border: 2px solid GrayText;
+    box-shadow: none;
+  }
+  .fulfilment-step[data-state="complete"]::after,
+  .fulfilment-step[data-state="current"]::after {
+    border-color: Highlight;
   }
 }
 

@@ -1,18 +1,59 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
+import {
+  buildBreadcrumbSchema,
+  buildGraph,
+  buildOrganizationSchema,
+  buildWebPageSchema,
+  safeJsonLd,
+} from "@/lib/seo/schema";
 
-export const metadata = {
+const TERMS_DESC =
+  "Terms of sale and website usage for Ligero Parfum: GST-inclusive INR pricing, prepaid guest checkout, surface freight delivery, and sealed return terms.";
+
+export const metadata: Metadata = {
   title: "Terms of Sale and Use",
-  description: "Terms governing orders and website usage for Ligero Parfum.",
+  description: TERMS_DESC,
   alternates: {
     canonical: "/legal/terms",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    title: "Terms of Sale and Use | Ligero Parfum",
+    description: TERMS_DESC,
+    url: "/legal/terms",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Terms of Sale and Use | Ligero Parfum",
+    description: TERMS_DESC,
   },
 };
 
 export default function TermsPage() {
+  const jsonLd = buildGraph([
+    buildOrganizationSchema(),
+    buildWebPageSchema({
+      path: "/legal/terms",
+      name: "Terms of Sale and Use | Ligero Parfum",
+      description: TERMS_DESC,
+    }),
+    buildBreadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Legal Policies", path: "/legal" },
+      { name: "Terms of Sale and Use", path: "/legal/terms" },
+    ]),
+  ]);
+
   return (
     <div className="min-h-screen bg-aube-base text-aube-text">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
+      />
       <SiteHeader />
 
       <main className="mx-auto max-w-3xl px-6 pb-28 pt-[calc(var(--header-offset)+2rem)] sm:px-10 sm:pt-[calc(var(--header-offset)+3rem)]">
@@ -40,7 +81,7 @@ export default function TermsPage() {
               1. Who we are
             </h2>
             <p className="mt-4">
-              Ligero Parfum, a niche fragrance house. Contact: sales@ligeroparfums.com. Instagram: @ligeroparfums.
+              Ligero Parfum, a niche fragrance house. Contact: sales@ligeroparfum.com. Instagram: @ligeroparfums.
             </p>
           </section>
 

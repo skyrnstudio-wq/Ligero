@@ -133,6 +133,8 @@ export interface StoredPendingOrderSummary {
   _id: string;
   orderReference?: string;
   paymentStatus?: string;
+  fulfilmentStatus?: string;
+  razorpayPaymentId?: string;
   amountPaise?: number;
   totalAmount?: number;
   currency?: string;
@@ -163,6 +165,8 @@ export async function getPendingOrderSummaryFromSanity(
         _id,
         orderReference,
         paymentStatus,
+        fulfilmentStatus,
+        razorpayPaymentId,
         amountPaise,
         totalAmount,
         currency,
@@ -221,6 +225,13 @@ export async function savePendingOrderToSanity(params: {
   }
 }
 
+export interface MarkOrderPaidResult {
+  persisted: boolean;
+  alreadyRefunded?: boolean;
+  alreadyPaid?: boolean;
+  duplicatePayment?: boolean;
+}
+
 export async function markOrderPaidInSanity(params: {
   razorpayOrderId: string;
   razorpayPaymentId: string;
@@ -231,9 +242,11 @@ export async function markOrderPaidInSanity(params: {
   customer?: OrderCustomerInput;
   items?: Array<Partial<VerifiedOrderItem>>;
   giftNote?: string;
-}): Promise<boolean> {
+}): Promise<MarkOrderPaidResult> {
   const client = getWriteClient();
-  if (!client || !params.razorpayOrderId || !params.razorpayPaymentId) return false;
+  if (!client || !params.razorpayOrderId || !params.razorpayPaymentId) {
+    return { persisted: false };
+  }
 
   const docId = getOrderDocId(params.razorpayOrderId);
   const legacyDocId = getLegacyPublicOrderDocId(params.razorpayOrderId);
@@ -242,11 +255,81 @@ export async function markOrderPaidInSanity(params: {
   const sanitizedItems = sanitizeItems(params.items);
 
   try {
-    const legacyDoc = await client
-      .fetch<RawSanityOrder | null>(`*[_type == "order" && _id == $legacyDocId][0]`, {
-        legacyDocId,
-      })
-      .catch(() => null);
+    const existingDocs = await client.fetch<
+      Array<
+        RawSanityOrder & {
+          razorpaySignature?: string;
+          internalNotes?: string;
+        }
+      >
+    >(
+      `*[_type == "order" && (_id == $docId || _id == $legacyDocId)]{
+        _id,
+        orderReference,
+        paymentStatus,
+        fulfilmentStatus,
+        razorpayOrderId,
+        razorpayPaymentId,
+        razorpaySignature,
+        paidAt,
+        createdAt,
+        customer,
+        items,
+        giftNote,
+        internalNotes
+      }`,
+      { docId, legacyDocId }
+    );
+
+    const primaryDoc = existingDocs.find((d) => d._id === docId) || null;
+    const legacyDoc = existingDocs.find((d) => d._id === legacyDocId) || null;
+    const currentDoc = primaryDoc || legacyDoc;
+
+    // Never allow a replayed verify request or late webhook to overwrite a refunded state.
+    if (
+      currentDoc?.paymentStatus === "refunded" ||
+      currentDoc?.paymentStatus === "partially_refunded"
+    ) {
+      return { persisted: true, alreadyRefunded: true };
+    }
+
+    // Idempotent handling when already marked paid.
+    if (primaryDoc?.paymentStatus === "paid") {
+      if (primaryDoc.razorpayPaymentId === params.razorpayPaymentId) {
+        if (params.razorpaySignature && !primaryDoc.razorpaySignature) {
+          await client
+            .patch(docId)
+            .setIfMissing({ razorpaySignature: params.razorpaySignature })
+            .commit();
+        }
+        if (legacyDoc) {
+          await client.delete(legacyDocId).catch(() => undefined);
+        }
+        return { persisted: true, alreadyPaid: true };
+      }
+
+      // Rare edge case: a second distinct payment ID was captured for the same Razorpay order.
+      if (primaryDoc.razorpayPaymentId) {
+        const duplicateNotice = `Duplicate captured payment detected (${params.razorpayPaymentId}); original payment ${primaryDoc.razorpayPaymentId} preserved — review for manual refund.`;
+        const existingNotes = primaryDoc.internalNotes || "";
+        if (!existingNotes.includes(params.razorpayPaymentId)) {
+          await client
+            .patch(docId)
+            .set({
+              internalNotes: existingNotes
+                ? `${existingNotes}\n${duplicateNotice}`
+                : duplicateNotice,
+            })
+            .commit();
+        }
+        console.warn("[Orders] Duplicate payment detected on already-paid order:", {
+          razorpayOrderId: params.razorpayOrderId,
+          originalPaymentId: primaryDoc.razorpayPaymentId,
+          duplicatePaymentId: params.razorpayPaymentId,
+        });
+        return { persisted: true, alreadyPaid: true, duplicatePayment: true };
+      }
+    }
 
     await client.createIfNotExists({
       _id: docId,
@@ -255,9 +338,13 @@ export async function markOrderPaidInSanity(params: {
         params.orderReference || legacyDoc?.orderReference || params.razorpayOrderId,
       razorpayOrderId: params.razorpayOrderId,
       paymentStatus: "paid",
-      fulfilmentStatus: legacyDoc?.fulfilmentStatus || "processing",
+      fulfilmentStatus:
+        legacyDoc?.fulfilmentStatus && legacyDoc.fulfilmentStatus !== "cancelled"
+          ? legacyDoc.fulfilmentStatus
+          : "processing",
       currency: "INR",
       createdAt: legacyDoc?.createdAt || now,
+      paidAt: now,
       ...(legacyDoc?.customer ? { customer: legacyDoc.customer } : {}),
       ...(legacyDoc?.items ? { items: legacyDoc.items } : {}),
       ...(legacyDoc?.giftNote ? { giftNote: legacyDoc.giftNote } : {}),
@@ -267,9 +354,13 @@ export async function markOrderPaidInSanity(params: {
       paymentStatus: "paid",
       razorpayOrderId: params.razorpayOrderId,
       razorpayPaymentId: params.razorpayPaymentId,
-      paidAt: now,
       currency: "INR",
     };
+
+    // If an earlier failed payment attempt had marked fulfilment cancelled, restore to processing now that payment succeeded.
+    if (currentDoc?.fulfilmentStatus === "cancelled") {
+      patchFields.fulfilmentStatus = "processing";
+    }
 
     if (params.razorpaySignature) {
       patchFields.razorpaySignature = params.razorpaySignature;
@@ -281,6 +372,7 @@ export async function markOrderPaidInSanity(params: {
 
     const setIfMissingFields: Record<string, unknown> = {
       fulfilmentStatus: "processing",
+      paidAt: now,
       orderReference:
         params.orderReference || legacyDoc?.orderReference || params.razorpayOrderId,
     };
@@ -304,10 +396,10 @@ export async function markOrderPaidInSanity(params: {
       await client.delete(legacyDocId).catch(() => undefined);
     }
 
-    return true;
+    return { persisted: true };
   } catch (error) {
     console.error("[Orders] Failed to mark order as paid in Sanity:", error);
-    return false;
+    return { persisted: false };
   }
 }
 
@@ -315,6 +407,7 @@ export async function markOrderFailedInSanity(params: {
   razorpayOrderId: string;
   razorpayPaymentId?: string;
   reason?: string;
+  allowCreate?: boolean;
 }): Promise<boolean> {
   const client = getWriteClient();
   if (!client || !params.razorpayOrderId) return false;
@@ -333,11 +426,19 @@ export async function markOrderFailedInSanity(params: {
     );
 
     // Never downgrade an order that was already captured/verified as paid or refunded.
-    if (existing?.paymentStatus === "paid" || existing?.paymentStatus === "refunded") {
+    if (
+      existing?.paymentStatus === "paid" ||
+      existing?.paymentStatus === "partially_refunded" ||
+      existing?.paymentStatus === "refunded"
+    ) {
       return true;
     }
 
     if (!existing) {
+      // Avoid creating orphan failed records for unrelated external Razorpay transactions.
+      if (!params.allowCreate) {
+        return true;
+      }
       await client.createIfNotExists({
         _id: docId,
         _type: "order",
@@ -359,8 +460,12 @@ export async function markOrderFailedInSanity(params: {
     if (params.razorpayPaymentId) {
       patchFields.razorpayPaymentId = params.razorpayPaymentId;
     }
-    if (params.reason && !existing.internalNotes) {
-      patchFields.internalNotes = `Payment failed: ${params.reason}`;
+    if (params.reason) {
+      const failureNote = `Payment failed (${params.razorpayPaymentId || "attempt"}): ${params.reason}`;
+      const prevNotes = existing.internalNotes || "";
+      if (!prevNotes.includes(failureNote)) {
+        patchFields.internalNotes = prevNotes ? `${prevNotes}\n${failureNote}` : failureNote;
+      }
     }
 
     await client.patch(targetId).set(patchFields).commit();
@@ -371,55 +476,116 @@ export async function markOrderFailedInSanity(params: {
   }
 }
 
+export interface MarkOrderRefundedResult {
+  persisted: boolean;
+  ignored?: boolean;
+  paymentStatus?: "refunded" | "partially_refunded";
+}
+
 export async function markOrderRefundedInSanity(params: {
   razorpayOrderId?: string;
   razorpayPaymentId?: string;
   razorpayRefundId?: string;
   amountPaise?: number;
-}): Promise<boolean> {
+  totalRefundedPaise?: number;
+  isFullRefund?: boolean;
+}): Promise<MarkOrderRefundedResult> {
   const client = getWriteClient();
-  if (!client || (!params.razorpayOrderId && !params.razorpayPaymentId)) return false;
+  if (!client || (!params.razorpayOrderId && !params.razorpayPaymentId)) {
+    return { persisted: false };
+  }
 
   const orderId = (params.razorpayOrderId || "").trim();
   const paymentId = (params.razorpayPaymentId || "").trim();
+  const refundId = (params.razorpayRefundId || "").trim();
   const docId = orderId ? getOrderDocId(orderId) : "";
   const legacyDocId = orderId ? getLegacyPublicOrderDocId(orderId) : "";
 
   try {
     const existing = await client.fetch<{
       _id: string;
+      paymentStatus?: string;
+      fulfilmentStatus?: string;
+      amountPaise?: number;
+      totalAmount?: number;
+      refundedAmountPaise?: number;
+      processedRefundIds?: string[];
       internalNotes?: string;
     } | null>(
       `*[_type == "order" && (
         ($docId != "" && (_id == $docId || _id == $legacyDocId || razorpayOrderId == $orderId)) ||
         ($paymentId != "" && razorpayPaymentId == $paymentId)
-      )] | order(createdAt desc)[0]{ _id, internalNotes }`,
+      )] | order(createdAt desc)[0]{
+        _id,
+        paymentStatus,
+        fulfilmentStatus,
+        amountPaise,
+        totalAmount,
+        refundedAmountPaise,
+        processedRefundIds,
+        internalNotes
+      }`,
       { docId, legacyDocId, orderId, paymentId }
     );
 
     if (!existing) {
-      if (!docId) return false;
-      const refundNote = params.razorpayRefundId
-        ? `Refund processed (${params.razorpayRefundId})`
-        : "Refund processed";
-      await client.createIfNotExists({
-        _id: docId,
-        _type: "order",
-        orderReference: orderId,
-        razorpayOrderId: orderId,
-        ...(paymentId ? { razorpayPaymentId: paymentId } : {}),
-        paymentStatus: "refunded",
-        fulfilmentStatus: "cancelled",
-        createdAt: new Date().toISOString(),
-        internalNotes: refundNote,
-      });
-      return true;
+      // Ignore refunds for external/untracked Razorpay payments rather than returning 500
+      // (repeated 500s would cause Razorpay to disable the webhook endpoint).
+      return { persisted: true, ignored: true };
     }
 
+    const processedIds = Array.isArray(existing.processedRefundIds)
+      ? existing.processedRefundIds
+      : [];
+
+    if (refundId && processedIds.includes(refundId)) {
+      return {
+        persisted: true,
+        paymentStatus:
+          existing.paymentStatus === "partially_refunded"
+            ? "partially_refunded"
+            : "refunded",
+      };
+    }
+
+    const orderTotalPaise =
+      typeof existing.amountPaise === "number" && existing.amountPaise > 0
+        ? existing.amountPaise
+        : typeof existing.totalAmount === "number" && existing.totalAmount > 0
+          ? Math.round(existing.totalAmount * 100)
+          : 0;
+
+    const refundDeltaPaise =
+      typeof params.amountPaise === "number" && Number.isFinite(params.amountPaise) && params.amountPaise > 0
+        ? Math.round(params.amountPaise)
+        : 0;
+
+    const prevRefundedPaise =
+      typeof existing.refundedAmountPaise === "number" && existing.refundedAmountPaise > 0
+        ? existing.refundedAmountPaise
+        : 0;
+
+    const nextRefundedPaise =
+      typeof params.totalRefundedPaise === "number" &&
+      Number.isFinite(params.totalRefundedPaise) &&
+      params.totalRefundedPaise > 0
+        ? Math.max(prevRefundedPaise, Math.round(params.totalRefundedPaise))
+        : prevRefundedPaise + refundDeltaPaise;
+
+    const isFull =
+      existing.paymentStatus === "refunded" ||
+      Boolean(params.isFullRefund) ||
+      (orderTotalPaise > 0 && nextRefundedPaise >= orderTotalPaise) ||
+      (refundDeltaPaise === 0 && !params.totalRefundedPaise);
+
+    const nextPaymentStatus: "refunded" | "partially_refunded" = isFull
+      ? "refunded"
+      : "partially_refunded";
+
     const refundSummary = [
-      "Refund processed",
-      params.razorpayRefundId ? `ID: ${params.razorpayRefundId}` : "",
-      params.amountPaise ? `₹${Math.round(params.amountPaise / 100)}` : "",
+      isFull ? "Refund processed" : "Partial refund processed",
+      refundId ? `ID: ${refundId}` : "",
+      refundDeltaPaise > 0 ? `₹${(refundDeltaPaise / 100).toLocaleString("en-IN")}` : "",
     ]
       .filter(Boolean)
       .join(" · ");
@@ -430,18 +596,27 @@ export async function markOrderRefundedInSanity(params: {
         : `${existing.internalNotes}\n${refundSummary}`
       : refundSummary;
 
-    await client
-      .patch(existing._id)
-      .set({
-        paymentStatus: "refunded",
-        internalNotes: nextNotes,
-      })
-      .commit();
+    const patchFields: Record<string, unknown> = {
+      paymentStatus: nextPaymentStatus,
+      internalNotes: nextNotes,
+    };
 
-    return true;
+    if (nextRefundedPaise > 0) {
+      patchFields.refundedAmountPaise = nextRefundedPaise;
+    }
+    if (refundId) {
+      patchFields.processedRefundIds = [...processedIds, refundId];
+    }
+    if (nextPaymentStatus === "refunded" && existing.fulfilmentStatus === "processing") {
+      patchFields.fulfilmentStatus = "cancelled";
+    }
+
+    await client.patch(existing._id).set(patchFields).commit();
+
+    return { persisted: true, paymentStatus: nextPaymentStatus };
   } catch (error) {
     console.error("[Orders] Failed to mark order as refunded in Sanity:", error);
-    return false;
+    return { persisted: false };
   }
 }
 
@@ -485,13 +660,15 @@ export async function getOrderFromSanity(params: {
   if (!client) return null;
 
   try {
-    const doc = await client.fetch<RawSanityOrder | null>(
-      `*[_type == "order" && (
-        ($orderId != "" && (orderReference == $orderId || razorpayOrderId == $orderId)) ||
-        ($paymentId != "" && razorpayPaymentId == $paymentId)
-      )] | order(createdAt desc)[0]`,
-      { orderId, paymentId }
-    );
+    const query =
+      orderId && paymentId
+        ? `*[_type == "order" && (orderReference == $orderId || razorpayOrderId == $orderId) && razorpayPaymentId == $paymentId] | order(createdAt desc)[0]`
+        : `*[_type == "order" && (
+            ($orderId != "" && (orderReference == $orderId || razorpayOrderId == $orderId)) ||
+            ($paymentId != "" && razorpayPaymentId == $paymentId)
+          )] | order(createdAt desc)[0]`;
+
+    const doc = await client.fetch<RawSanityOrder | null>(query, { orderId, paymentId });
 
     if (!doc) return null;
 
@@ -521,11 +698,13 @@ export async function getOrderFromSanity(params: {
     const statusLabel =
       doc.paymentStatus === "paid"
         ? "Verified (Razorpay)"
-        : doc.paymentStatus === "refunded"
-          ? "Refunded"
-          : doc.paymentStatus === "failed"
-            ? "Payment Failed"
-            : "Pending Payment";
+        : doc.paymentStatus === "partially_refunded"
+          ? "Partially Refunded"
+          : doc.paymentStatus === "refunded"
+            ? "Refunded"
+            : doc.paymentStatus === "failed"
+              ? "Payment Failed"
+              : "Pending Payment";
 
     return {
       orderId: doc.orderReference || doc.razorpayOrderId || orderId,
@@ -679,36 +858,50 @@ async function claimAndSendOrderEmail(params: {
   }
 
   try {
-    const doc = await fetchCanonicalOrderForNotification(params.lookup);
-    if (!doc || !doc._id || !doc._rev) {
-      return { attempted: false, sent: false, skipped: "order_not_found" };
+    const maxClaimAttempts = 3;
+    let claimedDoc: RawSanityOrder | null = null;
+
+    for (let attempt = 0; attempt < maxClaimAttempts; attempt++) {
+      const doc = await fetchCanonicalOrderForNotification(params.lookup);
+      if (!doc || !doc._id || !doc._rev) {
+        return { attempted: false, sent: false, skipped: "order_not_found" };
+      }
+
+      const skipReason = params.canSend(doc);
+      if (skipReason) {
+        return { attempted: false, sent: false, skipped: skipReason };
+      }
+
+      if (!isValidEmailAddress(doc.customer?.email)) {
+        return { attempted: false, sent: false, skipped: "missing_customer_email" };
+      }
+
+      // Optimistic revision lock ensures concurrent verify + webhook requests never send duplicates,
+      // while retrying on non-email revision bumps avoids dropping emails during concurrent patches.
+      try {
+        await writeClient
+          .patch(doc._id)
+          .ifRevisionId(doc._rev)
+          .set({ [params.claimField]: new Date().toISOString() })
+          .commit();
+        claimedDoc = doc;
+        break;
+      } catch {
+        if (attempt === maxClaimAttempts - 1) {
+          return { attempted: false, sent: false, skipped: "already_claimed" };
+        }
+      }
     }
 
-    const skipReason = params.canSend(doc);
-    if (skipReason) {
-      return { attempted: false, sent: false, skipped: skipReason };
-    }
-
-    if (!isValidEmailAddress(doc.customer?.email)) {
-      return { attempted: false, sent: false, skipped: "missing_customer_email" };
-    }
-
-    // Optimistic revision lock ensures concurrent verify + webhook requests never send duplicates.
-    try {
-      await writeClient
-        .patch(doc._id)
-        .ifRevisionId(doc._rev)
-        .set({ [params.claimField]: new Date().toISOString() })
-        .commit();
-    } catch {
+    if (!claimedDoc || !claimedDoc._id) {
       return { attempted: false, sent: false, skipped: "already_claimed" };
     }
 
-    const emailData = buildOrderEmailData(doc);
+    const emailData = buildOrderEmailData(claimedDoc);
     const result = await params.send(emailData);
 
     if (!result.ok) {
-      await writeClient.patch(doc._id).unset([params.claimField]).commit().catch(() => undefined);
+      await writeClient.patch(claimedDoc._id).unset([params.claimField]).commit().catch(() => undefined);
       console.error(`[Orders] Failed sending ${params.claimField} email:`, result.error);
       return { attempted: true, sent: false, error: result.error };
     }
@@ -758,7 +951,9 @@ export async function sendOrderDispatchNotification(params: {
     lookup: params,
     claimField: "dispatchEmailSentAt",
     canSend: (doc) => {
-      if (doc.paymentStatus !== "paid") return "not_paid";
+      if (doc.paymentStatus !== "paid" && doc.paymentStatus !== "partially_refunded") {
+        return "not_paid";
+      }
       if (doc.fulfilmentStatus !== "dispatched") return "not_dispatched";
       if (doc.dispatchEmailSentAt) return "already_sent";
       return null;

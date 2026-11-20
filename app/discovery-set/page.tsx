@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
@@ -6,35 +7,66 @@ import PrivateSalon from "@/components/private-salon";
 import { OrderDiscoverySetButton } from "@/components/discovery-set";
 import { getLiveObjectBySlug, getLivePerfumes } from "@/lib/sanity/data";
 import { getPerfumeCutoutImage } from "@/lib/products";
-
 import {
+  BASE_URL,
   buildBreadcrumbSchema,
   buildGraph,
+  buildOrganizationSchema,
   buildProductSchema,
+  buildWebPageSchema,
+  formatMetaDescription,
+  safeJsonLd,
 } from "@/lib/seo/schema";
 
-export const metadata = {
-  title: "The Discovery Set",
-  description:
-    "Sample every permanent Ligero Parfum creation in seven 10 ml travel atomizers. INR 999 with complimentary domestic surface shipping across India.",
-  alternates: {
-    canonical: "/discovery-set",
-  },
-  openGraph: {
-    title: "The Discovery Set | Ligero Parfum",
-    description:
-      "Seven 10 ml travel atomizers from the permanent collection. INR 999 with free domestic shipping across India.",
-    url: "/discovery-set",
-    images: ["/images/objects/discovery-set-floating.webp"],
-  },
-  twitter: {
-    card: "summary_large_image" as const,
-    title: "The Discovery Set | Ligero Parfum",
-    description:
-      "Seven 10 ml travel atomizers from the permanent collection. INR 999 with free domestic shipping.",
-    images: ["/images/objects/discovery-set-floating.webp"],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const [perfumes, discoveryObj] = await Promise.all([
+    getLivePerfumes(),
+    getLiveObjectBySlug("discovery-set"),
+  ]);
+
+  const setName = discoveryObj?.name || "The Discovery Set";
+  const setPrice = discoveryObj?.price ?? 999;
+  const countLabel = perfumes.length === 7 ? "seven" : String(perfumes.length);
+  const title = discoveryObj?.seo?.title || `${setName} (${perfumes.length} x 10 ml Perfumes)`;
+  const description = formatMetaDescription(
+    discoveryObj?.seo?.description ||
+      `Sample every permanent Ligero Parfum creation in ${countLabel} 10 ml travel atomizers. INR ${setPrice} with complimentary domestic surface shipping across India.`
+  );
+  const ogImage =
+    discoveryObj?.seo?.image ||
+    discoveryObj?.image ||
+    "/images/objects/discovery-set-floating.webp";
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: "/discovery-set",
+    },
+    openGraph: {
+      type: "website",
+      locale: "en_IN",
+      title: `${title} | Ligero Parfum`,
+      description,
+      url: "/discovery-set",
+      images: [
+        {
+          url: ogImage,
+          alt: `${setName} by Ligero Parfum`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | Ligero Parfum`,
+      description,
+      images: [ogImage],
+    },
+    ...(discoveryObj?.seo?.noIndex
+      ? { robots: { index: false, follow: false } }
+      : {}),
+  };
+}
 
 /**
  * The Discovery Set page (site-blueprint.md §11a).
@@ -59,6 +91,16 @@ export default async function DiscoverySetPage() {
     discoveryObj?.image || "/images/objects/discovery-set-floating.webp";
 
   const jsonLd = buildGraph([
+    buildOrganizationSchema(),
+    buildWebPageSchema({
+      path: "/discovery-set",
+      name: `${setName} | Ligero Parfum`,
+      description: `${setDescription} ${setVolume}.`,
+      type: "ItemPage",
+      dateModified: discoveryObj?.updatedAt,
+      primaryImage: setImage,
+      mainEntityId: `${BASE_URL}/discovery-set#product`,
+    }),
     buildProductSchema({
       name: setName,
       slug: "discovery-set",
@@ -68,6 +110,11 @@ export default async function DiscoverySetPage() {
       price: setPrice,
       category: "Perfume Discovery Set",
       size: setVolume,
+      properties: [
+        { name: "Net Quantity", value: `${perfumes.length} x 10 ml (${perfumes.length * 10} ml total)` },
+        { name: "Included Perfumes", value: perfumes.map((p) => p.name).join(", ") },
+        { name: "Concentration", value: "Eau de Parfum" },
+      ],
     }),
     buildBreadcrumbSchema([
       { name: "Home", path: "/" },
@@ -80,7 +127,7 @@ export default async function DiscoverySetPage() {
     <div className="min-h-screen bg-aube-base text-aube-text">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
       />
 
       <SiteHeader />
@@ -167,7 +214,7 @@ export default async function DiscoverySetPage() {
                     <div>
                       <dt className="inline font-medium">Marketed and customer care by:</dt>{" "}
                       <dd className="inline">
-                        Ligero Parfum Private Limited · sales@ligeroparfums.com
+                        Ligero Parfum Private Limited · sales@ligeroparfum.com
                       </dd>
                     </div>
                   </dl>
@@ -206,9 +253,9 @@ export default async function DiscoverySetPage() {
                       />
                       <Image
                         src={cutout}
-                        alt={`${p.name} bottle`}
+                        alt={`${p.name} 10 ml Discovery Set vial perfume`}
                         fill
-                        loading="eager"
+                        loading="lazy"
                         quality={78}
                         sizes="180px"
                         className="object-contain p-2 sm:p-3 md:[filter:drop-shadow(-10px_14px_16px_rgba(28,20,14,0.22))] transition-transform duration-500 group-hover:-translate-y-1"

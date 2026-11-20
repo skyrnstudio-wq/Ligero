@@ -1,19 +1,59 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
+import {
+  buildBreadcrumbSchema,
+  buildGraph,
+  buildOrganizationSchema,
+  buildWebPageSchema,
+  safeJsonLd,
+} from "@/lib/seo/schema";
 
-export const metadata = {
-  title: "Shipping and Returns",
-  description:
-    "Guidelines on domestic surface delivery, transit timelines, and sealed bottle returns for Ligero Parfum.",
+const SHIPPING_DESC =
+  "Complimentary domestic surface delivery in 3 to 7 working days across India and seven-day returns for unopened, factory-sealed Ligero Parfum bottles.";
+
+export const metadata: Metadata = {
+  title: "Shipping & Sealed Bottle Returns",
+  description: SHIPPING_DESC,
   alternates: {
     canonical: "/legal/shipping-returns",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    title: "Shipping & Sealed Bottle Returns | Ligero Parfum",
+    description: SHIPPING_DESC,
+    url: "/legal/shipping-returns",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Shipping & Sealed Bottle Returns | Ligero Parfum",
+    description: SHIPPING_DESC,
   },
 };
 
 export default function ShippingReturnsPage() {
+  const jsonLd = buildGraph([
+    buildOrganizationSchema(),
+    buildWebPageSchema({
+      path: "/legal/shipping-returns",
+      name: "Shipping and Returns | Ligero Parfum",
+      description: SHIPPING_DESC,
+    }),
+    buildBreadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Legal Policies", path: "/legal" },
+      { name: "Shipping and Returns", path: "/legal/shipping-returns" },
+    ]),
+  ]);
+
   return (
     <div className="min-h-screen bg-aube-base text-aube-text">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
+      />
       <SiteHeader />
 
       <main className="mx-auto max-w-3xl px-6 pb-28 pt-[calc(var(--header-offset)+2rem)] sm:px-10 sm:pt-[calc(var(--header-offset)+3rem)]">
@@ -67,7 +107,7 @@ export default function ShippingReturnsPage() {
                 <strong>Opened bottles:</strong> Not returnable. Break the seal only when the nose has decided.
               </li>
               <li>
-                <strong>Damaged in transit:</strong> Photograph the outer packaging and bottle within 48 hours of delivery and email sales@ligeroparfums.com. We replace or refund immediately, freight covered by us.
+                <strong>Damaged in transit:</strong> Photograph the outer packaging and bottle within 48 hours of delivery and email sales@ligeroparfum.com. We replace or refund immediately, freight covered by us.
               </li>
               <li>
                 <strong>Refund processing:</strong> Credited to your original payment method within seven working days of the inspected return reaching us.
@@ -81,8 +121,8 @@ export default function ShippingReturnsPage() {
             </h2>
             <p className="mt-4">
               Unsure between two bottles? Write to the Concierge at{" "}
-              <a href="mailto:sales@ligeroparfums.com" className="text-aube-accent underline">
-                sales@ligeroparfums.com
+              <a href="mailto:sales@ligeroparfum.com" className="text-aube-accent underline">
+                sales@ligeroparfum.com
               </a>
               . Describe what you wear now and when you wear it. A person answers within a day with an honest recommendation, including the advice to sample first with the Discovery Set.
             </p>

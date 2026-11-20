@@ -1,45 +1,45 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { randomUUID } from "node:crypto";
+import { type NextRequest } from "next/server";
 import { createClient } from "@sanity/client";
 import { apiVersion, dataset, projectId } from "@/sanity/env";
 import { getLiveObjects, getLivePerfumes } from "@/lib/sanity/data";
 import { REVIEW_LIMITS, WORN_FOR_OPTIONS } from "@/lib/reviews";
+import {
+  createRateLimiter,
+  getClientIp,
+  rateLimitHeaders,
+  readBoundedJsonObject,
+  sanitizeText,
+  secureJson,
+} from "@/lib/security";
 
 export const runtime = "nodejs";
 
 /**
- * Receives a review from a product page and saves it to Sanity as "pending".
- * Nothing is shown on the site until someone at the house approves it in the Studio.
- *
- * Needs SANITY_API_WRITE_TOKEN (an Editor token) in the server environment.
+ * Receives a review from a product page and saves it to Sanity under a private
+ * `drafts.review-*` document ID with status "pending".
+ * Keeping reviews under `drafts.*` ensures reviewer email addresses are NEVER
+ * queryable via unauthenticated public Sanity GROQ queries, while remaining
+ * editable to authenticated team members in `/studio`.
  */
 
-const WINDOW_MS = 60 * 60 * 1000;
-const MAX_PER_WINDOW = 3;
 const MIN_FILL_MS = 4000;
-const hits = new Map<string, number[]>();
+const MAX_FORM_AGE_MS = 24 * 60 * 60 * 1000;
+const MAX_BODY_BYTES = 16 * 1024;
 
-function tooMany(ip: string): boolean {
-  const now = Date.now();
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
-  if (recent.length >= MAX_PER_WINDOW) {
-    hits.set(ip, recent);
-    return true;
-  }
-  recent.push(now);
-  hits.set(ip, recent);
-  return false;
-}
-
-function clean(value: unknown, max: number): string {
-  if (typeof value !== "string") return "";
-  // strip control characters, collapse stray whitespace, cap length
-  return value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "").trim().slice(0, max);
-}
+const reviewLimiter = createRateLimiter({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+});
 
 type FieldErrors = Partial<Record<"rating" | "name" | "email" | "body" | "form", string>>;
 
-function fail(status: number, errors: FieldErrors) {
-  return NextResponse.json({ ok: false, errors }, { status });
+function fail(
+  status: number,
+  errors: FieldErrors,
+  extraHeaders?: Record<string, string>
+) {
+  return secureJson({ ok: false, errors }, status, extraHeaders);
 }
 
 export async function POST(req: NextRequest) {
@@ -48,29 +48,44 @@ export async function POST(req: NextRequest) {
     return fail(503, { form: "Reviews are not open yet. Please check back soon." });
   }
 
-  let payload: Record<string, unknown>;
-  try {
-    payload = await req.json();
-  } catch {
-    return fail(400, { form: "This request could not be read. Reload the page and try again." });
+  const parsed = await readBoundedJsonObject(req, MAX_BODY_BYTES);
+  if (!parsed.ok) {
+    return fail(parsed.status, {
+      form:
+        parsed.status === 413
+          ? "This review is too long to send. Shorten it and try again."
+          : "This request could not be read. Reload the page and try again.",
+    });
   }
+  const payload = parsed.data;
 
   // Honeypot: real visitors never see or fill this field. Pretend success to bots.
   if (typeof payload.website === "string" && payload.website.trim() !== "") {
-    return NextResponse.json({ ok: true });
+    return secureJson({ ok: true });
   }
 
+  const now = Date.now();
   const startedAt = Number(payload.startedAt);
-  if (!Number.isFinite(startedAt) || Date.now() - startedAt < MIN_FILL_MS) {
+  if (
+    !Number.isFinite(startedAt) ||
+    startedAt > now ||
+    now - startedAt < MIN_FILL_MS ||
+    now - startedAt > MAX_FORM_AGE_MS
+  ) {
     return fail(429, { form: "That was quick. Take a moment and send it again." });
   }
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (tooMany(ip)) {
-    return fail(429, { form: "Three reviews an hour is the limit. Try again later." });
+  const ip = getClientIp(req);
+  const limit = reviewLimiter.check(ip);
+  if (!limit.allowed) {
+    return fail(
+      429,
+      { form: "Three reviews an hour is the limit. Try again later." },
+      rateLimitHeaders(limit)
+    );
   }
 
-  const slug = clean(payload.perfumeSlug, 80);
+  const slug = sanitizeText(payload.perfumeSlug, 80);
   const [perfumes, objects] = await Promise.all([
     getLivePerfumes(),
     getLiveObjects(),
@@ -89,15 +104,15 @@ export async function POST(req: NextRequest) {
     errors.rating = "Choose a rating from one to five.";
   }
 
-  const name = clean(payload.name, REVIEW_LIMITS.name);
+  const name = sanitizeText(payload.name, REVIEW_LIMITS.name);
   if (!name) errors.name = "Add the name to show on the review.";
 
-  const email = clean(payload.email, 120);
+  const email = sanitizeText(payload.email, 120).toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
     errors.email = "This email is not valid. Check the address.";
   }
 
-  const body = clean(payload.body, REVIEW_LIMITS.bodyMax);
+  const body = sanitizeText(payload.body, REVIEW_LIMITS.bodyMax, true);
   if (body.length < REVIEW_LIMITS.bodyMin) {
     errors.body = `Write at least ${REVIEW_LIMITS.bodyMin} characters.`;
   } else if (/https?:\/\/|www\./i.test(body)) {
@@ -106,20 +121,28 @@ export async function POST(req: NextRequest) {
 
   if (Object.keys(errors).length > 0) return fail(422, errors);
 
-  const wornForRaw = clean(payload.wornFor, 40);
+  const wornForRaw = sanitizeText(payload.wornFor, 40);
   const wornFor = WORN_FOR_OPTIONS.some((o) => o.value === wornForRaw) ? wornForRaw : undefined;
 
-  const client = createClient({ projectId, dataset, apiVersion, token, useCdn: false });
+  const client = createClient({
+    projectId,
+    dataset,
+    apiVersion,
+    token,
+    useCdn: false,
+    perspective: "raw",
+  });
 
   try {
     await client.create({
+      _id: `drafts.review-${randomUUID()}`,
       _type: "customerReview",
       status: "pending",
       perfumeSlug: slug,
       rating,
       name,
-      city: clean(payload.city, REVIEW_LIMITS.city) || undefined,
-      title: clean(payload.title, REVIEW_LIMITS.title) || undefined,
+      city: sanitizeText(payload.city, REVIEW_LIMITS.city) || undefined,
+      title: sanitizeText(payload.title, REVIEW_LIMITS.title) || undefined,
       body,
       wornFor,
       email,
@@ -131,5 +154,5 @@ export async function POST(req: NextRequest) {
     return fail(502, { form: "The review could not be saved. Try again in a moment." });
   }
 
-  return NextResponse.json({ ok: true });
+  return secureJson({ ok: true }, 200, rateLimitHeaders(limit));
 }

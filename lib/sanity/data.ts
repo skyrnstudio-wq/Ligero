@@ -1,5 +1,7 @@
 import { cache } from 'react'
+import { createClient } from '@sanity/client'
 import { sanityFetch } from '@/sanity/lib/client'
+import { apiVersion, dataset, projectId } from '@/sanity/env'
 import {
   PERFUMES_QUERY,
   PERFUME_BY_SLUG_QUERY,
@@ -9,7 +11,13 @@ import {
   SITE_SETTINGS_QUERY,
   APPROVED_REVIEWS_QUERY,
 } from '@/sanity/lib/queries'
-import { PERFUMES, OBJECTS, type Product, type HouseObject } from '@/lib/products'
+import {
+  PERFUMES,
+  OBJECTS,
+  type Product,
+  type HouseObject,
+  type SeoMetadata,
+} from '@/lib/products'
 import { type PublicReview, REAL_APPROVED_REVIEWS } from '@/lib/reviews'
 
 function optimizeSanityImageUrl(url: string | undefined, maxWidth = 1440): string | undefined {
@@ -18,6 +26,23 @@ function optimizeSanityImageUrl(url: string | undefined, maxWidth = 1440): strin
     return `${url}?fm=webp&fit=max&w=${maxWidth}&q=80`
   }
   return url
+}
+
+function normalizeSeo(seo?: SeoMetadata | null): SeoMetadata | undefined {
+  if (!seo) return undefined
+  const title = typeof seo.title === 'string' && seo.title.trim() ? seo.title.trim() : undefined
+  const description =
+    typeof seo.description === 'string' && seo.description.trim()
+      ? seo.description.trim()
+      : undefined
+  const image =
+    typeof seo.image === 'string' && seo.image.trim()
+      ? optimizeSanityImageUrl(seo.image.trim(), 1200)
+      : undefined
+  const noIndex = seo.noIndex === true ? true : undefined
+
+  if (!title && !description && !image && !noIndex) return undefined
+  return { title, description, image, noIndex }
 }
 
 function sanitizeExtraitText(val?: string): string | undefined {
@@ -62,6 +87,8 @@ function normalizePerfume(item: Partial<Product>, staticItem?: Product): Product
 
   return {
     slug: item.slug || staticItem?.slug || '',
+    updatedAt: item.updatedAt,
+    seo: normalizeSeo(item.seo),
     name: item.name || staticItem?.name || '',
     subtitle: item.subtitle || staticItem?.subtitle || '',
     volume:
@@ -110,6 +137,8 @@ function normalizePerfume(item: Partial<Product>, staticItem?: Product): Product
 function normalizeHouseObject(item: Partial<HouseObject>, staticObj?: HouseObject): HouseObject {
   return {
     slug: item.slug || staticObj?.slug || '',
+    updatedAt: item.updatedAt,
+    seo: normalizeSeo(item.seo),
     name: item.name || staticObj?.name || '',
     price: typeof item.price === 'number' ? item.price : staticObj?.price ?? 0,
     volume: item.volume || staticObj?.volume,
@@ -211,7 +240,9 @@ export const getLiveObjectBySlug = cache(async (slug: string): Promise<HouseObje
 })
 
 export interface HomepageData {
+  updatedAt?: string
   patronsPromise?: string
+  seo?: SeoMetadata
 }
 
 /**
@@ -223,7 +254,12 @@ export const getLiveHomepage = cache(async (): Promise<HomepageData | null> => {
       query: HOMEPAGE_QUERY,
       tags: ['homePage'],
     })
-    return data || null
+    if (!data) return null
+    return {
+      updatedAt: data.updatedAt,
+      patronsPromise: data.patronsPromise,
+      seo: normalizeSeo(data.seo),
+    }
   } catch (error) {
     console.warn('[Sanity] Fetch failed for homepage content:', error)
     return null
@@ -257,19 +293,69 @@ export const getLiveSiteSettings = cache(async (): Promise<SiteSettingsData | nu
   }
 })
 
+function deduplicateReviews(rows: PublicReview[]): PublicReview[] {
+  const seen = new Map<string, PublicReview>()
+  for (const row of rows) {
+    if (!row?._id) continue
+    const canonicalId = row._id.replace(/^drafts\./, '')
+    // Prefer draft version if both exist so Studio edits reflect immediately
+    if (!seen.has(canonicalId) || row._id.startsWith('drafts.')) {
+      seen.set(canonicalId, {
+        _id: canonicalId,
+        rating: row.rating,
+        name: row.name,
+        city: row.city ?? null,
+        title: row.title ?? null,
+        body: row.body,
+        wornFor: row.wornFor ?? null,
+        purchaseChecked: row.purchaseChecked ?? null,
+        submittedAt: row.submittedAt,
+      })
+    }
+  }
+  return Array.from(seen.values())
+}
+
 /**
- * Fetches approved reviews for one perfume. Returns an empty list when Sanity
- * is unreachable or no review has been approved, never placeholder data.
+ * Fetches approved reviews for one perfume or object.
+ * Uses the server-side Sanity token (`perspective: "raw"`) when configured so reviews
+ * stored privately under `drafts.review-*` (protecting reviewer email PII from public
+ * dataset queries) render seamlessly once approved, while never projecting `email`.
  */
 export const getApprovedReviews = cache(async (slug: string): Promise<PublicReview[]> => {
   try {
-    const data = await sanityFetch<PublicReview[]>({
-      query: APPROVED_REVIEWS_QUERY,
-      params: { slug },
-      tags: ['customerReview', `review:${slug}`],
-    })
+    const token = process.env.SANITY_API_WRITE_TOKEN?.trim()
+    let data: PublicReview[] | null = null
+
+    if (token) {
+      const privateClient = createClient({
+        projectId,
+        dataset,
+        apiVersion,
+        token,
+        useCdn: false,
+        perspective: 'raw',
+      })
+      data = await privateClient.fetch<PublicReview[]>(
+        APPROVED_REVIEWS_QUERY,
+        { slug },
+        {
+          next: {
+            revalidate: 60,
+            tags: ['customerReview', `review:${slug}`],
+          },
+        }
+      )
+    } else {
+      data = await sanityFetch<PublicReview[]>({
+        query: APPROVED_REVIEWS_QUERY,
+        params: { slug },
+        tags: ['customerReview', `review:${slug}`],
+      })
+    }
+
     if (Array.isArray(data) && data.length > 0) {
-      return data
+      return deduplicateReviews(data)
     }
   } catch (error) {
     console.warn(`[Sanity] Fetch failed for reviews of ${slug}:`, error)

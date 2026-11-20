@@ -410,6 +410,8 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
                               src={cutout}
                               alt={`${perfume.name} bottle`}
                               fill
+                              fetchPriority="low"
+                              loading="lazy"
                               sizes="130px"
                               className="object-contain p-2 md:[filter:drop-shadow(-8px_12px_16px_rgba(0,0,0,0.55))] transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105"
                             />

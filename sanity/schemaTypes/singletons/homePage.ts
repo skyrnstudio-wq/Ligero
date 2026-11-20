@@ -19,6 +19,11 @@ export const homePage = defineType({
       description: 'Displayed beneath The Correspondence newsletter heading on the storefront.',
       initialValue: 'Four letters a year. Nothing else.',
     }),
+    defineField({
+      name: 'seo',
+      title: 'SEO & Social Sharing',
+      type: 'seo',
+    }),
   ],
   preview: {
     prepare() {

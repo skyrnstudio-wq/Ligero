@@ -58,8 +58,8 @@ cp .env.example .env.local
 | `RAZORPAY_KEY_SECRET` | Server-only | Razorpay Key Secret for order creation and signature verification |
 | `RAZORPAY_WEBHOOK_SECRET` | Server-only | Secret configured in Razorpay Webhooks for HMAC verification |
 | `RESEND_API_KEY` | Server-only | Resend API key (`re_...`) for order and dispatch emails |
-| `RESEND_FROM_EMAIL` | Server-only | Verified sender address (e.g. `Ligero Parfum <sales@ligeroparfums.com>`) |
-| `ORDER_NOTIFICATION_EMAIL` | Server-only | Optional atelier alert inbox (defaults to `sales@ligeroparfums.com`; set to `off` to disable) |
+| `RESEND_FROM_EMAIL` | Server-only | Verified sender address (e.g. `Ligero Parfum <sales@ligeroparfum.com>`) |
+| `ORDER_NOTIFICATION_EMAIL` | Server-only | Optional atelier alert inbox (defaults to `sales@ligeroparfum.com`; set to `off` to disable) |
 
 > **Note:** Changing any `NEXT_PUBLIC_*` variable requires a fresh production build because Next.js inlines public variables at build time.
 
@@ -161,10 +161,10 @@ tests/                    # Playwright E2E specs and responsive viewport helpers
 node --env-file=.env.local scripts/setup-webhook.mjs --list
 
 # Register On-Demand ISR webhook -> <url>/api/revalidate
-node --env-file=.env.local scripts/setup-webhook.mjs https://ligeroparfums.com
+node --env-file=.env.local scripts/setup-webhook.mjs https://www.ligeroparfum.com
 
 # Register Order Dispatch Email webhook -> <url>/api/orders/dispatch-webhook
-node --env-file=.env.local scripts/setup-webhook.mjs --orders https://ligeroparfums.com
+node --env-file=.env.local scripts/setup-webhook.mjs --orders https://www.ligeroparfum.com
 
 # Delete a webhook by ID
 node --env-file=.env.local scripts/setup-webhook.mjs --delete <webhook-id>
