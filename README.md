@@ -191,3 +191,13 @@ npm run test:e2e
 - **Image Domains:** `next.config.ts` permits local `/images/**` assets and remote `https://cdn.sanity.io` images.
 - **Legacy Redirects:** `/products` and `/products/:slug` permanently redirect to `/collection` and `/collection/:slug`.
 - **Razorpay Live Cutover:** Update `NEXT_PUBLIC_RAZORPAY_KEY_ID`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET` to live keys, register `https://<your-domain>/api/razorpay/webhook` for `payment.captured`, `order.paid`, `payment.failed`, and `refund.processed`, and trigger a full redeploy.
+
+---
+
+## Important: Service & Traffic Limits
+
+If you plan to run paid ads or expect high traffic, review and upgrade your third-party plan limits beforehand so orders, emails, and pages are not disrupted:
+
+- **Resend (Free Tier):** Capped at **100 emails/day** (and 3,000/month), which covers order confirmations, dispatch alerts, and Correspondence notifications.
+- **Sanity (Free Tier):** Subject to monthly API request, CDN bandwidth, and document quotas.
+- **Vercel (Hobby / Free Tier):** Subject to monthly bandwidth, serverless function execution, and ISR/image optimization limits (and restricted to non-commercial use; upgrade to Pro for production traffic).
