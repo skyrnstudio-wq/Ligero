@@ -42,6 +42,16 @@ export interface EmailSendResult {
   error?: string;
 }
 
+export interface CorrespondenceEmailData {
+  email: string;
+  source: "default" | "strip";
+  pagePath?: string;
+  submittedAt: string;
+  submissionKind: "new" | "resubscribed" | "returning";
+  savedToSanity?: boolean;
+  idempotencyId?: string;
+}
+
 const DEFAULT_FROM = "Ligero Parfum <sales@ligeroparfum.com>";
 const DEFAULT_SUPPORT_EMAIL = "sales@ligeroparfum.com";
 const DEFAULT_SITE_URL = "https://ligeroparfum.com";
@@ -70,6 +80,18 @@ function getAtelierNotificationEmail(): string | null {
     return null;
   }
   return isValidEmailAddress(trimmed) ? trimmed : null;
+}
+
+function getCorrespondenceNotificationEmail(): string | null {
+  const configured = process.env.CORRESPONDENCE_NOTIFICATION_EMAIL;
+  if (configured !== undefined) {
+    const trimmed = configured.trim();
+    if (!trimmed || /^(off|none|disabled|false)$/i.test(trimmed)) {
+      return null;
+    }
+    return isValidEmailAddress(trimmed) ? trimmed : null;
+  }
+  return getAtelierNotificationEmail() || DEFAULT_SUPPORT_EMAIL;
 }
 
 function getSupportEmail(): string {
@@ -103,6 +125,21 @@ function formatDateIst(iso?: string): string {
     year: "numeric",
     timeZone: "Asia/Kolkata",
   });
+}
+
+function formatDateTimeIst(iso?: string): string {
+  const parsed = iso ? new Date(iso) : new Date();
+  const date = Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+  const formatted = date.toLocaleString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Kolkata",
+  });
+  return `${formatted} IST`;
 }
 
 function formatAddressLines(customer: OrderEmailCustomer): string[] {
@@ -541,5 +578,164 @@ export async function sendOrderDispatchEmail(
     text,
     replyTo: getSupportEmail(),
     idempotencyKey: `order-dispatch/${order.idempotencyId}`,
+  });
+}
+
+export async function sendCorrespondenceNotificationEmail(
+  data: CorrespondenceEmailData
+): Promise<EmailSendResult> {
+  if (!isValidEmailAddress(data.email)) {
+    return { ok: false, skipped: true, error: "Customer email address is missing or invalid." };
+  }
+
+  const recipient = getCorrespondenceNotificationEmail();
+  if (!recipient) {
+    return {
+      ok: false,
+      skipped: true,
+      error: "Correspondence email notifications are disabled.",
+    };
+  }
+
+  const customerEmail = data.email.trim();
+  const safeMailtoHref = `mailto:${encodeURIComponent(customerEmail).replace(/%40/gi, "@")}`;
+  const siteUrl = getSiteUrl();
+  const studioUrl = `${siteUrl}/studio`;
+  const formattedTimestamp = formatDateTimeIst(data.submittedAt);
+
+  const sourceLabel =
+    data.source === "strip"
+      ? "Collection Strip (Complimentary sample vial offer)"
+      : "The Correspondence Section";
+
+  const kindMeta: Record<
+    CorrespondenceEmailData["submissionKind"],
+    { badge: string; heading: string; subjectPrefix: string; intro: string }
+  > = {
+    new: {
+      badge: "New Subscriber",
+      heading: "New correspondence submission.",
+      subjectPrefix: "New submission",
+      intro: "A visitor submitted their email through The Correspondence on the Ligero Parfum storefront.",
+    },
+    resubscribed: {
+      badge: "Resubscribed",
+      heading: "Subscriber rejoined The Correspondence.",
+      subjectPrefix: "Resubscribed",
+      intro: "A previously unsubscribed visitor submitted their email again through The Correspondence.",
+    },
+    returning: {
+      badge: "Returning Submission",
+      heading: "Returning correspondence submission.",
+      subjectPrefix: "Returning submission",
+      intro: "An existing subscriber submitted The Correspondence form again on the storefront.",
+    },
+  };
+
+  const meta = kindMeta[data.submissionKind];
+  const fullPageUrl = data.pagePath ? `${siteUrl}${data.pagePath}` : undefined;
+  const pageRowHtml = data.pagePath
+    ? `<div style="margin-bottom:8px;"><span style="color:#6f6154;text-transform:uppercase;font-size:10px;letter-spacing:0.14em;">Page:</span> <a href="${escapeHtml(fullPageUrl)}" style="color:#a64b24;text-decoration:underline;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">${escapeHtml(data.pagePath)}</a></div>`
+    : "";
+  const ledgerNoteHtml =
+    data.savedToSanity === false
+      ? `<div style="margin-top:8px;color:#a64b24;font-weight:600;">Note: Sanity subscriber record could not be saved automatically for this submission.</div>`
+      : "";
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${escapeHtml(meta.heading)}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f3ede3;color:#2b2118;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+  <span style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeHtml(`${meta.badge}: ${customerEmail} via ${sourceLabel}`)}</span>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f3ede3;">
+    <tr>
+      <td align="center" style="padding:36px 16px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;background-color:#fbf8f2;border:1px solid #e0d7c7;">
+          <tr>
+            <td style="padding:26px 32px 20px;border-bottom:1px solid #e0d7c7;">
+              <a href="${escapeHtml(siteUrl)}" style="text-decoration:none;color:#2b2118;font-family:Georgia,'Times New Roman',serif;font-size:24px;font-weight:400;letter-spacing:0.04em;">
+                Ligero Parfum
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:30px 32px;">
+              <p style="margin:0 0 10px;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#a64b24;font-weight:600;">
+                The Correspondence · ${escapeHtml(meta.badge)}
+              </p>
+              <h1 style="margin:0 0 12px;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.2;font-weight:400;font-style:italic;color:#2b2118;">
+                ${escapeHtml(meta.heading)}
+              </h1>
+              <p style="margin:0 0 22px;font-size:14px;line-height:1.65;color:#6f6154;">
+                ${escapeHtml(meta.intro)}
+              </p>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f3ede3;border:1px solid #e0d7c7;">
+                <tr>
+                  <td style="padding:16px 18px;font-size:13px;line-height:1.65;">
+                    <div style="margin-bottom:8px;"><span style="color:#6f6154;text-transform:uppercase;font-size:10px;letter-spacing:0.14em;">Customer Email:</span> <a href="${escapeHtml(safeMailtoHref)}" style="color:#2b2118;font-weight:600;text-decoration:underline;">${escapeHtml(customerEmail)}</a></div>
+                    <div style="margin-bottom:8px;"><span style="color:#6f6154;text-transform:uppercase;font-size:10px;letter-spacing:0.14em;">Status:</span> <span style="color:#2b2118;">${escapeHtml(meta.badge)}</span></div>
+                    <div style="margin-bottom:8px;"><span style="color:#6f6154;text-transform:uppercase;font-size:10px;letter-spacing:0.14em;">Form:</span> <span style="color:#2b2118;">${escapeHtml(sourceLabel)}</span></div>
+                    ${pageRowHtml}
+                    <div><span style="color:#6f6154;text-transform:uppercase;font-size:10px;letter-spacing:0.14em;">Submitted:</span> <span style="color:#2b2118;">${escapeHtml(formattedTimestamp)}</span></div>
+                    ${ledgerNoteHtml}
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:22px 0 0;font-size:13px;line-height:1.65;color:#2b2118;">
+                <a href="${escapeHtml(safeMailtoHref)}" style="color:#a64b24;font-weight:600;text-decoration:underline;">Reply directly to ${escapeHtml(customerEmail)}</a>
+                &nbsp;·&nbsp;
+                <a href="${escapeHtml(studioUrl)}" style="color:#6f6154;text-decoration:underline;">Open Sanity Studio</a>
+              </p>
+              <p style="margin:14px 0 0;font-size:12px;line-height:1.6;color:#6f6154;">
+                You can reply directly to this email — the Reply-To header is set to the customer&apos;s address.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:16px 32px;background-color:#ece3d3;border-top:1px solid #e0d7c7;font-size:11px;line-height:1.6;color:#6f6154;">
+              <strong style="color:#2b2118;font-weight:500;">Ligero Parfum Atelier Notification</strong> ·
+              <a href="${escapeHtml(siteUrl)}" style="color:#6f6154;text-decoration:underline;">${escapeHtml(siteUrl.replace(/^https?:\/\//, ""))}</a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  const text = [
+    `LIGERO PARFUM — THE CORRESPONDENCE (${meta.badge.toUpperCase()})`,
+    ``,
+    meta.intro,
+    ``,
+    `Customer Email: ${customerEmail}`,
+    `Status: ${meta.badge}`,
+    `Form: ${sourceLabel}`,
+    data.pagePath ? `Page: ${fullPageUrl}` : null,
+    `Submitted: ${formattedTimestamp}`,
+    data.savedToSanity === false
+      ? `Note: Sanity subscriber record could not be saved automatically for this submission.`
+      : null,
+    ``,
+    `Reply directly to this email to answer the customer.`,
+    `Sanity Studio: ${studioUrl}`,
+  ]
+    .filter((line): line is string => line !== null)
+    .join("\n");
+
+  return sendResendEmail({
+    to: recipient,
+    subject: `[The Correspondence] ${meta.subjectPrefix} — ${customerEmail}`,
+    html,
+    text,
+    replyTo: customerEmail,
+    idempotencyKey: data.idempotencyId
+      ? `correspondence-alert/${data.idempotencyId}`
+      : undefined,
   });
 }

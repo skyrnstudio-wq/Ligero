@@ -12,7 +12,7 @@ Built with **Next.js 15 (App Router)**, **React 19**, **Tailwind CSS v4**, **San
 - **Styling & Motion:** Tailwind CSS v4, Motion (`motion`), Lenis (`lenis`)
 - **CMS:** Sanity v3 (`sanity`, `next-sanity`, `@sanity/client`, `@sanity/image-url`, `@sanity/vision`) mounted at `/studio`
 - **Payments:** Razorpay (`razorpay`) with server-side signature and webhook HMAC verification
-- **Email:** Resend transactional emails (`lib/email.ts`) for order confirmation and dispatch notifications
+- **Email:** Resend transactional emails (`lib/email.ts`) for order confirmation, dispatch, and Correspondence notifications
 - **Testing:** Playwright (`@playwright/test`) across 6 responsive viewport profiles
 
 ---
@@ -57,9 +57,10 @@ cp .env.example .env.local
 | `RAZORPAY_KEY_ID` | Server-only | Razorpay Key ID for server API calls |
 | `RAZORPAY_KEY_SECRET` | Server-only | Razorpay Key Secret for order creation and signature verification |
 | `RAZORPAY_WEBHOOK_SECRET` | Server-only | Secret configured in Razorpay Webhooks for HMAC verification |
-| `RESEND_API_KEY` | Server-only | Resend API key (`re_...`) for order and dispatch emails |
+| `RESEND_API_KEY` | Server-only | Resend API key (`re_...`) for order, dispatch, and Correspondence emails |
 | `RESEND_FROM_EMAIL` | Server-only | Verified sender address (e.g. `Ligero Parfum <sales@ligeroparfum.com>`) |
 | `ORDER_NOTIFICATION_EMAIL` | Server-only | Optional atelier alert inbox (defaults to `sales@ligeroparfum.com`; set to `off` to disable) |
+| `CORRESPONDENCE_NOTIFICATION_EMAIL` | Server-only | Optional inbox for "The Correspondence" submission alerts (defaults to `ORDER_NOTIFICATION_EMAIL` / `sales@ligeroparfum.com`; set to `off` to disable) |
 
 > **Note:** Changing any `NEXT_PUBLIC_*` variable requires a fresh production build because Next.js inlines public variables at build time.
 
@@ -107,7 +108,7 @@ npm run dev
 ```text
 app/
   api/
-    correspondence/       # Stores newsletter ("The Correspondence") email subscriptions
+    correspondence/       # Stores "The Correspondence" subscriptions and notifies sales@ligeroparfum.com
     orders/
       dispatch-webhook/   # Sanity webhook for order dispatch emails
       lookup/             # Order status lookup for checkout confirmation

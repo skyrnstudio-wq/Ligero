@@ -1,7 +1,12 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { type NextRequest } from "next/server";
 import { createClient } from "@sanity/client";
 import { apiVersion, dataset, projectId } from "@/sanity/env";
+import {
+  isEmailConfigured,
+  sendCorrespondenceNotificationEmail,
+  type CorrespondenceEmailData,
+} from "@/lib/email";
 import {
   createRateLimiter,
   getClientIp,
@@ -20,14 +25,14 @@ const correspondenceLimiter = createRateLimiter({
   max: 10,
 });
 
-function getSubscriberDocId(normalizedEmail: string): string {
-  const hash = createHash("sha256").update(normalizedEmail).digest("hex").slice(0, 24);
-  return `drafts.correspondence-${hash}`;
+function getSubscriberEmailHash(normalizedEmail: string): string {
+  return createHash("sha256").update(normalizedEmail).digest("hex").slice(0, 24);
 }
 
 export async function POST(req: NextRequest) {
   const token = process.env.SANITY_API_WRITE_TOKEN;
-  if (!token) {
+  const emailConfigured = isEmailConfigured();
+  if (!token && !emailConfigured) {
     return secureJson(
       { ok: false, error: "The Correspondence is temporarily unavailable. Write to sales@ligeroparfum.com." },
       503
@@ -81,58 +86,91 @@ export async function POST(req: NextRequest) {
   const rawPagePath = sanitizeText(payload.pagePath, 160);
   const pagePath = isSafePagePath(rawPagePath) ? rawPagePath : undefined;
 
-  const client = createClient({
-    projectId,
-    dataset,
-    apiVersion,
-    token,
-    useCdn: false,
-    perspective: "raw",
-  });
-
-  const docId = getSubscriberDocId(email);
+  const emailHash = getSubscriberEmailHash(email);
+  const docId = `drafts.correspondence-${emailHash}`;
   const now = new Date().toISOString();
 
-  try {
-    const existing = await client.fetch<{ _id: string; status?: string } | null>(
-      `*[_type == "correspondenceSubscriber" && (_id == $docId || lower(email) == $email)][0]{ _id, status }`,
-      { docId, email }
-    );
+  let savedToSanity = false;
+  let submissionKind: CorrespondenceEmailData["submissionKind"] = "new";
 
-    if (existing?._id) {
-      await client
-        .patch(existing._id)
-        .set({
-          lastSubmittedAt: now,
-          source,
-          ...(pagePath ? { pagePath } : {}),
-          ...(existing.status !== "subscribed"
-            ? { status: "subscribed", subscribedAt: now }
-            : {}),
-        })
-        .commit();
-
-      // Return identical success payload to avoid email enumeration
-      return secureJson({ ok: true }, 200, rateLimitHeaders(limit));
-    }
-
-    await client.create({
-      _id: docId,
-      _type: "correspondenceSubscriber",
-      email,
-      status: "subscribed",
-      source,
-      ...(pagePath ? { pagePath } : {}),
-      subscribedAt: now,
-      lastSubmittedAt: now,
+  if (token) {
+    const client = createClient({
+      projectId,
+      dataset,
+      apiVersion,
+      token,
+      useCdn: false,
+      perspective: "raw",
     });
 
-    return secureJson({ ok: true }, 200, rateLimitHeaders(limit));
-  } catch (error) {
-    console.error("[Correspondence] Failed to save subscriber email:", error);
+    try {
+      const existing = await client.fetch<{ _id: string; status?: string } | null>(
+        `*[_type == "correspondenceSubscriber" && (_id == $docId || lower(email) == $email)][0]{ _id, status }`,
+        { docId, email }
+      );
+
+      if (existing?._id) {
+        submissionKind = existing.status !== "subscribed" ? "resubscribed" : "returning";
+        await client
+          .patch(existing._id)
+          .set({
+            lastSubmittedAt: now,
+            source,
+            ...(pagePath ? { pagePath } : {}),
+            ...(existing.status !== "subscribed"
+              ? { status: "subscribed", subscribedAt: now }
+              : {}),
+          })
+          .commit();
+      } else {
+        submissionKind = "new";
+        await client.create({
+          _id: docId,
+          _type: "correspondenceSubscriber",
+          email,
+          status: "subscribed",
+          source,
+          ...(pagePath ? { pagePath } : {}),
+          subscribedAt: now,
+          lastSubmittedAt: now,
+        });
+      }
+
+      savedToSanity = true;
+    } catch (error) {
+      console.error("[Correspondence] Failed to save subscriber email:", error);
+    }
+  }
+
+  const emailResult = await sendCorrespondenceNotificationEmail({
+    email,
+    source,
+    pagePath,
+    submittedAt: now,
+    submissionKind,
+    savedToSanity,
+    idempotencyId: `${emailHash}-${randomUUID()}`,
+  }).catch((error) => ({
+    ok: false as const,
+    skipped: false,
+    error: error instanceof Error ? error.message : "Failed to send notification email.",
+  }));
+
+  if (!emailResult.ok) {
+    if (emailResult.skipped) {
+      console.warn("[Correspondence] Sales notification email skipped:", emailResult.error);
+    } else {
+      console.error("[Correspondence] Failed to send sales notification email:", emailResult.error);
+    }
+  }
+
+  if (!savedToSanity && !emailResult.ok) {
     return secureJson(
       { ok: false, error: "Could not save your email right now. Please try again in a moment." },
       502
     );
   }
+
+  // Return identical success payload to avoid email enumeration
+  return secureJson({ ok: true }, 200, rateLimitHeaders(limit));
 }
