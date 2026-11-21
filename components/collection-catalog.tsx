@@ -1,8 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import SmartImage from "@/components/smart-image";
+import { warmImage } from "@/lib/image-delivery";
 import { useCase } from "@/context/case-context";
 import { useCatalog } from "@/context/catalog-context";
 import {
@@ -377,6 +378,8 @@ export default function CollectionCatalog({
           <Link
             href={item.href}
             aria-label={`${item.name} — ${item.typeLabel}, ₹${item.price.toLocaleString("en-IN")}`}
+            onPointerEnter={() => warmImage(item.primaryImage, window.innerWidth <= 640 ? 220 : 275, 82)}
+            onTouchStart={() => warmImage(item.primaryImage, window.innerWidth <= 640 ? 220 : 275, 82)}
             className="relative flex h-full w-full items-center justify-center p-4 pb-12 sm:p-7 [@media(hover:none)]:pb-12 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#1c140e]"
           >
             {/* Clean Upright Flacon Cutout with instant grounded studio plinth & desktop drop shadow */}
@@ -385,14 +388,14 @@ export default function CollectionCatalog({
                 aria-hidden="true"
                 className="pointer-events-none absolute bottom-0 left-1/2 h-3.5 w-[58%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.24)_0%,rgba(28,20,14,0.09)_52%,transparent_76%)]"
               />
-              <Image
+              <SmartImage
                 src={item.primaryImage}
                 alt={`${item.name} ${item.typeLabel}`}
                 fill
                 priority={index < 2}
                 fetchPriority={index < 2 ? "high" : undefined}
                 loading={index < 2 ? undefined : "lazy"}
-                quality={80}
+                quality={78}
                 sizes="150px"
                 className="object-contain object-center md:[filter:drop-shadow(-10px_14px_16px_rgba(28,20,14,0.18))]"
               />

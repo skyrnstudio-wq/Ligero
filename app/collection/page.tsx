@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { preload } from "react-dom";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import PrivateSalon from "@/components/private-salon";
@@ -48,11 +47,6 @@ export const metadata: Metadata = {
 };
 
 export default async function CollectionPage() {
-  preload("/images/textures/raw-silk-canvas.webp", {
-    as: "image",
-    type: "image/webp",
-  });
-
   const [perfumes, objects] = await Promise.all([
     getLivePerfumes(),
     getLiveObjects(),
@@ -87,15 +81,7 @@ export default async function CollectionPage() {
         {/* 1. Tactile Macro Glass & Raw Silk Hero Banner ("Perfume") */}
         <section
           aria-label="Perfume Collection Header"
-          className="relative flex h-[110px] w-full items-center justify-center overflow-hidden border-b border-aube-hairline bg-[#EAE0CE] sm:h-[200px] lg:h-[240px]"
-          style={{
-            backgroundImage: `
-              radial-gradient(ellipse at 50% 45%, rgba(255, 252, 245, 0.72) 0%, rgba(234, 224, 206, 0.4) 60%, rgba(212, 198, 174, 0.55) 100%),
-              url('/images/textures/raw-silk-canvas.webp')
-            `,
-            backgroundRepeat: "no-repeat, repeat",
-            backgroundSize: "100% 100%, 360px 360px",
-          }}
+          className="collection-silk-surface relative flex h-[110px] w-full items-center justify-center overflow-hidden border-b border-aube-hairline bg-[#EAE0CE] sm:h-[200px] lg:h-[240px]"
         >
           {/* Macro glass rim detail framing the banner */}
           <div

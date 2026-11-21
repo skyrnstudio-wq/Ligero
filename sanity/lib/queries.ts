@@ -1,4 +1,4 @@
-import { groq } from 'next-sanity'
+const groq = String.raw
 
 // Fetch all perfumes for collection listing and carousel
 export const PERFUMES_QUERY = groq`
@@ -20,7 +20,9 @@ export const PERFUMES_QUERY = groq`
     isDark,
     "image": image.asset->url,
     "notesImage": notesImage.asset->url,
+    "notesImageLqip": notesImage.asset->metadata.lqip,
     "gallery": gallery[].asset->url,
+    "galleryLqips": gallery[].asset->metadata.lqip,
     scentProfile {
       top,
       heart,
@@ -35,7 +37,8 @@ export const PERFUMES_QUERY = groq`
       name,
       note,
       description,
-      "image": image.asset->url
+      "image": image.asset->url,
+      "imageLqip": image.asset->metadata.lqip
     },
     "relatedSlugs": relatedPerfumes[]->slug.current,
     occasions,
@@ -68,7 +71,9 @@ export const PERFUME_BY_SLUG_QUERY = groq`
     isDark,
     "image": image.asset->url,
     "notesImage": notesImage.asset->url,
+    "notesImageLqip": notesImage.asset->metadata.lqip,
     "gallery": gallery[].asset->url,
+    "galleryLqips": gallery[].asset->metadata.lqip,
     scentProfile {
       top,
       heart,
@@ -83,7 +88,8 @@ export const PERFUME_BY_SLUG_QUERY = groq`
       name,
       note,
       description,
-      "image": image.asset->url
+      "image": image.asset->url,
+      "imageLqip": image.asset->metadata.lqip
     },
     "relatedSlugs": relatedPerfumes[]->slug.current,
     occasions,
@@ -109,6 +115,7 @@ export const OBJECTS_QUERY = groq`
     description,
     spec,
     "image": image.asset->url,
+    "imageLqip": image.asset->metadata.lqip,
     occasions,
     "seo": {
       "title": seo.title,
@@ -132,6 +139,7 @@ export const OBJECT_BY_SLUG_QUERY = groq`
     description,
     spec,
     "image": image.asset->url,
+    "imageLqip": image.asset->metadata.lqip,
     occasions,
     "seo": {
       "title": seo.title,

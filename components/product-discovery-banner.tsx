@@ -45,7 +45,7 @@ export default function ProductDiscoveryBanner({
             Sample {fragranceName} in the Coffret
           </h4>
           <p className="mt-1 text-[11px] leading-relaxed text-pdp-muted">
-            Receive all seven 10 ml travel atomizers in one coffret for ₹999 with complimentary shipping.
+            Receive all seven 10 ml travel atomizers in one coffret for ₹999 with free shipping.
           </p>
         </div>
 
@@ -64,7 +64,7 @@ export default function ProductDiscoveryBanner({
         <span className="font-body text-xs font-semibold tabular-nums text-pdp-text">
           ₹999{" "}
           <span className="font-normal text-[10px] text-pdp-muted">
-            (Complimentary shipping)
+            (Free shipping)
           </span>
         </span>
 

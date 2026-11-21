@@ -10,6 +10,7 @@ export interface KeyIngredient {
   note: string;
   description: string;
   image?: string;
+  imageLqip?: string;
 }
 
 export interface Product {
@@ -29,7 +30,9 @@ export interface Product {
   provenance: string;
   image: string;
   notesImage?: string;
+  notesImageLqip?: string;
   gallery: string[];
+  galleryLqips?: Record<string, string>;
   relatedSlugs: string[];
   occasions?: string[];
   isDark?: boolean;
@@ -57,6 +60,7 @@ export interface HouseObject {
   description: string;
   spec: string;
   image: string;
+  imageLqip?: string;
   occasions?: string[];
 }
 
@@ -172,7 +176,6 @@ export const PERFUMES: Product[] = [
       "/images/perfumes/fleur-in-hand.webp",
       "/images/perfumes/notes/fleur.webp",
       "/images/perfumes/box.webp",
-      "/images/perfumes/fleur-tray.webp",
     ],
     relatedSlugs: ["blanc", "aube"],
     occasions: ["Wedding", "Date Night", "Brunch", "Office", "Daytime", "Festive", "Formal", "Gifting"],
@@ -584,6 +587,8 @@ export interface FragranceItem {
   notesSummary: string;
   image: string;
   notesImage?: string;
+  notesImageLqip?: string;
+  primaryGalleryImage?: string;
   occasions?: string[];
 }
 

@@ -2,11 +2,10 @@
 
 import Image from "next/image";
 import { useEffect, useRef } from "react";
-
-const HERO_IMAGE = "/images/hero/ligero-parfum-cutout.webp";
+import heroBottleImg from "@/public/images/hero/ligero-parfum-cutout.webp";
 
 /**
- * Home hero featuring the Ligéro Parfums signature amber bottle cutout
+ * Home hero featuring the Ligéro Parfum signature amber bottle cutout
  * with multi-plane scroll & pointer parallax across the monumental wordmark,
  * the centered flacon, and the diagonal editorial typography blocks.
  */
@@ -120,7 +119,9 @@ export default function Hero() {
     const supportsHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
     readScroll();
-    scheduleTick();
+    if (scrollProgress > 0) {
+      scheduleTick();
+    }
 
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
@@ -144,17 +145,7 @@ export default function Hero() {
     <section
       ref={sectionRef}
       aria-label="Hero"
-      className="relative flex min-h-svh flex-col justify-between overflow-hidden bg-aube-base"
-      style={{
-        backgroundImage: `
-          radial-gradient(circle at 25% 75%, rgba(255, 255, 255, 0.72) 0%, rgba(243, 237, 227, 0.45) 55%, rgba(243, 237, 227, 0) 85%),
-          radial-gradient(circle at 75% 28%, rgba(255, 255, 255, 0.65) 0%, rgba(243, 237, 227, 0) 60%),
-          radial-gradient(circle at 50% 52%, rgba(212, 148, 74, 0.18) 0%, rgba(243, 237, 227, 0) 50%),
-          url('/images/textures/raw-silk-canvas.webp')
-        `,
-        backgroundRepeat: "no-repeat, no-repeat, no-repeat, repeat",
-        backgroundSize: "100% 100%, 100% 100%, 100% 100%, 360px 360px",
-      }}
+      className="hero-silk-surface relative flex min-h-svh flex-col justify-between overflow-hidden bg-aube-base"
     >
       {/* Monumental LIGÉRO wordmark behind the flacon */}
       <div
@@ -180,14 +171,14 @@ export default function Hero() {
             className="pointer-events-none absolute inset-x-[18%] bottom-[4%] h-7 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(44,30,18,0.28)_0%,rgba(44,30,18,0.11)_48%,transparent_76%)] sm:h-9"
           />
           <Image
-            src={HERO_IMAGE}
-            alt="Ligéro Parfums signature amber flacon"
+            src={heroBottleImg}
+            alt="Ligéro Parfum signature amber flacon"
             fill
             priority
             fetchPriority="high"
             decoding="sync"
-            quality={82}
-            sizes="(max-width: 640px) 260px, (max-width: 1024px) 460px, 520px"
+            quality={78}
+            sizes="(max-width: 640px) 216px, (max-width: 1024px) 420px, 480px"
             className="hero-bottle-straighten object-contain object-center select-none md:[filter:drop-shadow(-18px_28px_34px_rgba(44,30,18,0.24))]"
           />
         </div>
@@ -230,7 +221,7 @@ export default function Hero() {
           className="mr-auto mt-auto max-w-[21rem] text-left sm:max-w-[28rem] lg:max-w-[31rem] xl:max-w-[35rem] md:will-change-transform"
         >
           <h1 className="font-display text-[1.85rem] font-light leading-[1.08] tracking-[-0.01em] text-aube-text sm:text-5xl lg:text-[3.5rem] xl:text-[4rem]">
-            <span className="sr-only">Ligéro Parfums — </span>
+            <span className="sr-only">Ligéro Parfum — </span>
             An intimate obsession.
             <span className="mt-1.5 block italic font-light text-aube-text">
               Crafted to be unforgettable.

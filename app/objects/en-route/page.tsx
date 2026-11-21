@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import SmartImage from "@/components/smart-image";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import AddEnRouteButton from "@/components/add-en-route-button";
@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = enRoute?.seo?.title || `${objectName} Car Perfume Diffuser`;
   const description = formatMetaDescription(
     enRoute?.seo?.description ||
-      `${objectName} cabin diffuser by Ligero Parfum: cedarwood, bergamot, and warm amber for the drive. INR ${objectPrice} with complimentary shipping across India.`
+      `${objectName} cabin diffuser by Ligero Parfum: cedarwood, bergamot, and warm amber for the drive. INR ${objectPrice} with free shipping across India.`
   );
   const ogImage =
     enRoute?.seo?.image ||
@@ -144,13 +144,14 @@ export default async function EnRoutePage() {
                   aria-hidden="true"
                   className="pointer-events-none absolute bottom-3 left-1/2 h-5 w-[64%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.20)_0%,rgba(28,20,14,0.08)_50%,transparent_76%)] sm:bottom-6"
                 />
-                <Image
+                <SmartImage
                   src={objectImage}
                   alt={`${objectName} car perfume`}
                   fill
                   priority
                   fetchPriority="high"
                   decoding="sync"
+                  blurDataURL={enRoute?.imageLqip}
                   quality={82}
                   sizes="(max-width: 640px) 92vw, (max-width: 1024px) 100vw, 58vw"
                   className="relative z-10 object-contain object-center md:[filter:drop-shadow(0_18px_26px_rgba(28,20,14,0.16))]"

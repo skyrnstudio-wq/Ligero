@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import SmartImage from "@/components/smart-image";
 import { useEffect, useRef, useState } from "react";
 import { useCase } from "@/context/case-context";
 
@@ -193,7 +193,7 @@ export default function CaseDrawer() {
               {items.map((item) => (
                 <li key={item.slug} className="flex gap-4 py-6 first:pt-2 last:pb-2">
                   <div className="relative h-24 w-20 flex-shrink-0 overflow-hidden border border-aube-hairline/60 bg-aube-base/40">
-                    <Image
+                    <SmartImage
                       src={item.image}
                       alt={item.name}
                       fill

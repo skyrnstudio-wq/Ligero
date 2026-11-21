@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import SmartImage from "@/components/smart-image";
 import { getPerfumeCutoutImage, type Product } from "@/lib/products";
 import { useCase } from "@/context/case-context";
 
@@ -53,7 +53,7 @@ export default function ProductStickyBar({
       <div className="mx-auto flex h-12 max-w-[112rem] items-center justify-between px-5 sm:px-8">
         <div className="flex items-center gap-3">
           <div className="relative h-11 w-10 flex-none overflow-hidden bg-pdp-surface2">
-            <Image
+            <SmartImage
               src={cutout}
               alt={product.name}
               fill

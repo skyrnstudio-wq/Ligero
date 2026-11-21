@@ -131,7 +131,7 @@ ${objectSections}
 - Delivery Coverage: All serviceable Indian postal codes.
 - Dispatch Time: Within 1 to 2 working days from the Mumbai studio.
 - Transit Time: 3 to 7 working days via domestic surface freight (alcohol-based fragrance ships strictly by ground transport, never by air).
-- Shipping Fee: Complimentary across India on every order.
+- Shipping Fee: Free across India on every order.
 - Return Policy: Unopened, factory-sealed bottles may be returned within 7 days of delivery. Refunds issue to the original payment method within 7 working days of receipt. Opened bottles cannot be returned.
 - Damaged in Transit: Send photographs of the outer carton and bottle to ${CONTACT_EMAIL} within 48 hours of delivery for complimentary replacement or refund.
 - Payment Methods: Prepaid via UPI, major credit and debit cards, and netbanking through Razorpay. No cash on delivery.
@@ -141,7 +141,7 @@ ${objectSections}
 ## Frequently Asked Questions
 
 - Q: Can I sample Ligero perfumes before ordering a 50 ml bottle?
-  A: Yes. The Discovery Set (${BASE_URL}/discovery-set) includes 10 ml atomizers of all seven permanent perfumes for INR 999 with complimentary domestic shipping across India.
+  A: Yes. The Discovery Set (${BASE_URL}/discovery-set) includes 10 ml atomizers of all seven permanent perfumes for INR 999 with free domestic shipping across India.
 - Q: Are all Ligero perfumes unisex?
   A: Yes. Every Eau de Parfum in the collection is formulated for any wearer based on skin chemistry, weather, and occasion rather than gender labels.
 - Q: Why does perfume ship by surface freight instead of air?

@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import SmartImage from "@/components/smart-image";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
 import { useCase } from "@/context/case-context";
 import { useCatalog } from "@/context/catalog-context";
 import {
@@ -17,15 +16,16 @@ import NavDrawer from "./lazy-nav-drawer";
 
 interface SiteHeaderProps {
   isDark?: boolean;
+  isHome?: boolean;
 }
 
 /**
  * Single-line maison header (max 72px).
  * Left: Collection (opens the seven-bottle cutout panel on hover/focus), Discovery Set.
- * Center: Ligero Parfums crest.
+ * Center: Ligero Parfum crest.
  * Right: Maison, Concierge, Search, Case.
  */
-export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
+export default function SiteHeader({ isDark = false, isHome = false }: SiteHeaderProps) {
   const pathname = usePathname();
 
   const [hidden, setHidden] = useState(false);
@@ -41,20 +41,29 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const { scrollY } = useScroll();
+  const searchOpenRef = useRef(searchOpen);
+  const collectionOpenRef = useRef(collectionOpen);
+  const prevHiddenRef = useRef(false);
 
-  // Intro loader completion state
-  const isHome = pathname === "/";
+  useEffect(() => {
+    searchOpenRef.current = searchOpen;
+  }, [searchOpen]);
+
+  useEffect(() => {
+    collectionOpenRef.current = collectionOpen;
+  }, [collectionOpen]);
+
+  // Intro loader completion state (driven by explicit isHome prop, not usePathname(),
+  // so Vercel ISR prerendering never mismatches "/" vs "/index").
   const [introDone, setIntroDone] = useState(() => {
-    if (typeof window !== "undefined") {
-      if (window.location.pathname !== "/") return true;
-      if (window.__ligeroIntroDone) return true;
-    }
-    return !isHome;
+    if (!isHome) return true;
+    if (typeof window !== "undefined" && window.__ligeroIntroDone) return true;
+    return false;
   });
 
   useEffect(() => {
     if (!isHome) {
+      window.__ligeroIntroDone = true;
       setIntroDone(true);
       return;
     }
@@ -73,25 +82,46 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
     return () => window.removeEventListener("ligero:intro-done", onIntroDone);
   }, [isHome]);
 
-  useMotionValueEvent(scrollY, "change", (y) => {
-    const prev = lastY.current;
-    const delta = y - prev;
-    lastY.current = y;
-    setScrolled(y > 8);
-
-    if (y < 96) {
-      setHidden(false);
-    } else if (delta > 5 && !(prev === 0 && y >= 750) && !searchOpen && !collectionOpen) {
-      setHidden(true);
-    } else if (delta < -4) {
-      setHidden(false);
-    }
-  });
-
   useEffect(() => {
-    const y = window.scrollY;
-    lastY.current = y;
-    if (y > 8) setScrolled(true);
+    let rafId = 0;
+
+    const update = () => {
+      rafId = 0;
+      const y = window.scrollY;
+      const prev = lastY.current;
+      const delta = y - prev;
+      lastY.current = y;
+      setScrolled(y > 8);
+
+      if (y < 96) {
+        setHidden(false);
+      } else if (
+        delta > 5 &&
+        !(prev === 0 && y >= 750) &&
+        !searchOpenRef.current &&
+        !collectionOpenRef.current
+      ) {
+        setHidden(true);
+      } else if (delta < -4) {
+        setHidden(false);
+      }
+    };
+
+    const onScroll = () => {
+      if (!rafId) {
+        rafId = requestAnimationFrame(update);
+      }
+    };
+
+    const initialY = window.scrollY;
+    lastY.current = initialY;
+    if (initialY > 8) setScrolled(true);
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   useEffect(() => {
@@ -104,14 +134,21 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
   }, []);
 
   useEffect(() => {
+    if (hidden === prevHiddenRef.current) return;
+    prevHiddenRef.current = hidden;
     document.documentElement.style.setProperty(
       "--sticky-top",
       hidden ? "0px" : "var(--header-offset)"
     );
-    return () => {
-      document.documentElement.style.removeProperty("--sticky-top");
-    };
   }, [hidden]);
+
+  useEffect(() => {
+    return () => {
+      if (prevHiddenRef.current) {
+        document.documentElement.style.removeProperty("--sticky-top");
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (searchOpen) {
@@ -206,13 +243,12 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
 
   return (
     <>
-      <motion.header
+      <header
         ref={headerRef}
-        initial={false}
-        animate={{ y: hidden ? "-100%" : "0%" }}
-        transition={{ duration: 0.42, ease: [0.32, 0.72, 0, 1] }}
         onMouseLeave={scheduleCloseCollection}
-        className={`fixed inset-x-0 top-0 z-40 transition-colors duration-300 ${headerBg} ${borderRule} ${shadowRule} ${blurRule}`}
+        className={`fixed inset-x-0 top-0 z-40 transition-[transform,background-color,box-shadow] duration-[420ms] ease-[cubic-bezier(0.32,0.72,0,1)] ${
+          hidden ? "-translate-y-full" : "translate-y-0"
+        } ${headerBg} ${borderRule} ${shadowRule} ${blurRule}`}
       >
         <div className="relative mx-auto flex h-16 w-full max-w-[112rem] items-center justify-between px-2.5 sm:h-[70px] sm:px-10 lg:h-[72px] lg:px-14 xl:px-20">
           {/* Left: Mobile Menu trigger OR Desktop "Collection · Discovery Set" */}
@@ -272,7 +308,7 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
           {/* Center: Maison Crest */}
           <Link
             href="/"
-            aria-label="Ligéro Parfums — Home"
+            aria-label="Ligéro Parfum — Home"
             onClick={() => {
               setCollectionOpen(false);
               setSearchOpen(false);
@@ -294,7 +330,7 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
                 aria-hidden="true"
                 className="mt-0.5 font-display text-[11px] font-semibold uppercase leading-none tracking-[0.36em] pl-[0.36em] sm:text-[12px] sm:tracking-[0.40em] sm:pl-[0.40em] text-[#d89f68]"
               >
-                Parfums
+                Parfum
               </span>
             </div>
           </Link>
@@ -371,77 +407,63 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
         </div>
 
         {/* Collection Hover Panel: Seven bottle cutouts, name under each, no prices */}
-        <AnimatePresence>
-          {collectionOpen && (
-            <motion.div
-              id="collection-cutout-panel"
-              role="region"
-              aria-label="The seven perfumes"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{
-                duration: 0.45,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              onMouseEnter={openCollection}
-              onMouseLeave={scheduleCloseCollection}
-              className={`absolute top-full left-0 right-0 hidden lg:block px-10 py-8 xl:px-20 ${panelSurface} shadow-[0_24px_48px_rgba(0,0,0,0.5)]`}
-            >
-              <div className="mx-auto max-w-[112rem]">
-                <ul
-                  className={
-                    perfumes.length <= 7
-                      ? "grid grid-cols-7 gap-6"
-                      : "grid grid-cols-4 gap-6 xl:grid-cols-8"
-                  }
-                >
-                  {perfumes.map((perfume) => {
-                    const cutout = getPerfumeCutoutImage(perfume);
-                    return (
-                      <li key={perfume.slug}>
-                        <Link
-                          href={`/collection/${perfume.slug}`}
-                          onClick={() => setCollectionOpen(false)}
-                          className="group flex flex-col items-center text-center"
-                        >
-                          <div className="relative aspect-[3/4] w-full max-w-[130px] overflow-hidden">
-                            <Image
-                              src={cutout}
-                              alt={`${perfume.name} bottle`}
-                              fill
-                              fetchPriority="low"
-                              loading="lazy"
-                              sizes="130px"
-                              className="object-contain p-2 md:[filter:drop-shadow(-8px_12px_16px_rgba(0,0,0,0.55))] transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105"
-                            />
-                          </div>
-                          <span className="mt-2 font-display text-xl font-light italic transition-colors duration-300 group-hover:text-[#d89f68]">
-                            {perfume.name}
-                          </span>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {collectionOpen && (
+          <div
+            id="collection-cutout-panel"
+            role="region"
+            aria-label="The seven perfumes"
+            onMouseEnter={openCollection}
+            onMouseLeave={scheduleCloseCollection}
+            className={`header-panel-enter absolute top-full left-0 right-0 hidden lg:block px-10 py-8 xl:px-20 ${panelSurface} shadow-[0_24px_48px_rgba(0,0,0,0.5)]`}
+          >
+            <div className="mx-auto max-w-[112rem]">
+              <ul
+                className={
+                  perfumes.length <= 7
+                    ? "grid grid-cols-7 gap-6"
+                    : "grid grid-cols-4 gap-6 xl:grid-cols-8"
+                }
+              >
+                {perfumes.map((perfume) => {
+                  const cutout = getPerfumeCutoutImage(perfume);
+                  return (
+                    <li key={perfume.slug}>
+                      <Link
+                        href={`/collection/${perfume.slug}`}
+                        onClick={() => setCollectionOpen(false)}
+                        className="group flex flex-col items-center text-center"
+                      >
+                        <div className="relative aspect-[3/4] w-full max-w-[130px] overflow-hidden">
+                          <SmartImage
+                            src={cutout}
+                            alt={`${perfume.name} bottle`}
+                            fill
+                            fetchPriority="low"
+                            loading="lazy"
+                            sizes="130px"
+                            className="object-contain p-2 md:[filter:drop-shadow(-8px_12px_16px_rgba(0,0,0,0.55))] transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105"
+                          />
+                        </div>
+                        <span className="mt-2 font-display text-xl font-light italic transition-colors duration-300 group-hover:text-[#d89f68]">
+                          {perfume.name}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+        )}
 
         {/* Search Panel */}
-        <AnimatePresence>
-          {searchOpen && (
-            <motion.div
-              id="maison-search-panel"
-              role="region"
-              aria-label="Search Ligero creations"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className={`absolute top-full left-0 right-0 max-h-[calc(100dvh-var(--header-offset))] overflow-y-auto px-4 py-4 sm:px-10 sm:py-6 lg:px-20 ${panelSurface} shadow-[0_24px_48px_rgba(0,0,0,0.5)]`}
-            >
+        {searchOpen && (
+          <div
+            id="maison-search-panel"
+            role="region"
+            aria-label="Search Ligero creations"
+            className={`header-panel-enter absolute top-full left-0 right-0 max-h-[calc(100dvh-var(--header-offset))] overflow-y-auto px-4 py-4 sm:px-10 sm:py-6 lg:px-20 ${panelSurface} shadow-[0_24px_48px_rgba(0,0,0,0.5)]`}
+          >
               <div className="mx-auto max-w-4xl">
                 <div className="flex items-center gap-3 border-b border-[#382a20] pb-3">
                   <svg
@@ -531,7 +553,7 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
                         className="group flex items-center gap-3 border border-[#382a20] bg-[#251b14]/70 p-2.5 transition-colors hover:border-[#d89f68]"
                       >
                         <div className="relative h-12 w-12 shrink-0 overflow-hidden">
-                          <Image
+                          <SmartImage
                             src={item.image}
                             alt={item.name}
                             fill
@@ -562,10 +584,9 @@ export default function SiteHeader({ isDark = false }: SiteHeaderProps) {
                   )}
                 </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.header>
+          </div>
+        )}
+      </header>
 
       <NavDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} isDark={true} />
     </>

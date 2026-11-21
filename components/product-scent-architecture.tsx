@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from "next/image";
+import SmartImage from "@/components/smart-image";
 import {
   getPerfumeCutoutImage,
   getPerfumeNotesImage,
@@ -127,11 +127,12 @@ export default function ProductScentArchitecture({
                 {/* Left Portrait Botanical Plate + Vertical Black Hairline Rule */}
                 <div className="relative border-r border-pdp-text/40 pr-3 sm:pr-4">
                   <div className="relative aspect-[4/4.5] w-full overflow-hidden bg-pdp-surface2 md:aspect-[3/4]">
-                    <Image
+                    <SmartImage
                       src={imgSrc}
                       alt={`${item.name} (${item.note}) for ${product.name}`}
                       fill
                       loading="lazy"
+                      blurDataURL={item.imageLqip}
                       quality={78}
                       sizes="(max-width: 768px) 200px, 240px"
                       className="object-cover object-center transition-transform duration-700 ease-out hover:scale-105"

@@ -49,7 +49,7 @@ Last updated: ${lastUpdated.toISOString().slice(0, 10)}
 Canonical website: ${BASE_URL}
 Contact: ${CONTACT_EMAIL}
 
-Ligero Parfum sells direct to collectors across India in 50 ml glass flacons, The Discovery Set (7 x 10 ml vials), and En Route (car perfume). All prices include GST. Domestic surface shipping across serviceable postal codes in India is complimentary. Unopened, factory-sealed bottles qualify for return within seven days of delivery.
+Ligero Parfum sells direct to collectors across India in 50 ml glass flacons, The Discovery Set (7 x 10 ml vials), and En Route (car perfume). All prices include GST. Domestic surface shipping across serviceable postal codes in India is free. Unopened, factory-sealed bottles qualify for return within seven days of delivery.
 
 ## Permanent Perfume Collection (50 ml)
 

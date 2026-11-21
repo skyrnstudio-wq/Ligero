@@ -1,8 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import SmartImage from "@/components/smart-image";
+import { onFirstUserInteraction, warmImage } from "@/lib/image-delivery";
 import { useCase } from "@/context/case-context";
 import { useCatalog } from "@/context/catalog-context";
 import type { HouseObject } from "@/lib/products";
@@ -54,6 +55,15 @@ export default function ObjectsDuo({ objects }: { objects?: HouseObject[] }) {
   const [discoveryAdded, setDiscoveryAdded] = useState(false);
   const [enRouteAdded, setEnRouteAdded] = useState(false);
 
+  useEffect(() => {
+    return onFirstUserInteraction(() => {
+      const vw = window.innerWidth;
+      const cutoutCssWidth = vw <= 640 ? 216 : vw <= 1024 ? Math.round(vw * 0.38) : Math.round(vw * 0.34);
+      warmImage(discoveryImage, cutoutCssWidth, 75);
+      warmImage(enRouteImage, cutoutCssWidth, 75);
+    });
+  }, [discoveryImage, enRouteImage]);
+
   const handleOrderDiscovery = () => {
     addToCase({
       slug: "discovery-set",
@@ -97,10 +107,12 @@ export default function ObjectsDuo({ objects }: { objects?: HouseObject[] }) {
         >
           {/* Background 1: Roman Travertine & Raw Silk (Desktop/Tablet) */}
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 hidden md:block">
-            <Image
+            <SmartImage
               src={DISCOVERY_BG_IMAGE}
               alt=""
               fill
+              loading="lazy"
+              quality={70}
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover object-center opacity-70"
             />
@@ -114,19 +126,22 @@ export default function ObjectsDuo({ objects }: { objects?: HouseObject[] }) {
             <Link
               href="/discovery-set"
               aria-label="Explore The Discovery Set, seven 10 ml vials"
+              onPointerEnter={() => warmImage(discoveryImage, window.innerWidth <= 640 ? 360 : 680, 82)}
+              onTouchStart={() => warmImage(discoveryImage, window.innerWidth <= 640 ? 360 : 680, 82)}
               className="group relative flex h-[200px] w-full items-center justify-center sm:h-[320px] md:h-[420px] lg:h-[460px] xl:h-[500px]"
             >
               <div
                 aria-hidden="true"
                 className="pointer-events-none absolute bottom-4 left-1/2 h-5 w-[56%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.24)_0%,rgba(28,20,14,0.09)_50%,transparent_76%)] sm:bottom-6"
               />
-              <Image
+              <SmartImage
                 src={discoveryImage}
-                alt="Ligero Parfums Floating Signature Collection, seven 10 ml pocket perfume sprays: Aube, Maree, Blanc, Ambre Doux, Noctis, Fleur, and Noir Cacao"
+                alt="Ligero Parfum Floating Signature Collection, seven 10 ml pocket perfume sprays: Aube, Maree, Blanc, Ambre Doux, Noctis, Fleur, and Noir Cacao"
                 fill
                 loading="lazy"
-                quality={80}
-                sizes="(max-width: 640px) 280px, (max-width: 1024px) 44vw, 38vw"
+                blurDataURL={discovery?.imageLqip}
+                quality={75}
+                sizes="(max-width: 640px) 216px, (max-width: 1024px) 38vw, 34vw"
                 className="relative z-10 object-contain object-center p-4 sm:p-8 lg:p-12 md:[filter:drop-shadow(0_18px_24px_rgba(28,20,14,0.20))] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
               />
             </Link>
@@ -147,7 +162,8 @@ export default function ObjectsDuo({ objects }: { objects?: HouseObject[] }) {
                 </p>
 
                 <p className="mt-2.5 font-body text-xs uppercase tracking-[0.18em] text-aube-text-muted sm:mt-3.5">
-                  {discoveryVolume} · ₹{discoveryPrice.toLocaleString("en-IN")}
+                  {discoveryVolume} · <span className="font-sans">₹</span>
+                  {discoveryPrice.toLocaleString("en-IN")}
                 </p>
               </div>
 
@@ -179,10 +195,12 @@ export default function ObjectsDuo({ objects }: { objects?: HouseObject[] }) {
         >
           {/* Background 2: Pale European Oak & Oatmeal Linen (Desktop/Tablet) */}
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 hidden md:block">
-            <Image
+            <SmartImage
               src={EN_ROUTE_BG_IMAGE}
               alt=""
               fill
+              loading="lazy"
+              quality={70}
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover object-center opacity-70"
             />
@@ -196,19 +214,22 @@ export default function ObjectsDuo({ objects }: { objects?: HouseObject[] }) {
             <Link
               href="/objects/en-route"
               aria-label="Explore En Route, Car Perfume Cabin Diffuser"
+              onPointerEnter={() => warmImage(enRouteImage, window.innerWidth <= 640 ? 360 : 680, 82)}
+              onTouchStart={() => warmImage(enRouteImage, window.innerWidth <= 640 ? 360 : 680, 82)}
               className="group relative flex h-[200px] w-full items-center justify-center sm:h-[320px] md:h-[420px] lg:h-[460px] xl:h-[500px]"
             >
               <div
                 aria-hidden="true"
                 className="pointer-events-none absolute bottom-4 left-1/2 h-5 w-[56%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.24)_0%,rgba(28,20,14,0.09)_50%,transparent_76%)] sm:bottom-6"
               />
-              <Image
+              <SmartImage
                 src={enRouteImage}
                 alt="Ligero En Route Car Perfume, luxury diffuser flat-lay with cedarwood and dried bergamot peel"
                 fill
                 loading="lazy"
-                quality={80}
-                sizes="(max-width: 640px) 280px, (max-width: 1024px) 44vw, 38vw"
+                blurDataURL={enRoute?.imageLqip}
+                quality={75}
+                sizes="(max-width: 640px) 216px, (max-width: 1024px) 38vw, 34vw"
                 className="relative z-10 object-contain object-center p-4 sm:p-8 lg:p-12 md:[filter:drop-shadow(0_16px_22px_rgba(28,20,14,0.18))] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
               />
             </Link>
@@ -229,7 +250,8 @@ export default function ObjectsDuo({ objects }: { objects?: HouseObject[] }) {
                 </p>
 
                 <p className="mt-2.5 font-body text-xs uppercase tracking-[0.18em] text-aube-text-muted sm:mt-3.5">
-                  {enRouteVolume} · ₹{enRoutePrice.toLocaleString("en-IN")}
+                  {enRouteVolume} · <span className="font-sans">₹</span>
+                  {enRoutePrice.toLocaleString("en-IN")}
                 </p>
               </div>
 

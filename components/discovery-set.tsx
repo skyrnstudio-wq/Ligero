@@ -88,7 +88,7 @@ export default function DiscoverySet() {
           />
           <Image
             src={DISCOVERY_FLOATING_IMAGE}
-            alt="Ligéro Parfums Floating Signature Collection, seven 10 ml pocket perfume sprays: Aubé, Marée, Blanc, Ambre Doux, Noctis, Fleur, and Noir Cacao"
+            alt="Ligéro Parfum Floating Signature Collection, seven 10 ml pocket perfume sprays: Aubé, Marée, Blanc, Ambre Doux, Noctis, Fleur, and Noir Cacao"
             fill
             loading="eager"
             quality={80}

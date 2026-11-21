@@ -36,7 +36,8 @@
 
 @layer base {
   :root {
-    --header-offset: 67px;
+    --header-offset: 64px;
+    --sticky-top: var(--header-offset);
     --sat: env(safe-area-inset-top, 0px);
     --sar: env(safe-area-inset-right, 0px);
     --sab: env(safe-area-inset-bottom, 0px);
@@ -45,7 +46,7 @@
 
   @media (min-width: 640px) {
     :root {
-      --header-offset: 73px;
+      --header-offset: 70px;
     }
   }
 
@@ -146,13 +147,38 @@ body:has(#sanity) {
     }
   }
 
-  /* Intro loader: deterministic scale from first paint, compositor-only collapse to navbar */
-  .intro-loader-veil {
-    transform: translate3d(0, 0, 0);
+  /* Intro loader: pure-CSS compositor-only lift from first paint (never blocked on JS hydration) */
+  @keyframes intro-veil-lift {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+    100% {
+      transform: translate3d(0, calc(-100% + var(--header-offset)), 0);
+    }
   }
 
-  .intro-loader-veil[data-flying="true"] {
-    transform: translate3d(0, var(--intro-veil-ty, calc(-100% + 72px)), 0);
+  @keyframes intro-logo-glide {
+    0% {
+      transform: translate3d(0, 0, 0) scale(var(--intro-start-scale));
+    }
+    100% {
+      transform: translate3d(0, calc(-50svh + var(--header-offset) / 2), 0) scale(1);
+    }
+  }
+
+  @keyframes intro-tagline-fade {
+    0% {
+      opacity: 0.75;
+      transform: translate3d(0, 0, 0);
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(0, -6px, 0);
+    }
+  }
+
+  .intro-loader-veil {
+    transform: translate3d(0, 0, 0);
   }
 
   .intro-loader-logo {
@@ -173,30 +199,22 @@ body:has(#sanity) {
     }
   }
 
-  .intro-loader-logo[data-flying="true"] {
-    transform: translate3d(var(--intro-tx, 0px), var(--intro-ty, 0px), 0) scale(1);
-  }
-
   .intro-loader-tagline {
     opacity: 0.75;
     transform: translate3d(0, 0, 0);
   }
 
-  .intro-loader-tagline[data-flying="true"] {
-    opacity: 0;
-    transform: translate3d(0, -6px, 0);
-  }
-
   @media (prefers-reduced-motion: no-preference) {
-    .intro-loader-veil[data-flying="true"],
-    .intro-loader-logo[data-flying="true"] {
-      transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+    .intro-loader-veil {
+      animation: intro-veil-lift 0.55s cubic-bezier(0.76, 0, 0.24, 1) 0.1s forwards;
     }
 
-    .intro-loader-tagline[data-flying="true"] {
-      transition:
-        opacity 0.28s ease-out,
-        transform 0.28s ease-out;
+    .intro-loader-logo {
+      animation: intro-logo-glide 0.55s cubic-bezier(0.76, 0, 0.24, 1) 0.1s forwards;
+    }
+
+    .intro-loader-tagline {
+      animation: intro-tagline-fade 0.22s ease-out 0.1s forwards;
     }
   }
 
@@ -205,6 +223,100 @@ body:has(#sanity) {
       display: none;
     }
   }
+
+  /* Normalize uppercase editorial fallback metrics to prevent font-swap CLS */
+  .font-editorial {
+    font-size-adjust: cap-height from-font;
+  }
+
+  /* Decorative texture surfaces using image-set() with WebP fallback */
+  .hero-silk-surface {
+    background-image:
+      radial-gradient(circle at 25% 75%, rgba(255, 255, 255, 0.72) 0%, rgba(243, 237, 227, 0.45) 55%, rgba(243, 237, 227, 0) 85%),
+      radial-gradient(circle at 75% 28%, rgba(255, 255, 255, 0.65) 0%, rgba(243, 237, 227, 0) 60%),
+      radial-gradient(circle at 50% 52%, rgba(212, 148, 74, 0.18) 0%, rgba(243, 237, 227, 0) 50%),
+      url("/images/textures/raw-silk-canvas.webp");
+    background-image:
+      radial-gradient(circle at 25% 75%, rgba(255, 255, 255, 0.72) 0%, rgba(243, 237, 227, 0.45) 55%, rgba(243, 237, 227, 0) 85%),
+      radial-gradient(circle at 75% 28%, rgba(255, 255, 255, 0.65) 0%, rgba(243, 237, 227, 0) 60%),
+      radial-gradient(circle at 50% 52%, rgba(212, 148, 74, 0.18) 0%, rgba(243, 237, 227, 0) 50%),
+      image-set(
+        url("/images/textures/raw-silk-canvas.avif") type("image/avif") 1x,
+        url("/images/textures/raw-silk-canvas.webp") type("image/webp") 1x
+      );
+    background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+    background-size: 100% 100%, 100% 100%, 100% 100%, 360px 360px;
+  }
+
+  .collection-silk-surface {
+    background-image:
+      radial-gradient(ellipse at 50% 45%, rgba(255, 252, 245, 0.72) 0%, rgba(234, 224, 206, 0.4) 60%, rgba(212, 198, 174, 0.55) 100%),
+      url("/images/textures/raw-silk-canvas.webp");
+    background-image:
+      radial-gradient(ellipse at 50% 45%, rgba(255, 252, 245, 0.72) 0%, rgba(234, 224, 206, 0.4) 60%, rgba(212, 198, 174, 0.55) 100%),
+      image-set(
+        url("/images/textures/raw-silk-canvas.avif") type("image/avif") 1x,
+        url("/images/textures/raw-silk-canvas.webp") type("image/webp") 1x
+      );
+    background-repeat: no-repeat, repeat;
+    background-size: 100% 100%, 360px 360px;
+  }
+
+  .editorial-grain-surface {
+    background-image:
+      radial-gradient(circle at 50% 50%, rgba(185, 151, 91, 0.16) 0%, rgba(28, 20, 14, 0.98) 85%),
+      url("/images/textures/film-grain.webp");
+    background-image:
+      radial-gradient(circle at 50% 50%, rgba(185, 151, 91, 0.16) 0%, rgba(28, 20, 14, 0.98) 85%),
+      image-set(
+        url("/images/textures/film-grain.avif") type("image/avif") 1x,
+        url("/images/textures/film-grain.webp") type("image/webp") 1x
+      );
+    background-repeat: no-repeat, repeat;
+    background-size: 100% 100%, 240px 240px;
+  }
+
+  /* Header dropdown enter motion without JS animation runtime */
+  @keyframes header-panel-enter {
+    from {
+      opacity: 0;
+      transform: translate3d(0, -10px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  .header-panel-enter {
+    @media (prefers-reduced-motion: no-preference) {
+      animation: header-panel-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+  }
+}
+
+/* Lenis smooth-scroll structural styles (only active when desktop Lenis attaches .lenis) */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent-horizontal],
+.lenis [data-lenis-prevent-touch],
+.lenis [data-lenis-prevent-vertical],
+.lenis [data-lenis-prevent-wheel],
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+.lenis.lenis-autoToggle {
+  transition-property: overflow;
+  transition-duration: 1ms;
+  transition-behavior: allow-discrete;
 }
 
 @keyframes hero-bottle-straighten {

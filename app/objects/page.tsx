@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import SmartImage from "@/components/smart-image";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import PrivateSalon from "@/components/private-salon";
@@ -17,7 +17,7 @@ import {
 } from "@/lib/seo/schema";
 
 const OBJECTS_DESCRIPTION =
-  "Scented objects from Ligero Parfum: The Discovery Set of seven 10 ml vials and En Route car perfume diffuser. Complimentary domestic shipping across India.";
+  "Scented objects from Ligero Parfum: The Discovery Set of seven 10 ml vials and En Route car perfume diffuser. Free domestic shipping across India.";
 
 export const metadata: Metadata = {
   title: "Objects of Scent: Discovery Set & Car Perfume",
@@ -124,11 +124,12 @@ export default async function ObjectsPage() {
                   aria-hidden="true"
                   className="pointer-events-none absolute bottom-3 left-1/2 h-5 w-[64%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.20)_0%,rgba(28,20,14,0.08)_50%,transparent_76%)] sm:bottom-6"
                 />
-                <Image
+                <SmartImage
                   src={discoveryImage}
                   alt="The seven vials of the Discovery Set"
                   fill
                   priority
+                  blurDataURL={discovery?.imageLqip}
                   fetchPriority="high"
                   decoding="sync"
                   quality={82}
@@ -167,11 +168,12 @@ export default async function ObjectsPage() {
                   aria-hidden="true"
                   className="pointer-events-none absolute bottom-3 left-1/2 h-5 w-[64%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.20)_0%,rgba(28,20,14,0.08)_50%,transparent_76%)] sm:bottom-6"
                 />
-                <Image
+                <SmartImage
                   src={enRouteImage}
                   alt={`${enRouteName} car perfume`}
                   fill
                   loading="lazy"
+                  blurDataURL={enRoute?.imageLqip}
                   quality={82}
                   sizes="(max-width: 640px) 92vw, (max-width: 1024px) 100vw, 58vw"
                   className="relative z-10 object-contain p-4 md:[filter:drop-shadow(0_18px_26px_rgba(28,20,14,0.16))] transition-transform duration-700 ease-out group-hover:scale-[1.02] sm:p-6"
@@ -212,11 +214,12 @@ export default async function ObjectsPage() {
                     aria-hidden="true"
                     className="pointer-events-none absolute bottom-4 left-1/2 h-5 w-[60%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.20)_0%,rgba(28,20,14,0.08)_50%,transparent_76%)] sm:bottom-6"
                   />
-                  <Image
+                  <SmartImage
                     src={obj.image}
                     alt={obj.name}
                     fill
-                    loading="eager"
+                    loading="lazy"
+                    blurDataURL={obj.imageLqip}
                     quality={80}
                     sizes="(max-width: 640px) 92vw, (max-width: 1024px) 100vw, 58vw"
                     className="relative z-10 object-contain p-6 md:[filter:drop-shadow(0_18px_26px_rgba(28,20,14,0.16))]"

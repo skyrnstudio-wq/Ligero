@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import SmartImage from "@/components/smart-image";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import ProductGallery from "@/components/product-gallery";
@@ -60,7 +60,7 @@ export async function generateMetadata({
   const notesShort = product.notesUppercase
     .toLowerCase()
     .replace(/\s*·\s*/g, ", ");
-  const fallbackDescription = `${product.oneLiner} ${product.volume} (${notesShort}). INR ${product.price} with complimentary shipping in India.`;
+  const fallbackDescription = `${product.oneLiner} ${product.volume} (${notesShort}). INR ${product.price} with free shipping in India.`;
   const description = formatMetaDescription(
     product.seo?.description || fallbackDescription
   );
@@ -152,7 +152,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     },
     {
       question: `Can I sample ${product.name} before ordering the 50 ml flacon?`,
-      answer: `Yes. The Discovery Set pairs 10 ml travel atomizers of ${product.name} and every other permanent perfume in a single rigid box for INR 999 with complimentary domestic shipping, allowing extended skin testing across seasons before committing to a full 50 ml flacon.`,
+      answer: `Yes. The Discovery Set pairs 10 ml travel atomizers of ${product.name} and every other permanent perfume in a single rigid box for INR 999 with free domestic shipping, allowing extended skin testing across seasons before committing to a full 50 ml flacon.`,
     },
     {
       question: `Which fragrance pairs best when layering with ${product.name}?`,
@@ -336,12 +336,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
                             aria-hidden="true"
                             className="pointer-events-none absolute bottom-0 left-1/2 h-3 w-[60%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.22)_0%,rgba(28,20,14,0.08)_52%,transparent_76%)]"
                           />
-                          <Image
+                          <SmartImage
                             src={getPerfumeCutoutImage(rel)}
                             alt={`${rel.name} 50 ml bottle`}
                             fill
                             loading="lazy"
-                            quality={80}
+                            quality={78}
                             sizes="(max-width: 640px) 110px, 190px"
                             className="object-contain object-center md:[filter:drop-shadow(-10px_14px_16px_rgba(28,20,14,0.18))]"
                           />

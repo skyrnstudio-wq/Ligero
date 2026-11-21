@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import Image from "next/image";
+import SmartImage from "@/components/smart-image";
+import { onFirstUserInteraction, warmImage } from "@/lib/image-delivery";
 import { motion, AnimatePresence } from "motion/react";
 import {
   getPerfumeCutoutImage,
@@ -29,6 +30,24 @@ function splitNotesList(raw?: string): string[] {
     .slice(0, 3);
 }
 
+function normalizeImageKey(url: string): string {
+  const queryIdx = url.indexOf("?");
+  return queryIdx >= 0 ? url.slice(0, queryIdx) : url;
+}
+
+function deduplicateImagesByAsset(urls: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const url of urls) {
+    if (!url) continue;
+    const key = normalizeImageKey(url);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push(url);
+  }
+  return result;
+}
+
 export default function ProductGallery({
   product,
   images,
@@ -44,45 +63,43 @@ export default function ProductGallery({
   const cutoutImage = getPerfumeCutoutImage(
     product || { slug, image: primaryImage || "" }
   );
+  const cutoutKey = normalizeImageKey(cutoutImage);
   const notesImage = getPerfumeNotesImage(product || { slug });
 
   const sanityGallery = (
     product?.gallery && product.gallery.length > 0
       ? product.gallery
       : galleryImages || []
-  ).filter((url) => Boolean(url) && url !== cutoutImage);
+  ).filter((url) => Boolean(url) && normalizeImageKey(url) !== cutoutKey);
   const hasRemoteGallery = sanityGallery.some((u) => u.startsWith("http"));
 
   const defaultBoxImage = "/images/perfumes/box.webp";
   const defaultTrayImage =
-    slug === "fleur"
-      ? "/images/perfumes/fleur-tray.webp"
-      : "/images/perfumes/tray.webp";
+    slug === "fleur" ? undefined : "/images/perfumes/tray.webp";
 
   let inHandImage: string;
   let editorialImage: string;
   let botanicalImage: string;
   let boxImage: string;
-  let collectionTrayImage: string;
+  let collectionTrayImage: string | undefined;
 
   if (!isStatic) {
     inHandImage = sanityGallery[0] || cutoutImage;
     editorialImage = sanityGallery[1] || sanityGallery[0] || cutoutImage;
     botanicalImage = notesImage || sanityGallery[2] || cutoutImage;
     boxImage = sanityGallery[3] || defaultBoxImage;
-    collectionTrayImage = sanityGallery[4] || defaultTrayImage;
+    collectionTrayImage = sanityGallery[4];
   } else if (hasRemoteGallery) {
-    const startIdx = sanityGallery.length >= 6 ? 1 : 0;
     editorialImage =
-      sanityGallery[startIdx] || `/images/perfumes/${slug}-scene.webp`;
+      sanityGallery[0] || `/images/perfumes/${slug}-scene.webp`;
     inHandImage =
-      sanityGallery[startIdx + 1] || `/images/perfumes/${slug}-in-hand.webp`;
+      sanityGallery[1] || `/images/perfumes/${slug}-in-hand.webp`;
     botanicalImage =
       notesImage ||
-      sanityGallery[startIdx + 2] ||
+      sanityGallery[2] ||
       `/images/perfumes/notes/${slug}.webp`;
-    boxImage = sanityGallery[startIdx + 3] || defaultBoxImage;
-    collectionTrayImage = sanityGallery[startIdx + 4] || defaultTrayImage;
+    boxImage = sanityGallery[3] || defaultBoxImage;
+    collectionTrayImage = sanityGallery[4];
   } else {
     inHandImage = `/images/perfumes/${slug}-in-hand.webp`;
     editorialImage = product?.image || `/images/perfumes/${slug}-scene.webp`;
@@ -105,23 +122,36 @@ export default function ProductGallery({
           ...sanityGallery,
         ].filter(Boolean) as string[]);
 
-  const allImages = Array.from(new Set(initialList));
+  const allImages = deduplicateImagesByAsset(initialList);
 
-  const primaryTileSet = new Set([
-    cutoutImage,
-    inHandImage,
-    editorialImage,
-    botanicalImage,
-    boxImage,
-    collectionTrayImage,
-  ]);
-  const galleryCandidates =
-    isStatic && hasRemoteGallery && sanityGallery.length >= 6
-      ? sanityGallery.slice(1)
-      : sanityGallery;
-  const extraGalleryImages = Array.from(
-    new Set(galleryCandidates.filter((url) => !primaryTileSet.has(url)))
+  const primaryTileKeys = new Set(
+    [
+      cutoutImage,
+      inHandImage,
+      editorialImage,
+      botanicalImage,
+      boxImage,
+      collectionTrayImage,
+    ]
+      .filter((u): u is string => Boolean(u))
+      .map(normalizeImageKey)
   );
+  const extraGalleryImages = deduplicateImagesByAsset(
+    sanityGallery.filter((url) => !primaryTileKeys.has(normalizeImageKey(url)))
+  );
+
+  const lqipMap = product?.galleryLqips;
+  const getLqip = (url?: string) => (url && lqipMap ? lqipMap[normalizeImageKey(url)] : undefined);
+
+  useEffect(() => {
+    return onFirstUserInteraction(() => {
+      const vw = window.innerWidth;
+      const slideWidth = vw <= 640 ? Math.round(vw) : Math.round(vw * 0.24);
+      for (const imgUrl of allImages.slice(1)) {
+        warmImage(imgUrl, slideWidth, 80);
+      }
+    });
+  }, [allImages]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [mobileIndex, setMobileIndex] = useState(0);
@@ -162,7 +192,10 @@ export default function ProductGallery({
   };
 
   const openLightboxAt = (imgUrl: string) => {
-    const idx = allImages.indexOf(imgUrl);
+    const targetKey = normalizeImageKey(imgUrl);
+    const idx = allImages.findIndex(
+      (url) => normalizeImageKey(url) === targetKey
+    );
     setActiveIndex(idx >= 0 ? idx : 0);
     setIsLightboxOpen(true);
   };
@@ -216,13 +249,16 @@ export default function ProductGallery({
           className="flex snap-x snap-mandatory overflow-x-auto border-b border-pdp-hairline/60 bg-pdp-surface2 no-scrollbar touch-pan-x"
         >
           {allImages.map((imgUrl, idx) => {
-            const isPrimaryFlacon = idx === 0 && imgUrl === cutoutImage;
+            const isPrimaryFlacon =
+              idx === 0 &&
+              (normalizeImageKey(imgUrl) === cutoutKey ||
+                imgUrl.includes("/cutouts/"));
 
             return (
               <div
                 key={`${imgUrl}-${idx}`}
                 data-gallery-slide
-                className="relative aspect-[4/3.8] max-h-[44svh] w-full shrink-0 snap-center snap-always overflow-hidden bg-pdp-surface2"
+                className="relative aspect-[4/3.8] max-h-[48dvh] w-full shrink-0 snap-center snap-always overflow-clip bg-pdp-surface2"
               >
                 <button
                   type="button"
@@ -236,13 +272,13 @@ export default function ProductGallery({
                         aria-hidden="true"
                         className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_52%_54%,var(--pdp-glow)_0%,transparent_75%)]"
                       />
-                      <div className="relative flex h-full w-full items-center justify-center p-7 sm:p-10">
+                      <div className="relative flex h-full w-full items-center justify-center p-6 sm:p-10">
                         <div
                           aria-hidden="true"
                           className="pointer-events-none absolute bottom-5 left-1/2 h-4 w-[42%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.32)_0%,rgba(28,20,14,0.12)_52%,transparent_76%)]"
                         />
-                        <div className="relative h-full w-full max-w-[220px]">
-                          <Image
+                        <div className="relative h-full w-full max-w-[220px] sm:max-w-[260px]">
+                          <SmartImage
                             src={imgUrl}
                             alt={`${displayName} Eau de Parfum bottle`}
                             fill
@@ -250,23 +286,27 @@ export default function ProductGallery({
                             fetchPriority="high"
                             decoding="sync"
                             quality={82}
-                            sizes="(max-width: 640px) 220px, 50vw"
+                            sizes="(max-width: 640px) 220px, 260px"
                             className="object-contain object-center md:[filter:drop-shadow(-14px_20px_20px_rgba(28,20,14,0.22))]"
                           />
                         </div>
                       </div>
                     </>
                   ) : (
-                    <Image
-                      src={imgUrl}
-                      alt={`${displayName} gallery view ${idx + 1}`}
-                      fill
-                      loading="lazy"
-                      fetchPriority="low"
-                      quality={82}
-                      sizes="(max-width: 640px) 100vw, 50vw"
-                      className="object-cover object-center"
-                    />
+                    <div className="flex h-full w-full items-center justify-center p-2 sm:p-4">
+                      <div className="relative h-full w-full">
+                        <SmartImage
+                          src={imgUrl}
+                          alt={`${displayName} gallery view ${idx + 1}`}
+                          fill
+                          loading="lazy"
+                          blurDataURL={getLqip(imgUrl)}
+                          quality={80}
+                          sizes="(max-width: 640px) 100vw, 50vw"
+                          className="object-contain object-center"
+                        />
+                      </div>
+                    </div>
                   )}
                 </button>
               </div>
@@ -391,14 +431,14 @@ export default function ProductGallery({
             className="pointer-events-none absolute bottom-11 left-1/2 h-5.5 w-[44%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.34)_0%,rgba(28,20,14,0.13)_52%,transparent_76%)] transition-all duration-700 group-hover:scale-x-95"
           />
           <div className="relative h-full w-full max-w-[275px] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]">
-            <Image
+            <SmartImage
               src={cutoutImage}
               alt={`${displayName} Eau de Parfum bottle`}
               fill
               priority
               fetchPriority="high"
               decoding="sync"
-              quality={85}
+              quality={82}
               sizes="275px"
               className="object-contain object-center md:[filter:drop-shadow(-18px_24px_24px_rgba(28,20,14,0.24))]"
             />
@@ -418,10 +458,12 @@ export default function ProductGallery({
               className="group relative aspect-[3/4] w-full overflow-hidden bg-pdp-surface2 text-left focus-visible:outline-2 focus-visible:outline-pdp-text"
               aria-label={`View ${displayName} tactile scale in hand`}
             >
-              <Image
+              <SmartImage
                 src={inHandImage}
                 alt={`${displayName} 50ml flacon held in hand`}
                 fill
+                blurDataURL={getLqip(inHandImage)}
+                quality={80}
                 sizes="(max-width: 1024px) 45vw, 24vw"
                 className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
               />
@@ -434,10 +476,12 @@ export default function ProductGallery({
               className="group relative aspect-[3/4] w-full overflow-hidden bg-pdp-surface2 focus-visible:outline-2 focus-visible:outline-pdp-text"
               aria-label={`View ${displayName} campaign portrait`}
             >
-              <Image
+              <SmartImage
                 src={editorialImage}
                 alt={`${displayName} editorial campaign photograph`}
                 fill
+                blurDataURL={getLqip(editorialImage)}
+                quality={80}
                 sizes="(max-width: 1024px) 45vw, 24vw"
                 className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
               />
@@ -453,10 +497,12 @@ export default function ProductGallery({
               className="group relative aspect-square w-full overflow-hidden bg-pdp-surface2 focus-visible:outline-2 focus-visible:outline-pdp-text"
               aria-label={`View raw botanicals of ${displayName}`}
             >
-              <Image
+              <SmartImage
                 src={botanicalImage}
                 alt={`Raw botanicals for ${displayName}`}
                 fill
+                blurDataURL={getLqip(botanicalImage)}
+                quality={80}
                 sizes="(max-width: 1024px) 45vw, 24vw"
                 className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
               />
@@ -469,30 +515,36 @@ export default function ProductGallery({
               className="group relative aspect-square w-full overflow-hidden bg-pdp-surface2 focus-visible:outline-2 focus-visible:outline-pdp-text"
               aria-label={`View ${displayName} presentation box`}
             >
-              <Image
+              <SmartImage
                 src={boxImage}
                 alt={`Ligéro rigid presentation box, 50ml case`}
                 fill
+                blurDataURL={getLqip(boxImage)}
+                quality={80}
                 sizes="(max-width: 1024px) 45vw, 24vw"
                 className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
               />
             </button>
 
             {/* Tile 5: Carved Marble Display Tray (1:1) */}
-            <button
-              type="button"
-              onClick={() => openLightboxAt(collectionTrayImage)}
-              className="group relative aspect-square w-full overflow-hidden bg-pdp-surface2 focus-visible:outline-2 focus-visible:outline-pdp-text"
-              aria-label={`View ${displayName} flacon arranged on stone tray`}
-            >
-              <Image
-                src={collectionTrayImage}
-                alt={`${displayName} arranged on stone tray`}
-                fill
-                sizes="(max-width: 1024px) 45vw, 24vw"
-                className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-              />
-            </button>
+            {collectionTrayImage && (
+              <button
+                type="button"
+                onClick={() => openLightboxAt(collectionTrayImage)}
+                className="group relative aspect-square w-full overflow-hidden bg-pdp-surface2 focus-visible:outline-2 focus-visible:outline-pdp-text"
+                aria-label={`View ${displayName} flacon arranged on stone tray`}
+              >
+                <SmartImage
+                  src={collectionTrayImage}
+                  alt={`${displayName} arranged on stone tray`}
+                  fill
+                  blurDataURL={getLqip(collectionTrayImage)}
+                  quality={80}
+                  sizes="(max-width: 1024px) 45vw, 24vw"
+                  className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                />
+              </button>
+            )}
           </div>
         </div>
 
@@ -507,10 +559,12 @@ export default function ProductGallery({
                 className="group relative aspect-[3/4] w-full overflow-hidden bg-pdp-surface2 focus-visible:outline-2 focus-visible:outline-pdp-text"
                 aria-label={`View ${displayName} gallery image ${idx + 1}`}
               >
-                <Image
+                <SmartImage
                   src={imgUrl}
                   alt={`${displayName} editorial gallery photograph ${idx + 1}`}
                   fill
+                  blurDataURL={getLqip(imgUrl)}
+                  quality={80}
                   sizes="(max-width: 1024px) 45vw, 24vw"
                   className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                 />
@@ -614,10 +668,11 @@ export default function ProductGallery({
                 lightboxTouchStartX.current = null;
               }}
             >
-              <Image
+              <SmartImage
                 src={currentLightboxImage}
                 alt={`${displayName} enlarged view`}
                 fill
+                blurDataURL={getLqip(currentLightboxImage)}
                 sizes="90vw"
                 className="object-contain"
                 priority

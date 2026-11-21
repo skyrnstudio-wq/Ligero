@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
+import { preconnect } from "react-dom";
 import { Cormorant_Garamond, Schibsted_Grotesk, Bodoni_Moda } from "next/font/google";
 import "./globals.css";
 import { CaseProvider } from "@/context/case-context";
 import { CatalogProvider } from "@/context/catalog-context";
 import CaseDrawer from "@/components/lazy-case-drawer";
 import SmoothScrollProvider from "@/components/smooth-scroll";
-import IntroLoader from "@/components/intro-loader";
 import SpeculationRules from "@/components/speculation-rules";
 import { getLiveObjects, getLivePerfumes } from "@/lib/sanity/data";
 import { BASE_URL } from "@/lib/seo/schema";
@@ -20,9 +20,9 @@ const cormorant = Cormorant_Garamond({
 
 const bodoni = Bodoni_Moda({
   subsets: ["latin"],
+  weight: ["400"],
   variable: "--font-bodoni",
   display: "swap",
-  preload: false,
 });
 
 const schibsted = Schibsted_Grotesk({
@@ -30,6 +30,7 @@ const schibsted = Schibsted_Grotesk({
   weight: ["400", "500"],
   variable: "--font-schibsted",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -90,10 +91,41 @@ export const viewport: Viewport = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  preconnect("https://cdn.sanity.io");
+
   const [perfumes, objects] = await Promise.all([
     getLivePerfumes(),
     getLiveObjects(),
   ]);
+
+  // Keep global CatalogProvider payload ultra-lean (only fields needed by Header/Search/Case)
+  const lightPerfumes = perfumes.map((p) => ({
+    slug: p.slug,
+    name: p.name,
+    subtitle: p.subtitle,
+    volume: p.volume,
+    price: p.price,
+    badge: p.badge,
+    oneLiner: p.oneLiner,
+    notesUppercase: p.notesUppercase,
+    notesPoem: ["", "", ""] as [string, string, string],
+    ritual: "",
+    material: "",
+    provenance: "",
+    image: p.image,
+    gallery: [],
+    relatedSlugs: [],
+    occasions: p.occasions,
+    isDark: p.isDark,
+    scentProfile: {
+      top: p.scentProfile.top,
+      heart: p.scentProfile.heart,
+      base: p.scentProfile.base,
+      family: p.scentProfile.family,
+    },
+    keyIngredients: [],
+  }));
+  const lightObjects = objects.map(({ imageLqip: _i, seo: _s, updatedAt: _u, ...rest }) => rest);
 
   return (
     <html
@@ -106,9 +138,8 @@ export default async function RootLayout({
         suppressHydrationWarning
       >
         <SmoothScrollProvider>
-          <CatalogProvider perfumes={perfumes} objects={objects}>
+          <CatalogProvider perfumes={lightPerfumes} objects={lightObjects}>
             <CaseProvider>
-              <IntroLoader />
               {children}
               <CaseDrawer />
             </CaseProvider>

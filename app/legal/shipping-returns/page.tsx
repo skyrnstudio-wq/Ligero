@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
@@ -11,7 +12,7 @@ import {
 } from "@/lib/seo/schema";
 
 const SHIPPING_DESC =
-  "Complimentary domestic surface delivery in 3 to 7 working days across India and seven-day returns for unopened, factory-sealed Ligero Parfum bottles.";
+  "Free domestic surface delivery in 3 to 7 working days across India and seven-day returns for unopened, factory-sealed Ligero Parfum bottles.";
 
 export const metadata: Metadata = {
   title: "Shipping & Sealed Bottle Returns",
@@ -64,7 +65,20 @@ export default function ShippingReturnsPage() {
           ← Legal Policies
         </Link>
 
-        <h1 className="mt-8 font-display text-5xl font-light italic tracking-[-0.01em] text-aube-text sm:text-6xl">
+        <div className="mt-8 flex items-center">
+          <Image
+            src="/images/brand/logo-art.webp"
+            alt="Ligéro Parfum house emblem"
+            width={109}
+            height={240}
+            priority
+            fetchPriority="high"
+            sizes="(max-width: 640px) 32px, 38px"
+            className="h-16 w-auto select-none opacity-90 sm:h-20"
+          />
+        </div>
+
+        <h1 className="mt-5 font-display text-5xl font-light italic tracking-[-0.01em] text-aube-text sm:text-6xl">
           Shipping and Returns
         </h1>
         <p className="mt-4 text-sm text-aube-text-muted">

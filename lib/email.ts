@@ -265,7 +265,7 @@ function renderItemsHtml(items: OrderEmailItem[], totalInr: number): string {
     ${rows}
     <tr>
       <td style="padding:10px 0 4px;font-size:12px;color:#6f6154;">Domestic Shipping</td>
-      <td align="right" style="padding:10px 0 4px;font-size:12px;color:#a64b24;font-weight:500;">Complimentary</td>
+      <td align="right" style="padding:10px 0 4px;font-size:12px;color:#a64b24;font-weight:500;">Free</td>
     </tr>
     <tr>
       <td style="padding:4px 0 12px;font-size:12px;color:#6f6154;border-bottom:1px solid #e0d7c7;">Applicable Taxes</td>
@@ -447,7 +447,7 @@ export async function sendOrderConfirmationEmail(
     ``,
     `Items:`,
     ...itemLines,
-    `Domestic Shipping: Complimentary`,
+    `Domestic Shipping: Free`,
     `Total Paid: ${formatInr(order.totalInr)}`,
     order.giftNote?.trim() ? `\nGift Note: "${order.giftNote.trim()}"` : "",
     addressLines.length > 0 ? `\nShipping Destination:\n${addressLines.join("\n")}` : "",

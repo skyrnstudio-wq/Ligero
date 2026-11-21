@@ -147,7 +147,7 @@ export default function NavDrawer({ isOpen, onClose, isDark = false }: NavDrawer
               Ligéro
             </span>
             <span className="mt-0.5 font-display text-[11px] font-semibold uppercase leading-none tracking-[0.36em] pl-[0.36em] text-[#d89f68]">
-              Parfums
+              Parfum
             </span>
           </Link>
 

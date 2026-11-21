@@ -116,7 +116,7 @@ test.describe("Tier 1: Feature Coverage Suite (F1 to F20)", () => {
 
     test("F3.5: SiteHeader brand logo anchor has adequate hit area", async ({ page }) => {
       await page.goto("/", { waitUntil: "domcontentloaded" });
-      const logoLink = page.locator("header a[aria-label='Ligéro Parfums — Home']");
+      const logoLink = page.locator("header a[aria-label='Ligéro Parfum — Home']");
       await expect(logoLink).toBeVisible();
       const box = await logoLink.boundingBox();
       expect(box?.height).toBeGreaterThanOrEqual(32);

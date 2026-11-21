@@ -6,15 +6,7 @@ export default function EditorialQuote() {
   return (
     <section
       aria-label="Maison philosophy"
-      className="relative overflow-hidden border-b border-[#382a20] bg-[#1c140e] px-6 py-10 text-noctis-text sm:px-10 sm:py-20 lg:py-24 text-center"
-      style={{
-        backgroundImage: `
-          radial-gradient(circle at 50% 50%, rgba(185, 151, 91, 0.16) 0%, rgba(28, 20, 14, 0.98) 85%),
-          url('/images/textures/film-grain.webp')
-        `,
-        backgroundRepeat: "no-repeat, repeat",
-        backgroundSize: "100% 100%, 240px 240px",
-      }}
+      className="editorial-grain-surface relative overflow-hidden border-b border-[#382a20] bg-[#1c140e] px-6 py-10 text-noctis-text sm:px-10 sm:py-20 lg:py-24 text-center"
     >
       <div className="relative z-10 mx-auto max-w-4xl">
         <p className="font-body text-[10.5px] font-medium uppercase tracking-[0.28em] text-noctis-accent">

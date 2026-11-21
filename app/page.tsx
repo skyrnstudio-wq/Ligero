@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { preload } from "react-dom";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
+import IntroLoader from "@/components/intro-loader";
 import Hero from "@/components/hero";
 import TheCollection from "@/components/the-collection";
 import EditorialQuote from "@/components/editorial-quote";
@@ -76,11 +76,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  preload("/images/textures/raw-silk-canvas.webp", {
-    as: "image",
-    type: "image/webp",
-  });
-
   const [homepageData, perfumes, objects] = await Promise.all([
     getLiveHomepage(),
     getLivePerfumes(),
@@ -125,6 +120,7 @@ export default async function Home() {
         p.scentProfile.top,
       image: getPerfumeCutoutImage(p),
       notesImage: getPerfumeNotesImage(p),
+      primaryGalleryImage: p.gallery?.[1] || p.gallery?.[0],
       occasions:
         p.occasions && p.occasions.length > 0
           ? p.occasions
@@ -138,7 +134,8 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
       />
-      <SiteHeader />
+      <IntroLoader />
+      <SiteHeader isHome />
       <main className="relative">
         {/* Movement 1: Stationary Sticky Campaign Hero */}
         <div className="sticky top-0 z-0">
@@ -154,7 +151,7 @@ export default async function Home() {
           <EditorialQuote />
 
           {/* Movement 4: Objects of Scent (Two Columns: The Discovery Set & En Route) */}
-          <ObjectsDuo objects={objects} />
+          <ObjectsDuo objects={objects.map(({ imageLqip: _i, seo: _s, ...rest }) => rest)} />
 
           {/* Movement 5: The Private Salon / The Correspondence */}
           <PrivateSalon data={homepageData} />

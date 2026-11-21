@@ -48,7 +48,7 @@ export async function GET() {
 
 Last updated: ${lastUpdated.toISOString().slice(0, 10)}
 
-All prices are listed in Indian Rupees (INR), inclusive of GST, with complimentary domestic surface shipping across serviceable Indian postal codes. Ligero Parfum does not run seasonal sales or issue promo codes.
+All prices are listed in Indian Rupees (INR), inclusive of GST, with free domestic surface shipping across serviceable Indian postal codes. Ligero Parfum does not run seasonal sales or issue promo codes.
 
 ## Permanent Perfumes (50 ml Flacons)
 

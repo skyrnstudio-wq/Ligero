@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import SmartImage from "@/components/smart-image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useCase } from "@/context/case-context";
@@ -655,7 +655,7 @@ export default function CheckoutPage() {
             Complete Your Case
           </h1>
           <p className="mt-2 text-sm text-aube-text-muted">
-            Complimentary tracked delivery. No customer account required.
+            Free tracked delivery. No customer account required.
           </p>
         </div>
 
@@ -1054,7 +1054,7 @@ export default function CheckoutPage() {
                   {items.map((item) => (
                     <li key={item.slug} className="flex gap-4 py-4 first:pt-0 last:pb-0">
                       <div className="relative h-20 w-16 flex-shrink-0 overflow-hidden border border-aube-hairline/80 bg-aube-base/50">
-                        <Image
+                        <SmartImage
                           src={item.image}
                           alt={item.name}
                           fill
@@ -1123,7 +1123,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-aube-text-muted">Domestic Shipping</span>
-                  <span className="text-aube-accent font-medium">Complimentary</span>
+                  <span className="text-aube-accent font-medium">Free</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-aube-text-muted">Applicable Taxes</span>

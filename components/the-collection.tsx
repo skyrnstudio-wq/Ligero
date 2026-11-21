@@ -1,7 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import SmartImage from "@/components/smart-image";
+import { onFirstUserInteraction, warmImage } from "@/lib/image-delivery";
 import { useCase } from "@/context/case-context";
 import {
   useRef,
@@ -26,7 +27,12 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
   const [canScrollNext, setCanScrollNext] = useState(true);
   const [addedSlug, setAddedSlug] = useState<string | null>(null);
   const [revealedSlug, setRevealedSlug] = useState<string | null>(null);
+  const [activatedNotes, setActivatedNotes] = useState<Record<string, true>>({});
   const { addToCase, setIsCaseOpen } = useCase();
+
+  const activateNotes = useCallback((slug: string) => {
+    setActivatedNotes((prev) => (prev[slug] ? prev : { ...prev, [slug]: true }));
+  }, []);
 
   const updateScrollMetrics = useCallback(() => {
     const el = ledgerRef.current;
@@ -45,16 +51,78 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
   }, []);
 
   useEffect(() => {
-    updateScrollMetrics();
     const el = ledgerRef.current;
     if (!el) return;
-    el.addEventListener("scroll", updateScrollMetrics, { passive: true });
-    window.addEventListener("resize", updateScrollMetrics);
+    let rafId = 0;
+    const scheduleUpdate = () => {
+      if (!rafId) {
+        rafId = requestAnimationFrame(() => {
+          rafId = 0;
+          updateScrollMetrics();
+        });
+      }
+    };
+
+    const ro =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(scheduleUpdate)
+        : null;
+    ro?.observe(el);
+
+    el.addEventListener("scroll", scheduleUpdate, { passive: true });
+    if (!ro) {
+      scheduleUpdate();
+      window.addEventListener("resize", scheduleUpdate, { passive: true });
+    }
     return () => {
-      el.removeEventListener("scroll", updateScrollMetrics);
-      window.removeEventListener("resize", updateScrollMetrics);
+      ro?.disconnect();
+      el.removeEventListener("scroll", scheduleUpdate);
+      if (!ro) {
+        window.removeEventListener("resize", scheduleUpdate);
+      }
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, [updateScrollMetrics]);
+
+  // Predictive image warming: on first real user scroll/pointer/touch, warm and decode
+  // all carousel bottle cutouts (and nearby botanical curtains once approaching the section)
+  // so scrolling, swiping, and hovering feel instant while keeping initial load untouched.
+  useEffect(() => {
+    let io: IntersectionObserver | null = null;
+    const cancelInteraction = onFirstUserInteraction(() => {
+      const vw = window.innerWidth;
+      const bottleCssWidth = vw <= 640 ? 96 : vw <= 1024 ? 170 : 200;
+      const notesCssWidth = vw <= 640 ? 260 : vw <= 1024 ? 340 : 400;
+
+      for (const fragrance of fragranceList) {
+        warmImage(fragrance.image, bottleCssWidth, 75);
+      }
+
+      const sectionEl = ledgerRef.current;
+      if (sectionEl && typeof IntersectionObserver !== "undefined") {
+        io = new IntersectionObserver(
+          (entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+              io?.disconnect();
+              io = null;
+              for (const fragrance of fragranceList.slice(0, 4)) {
+                if (fragrance.notesImage) {
+                  warmImage(fragrance.notesImage, notesCssWidth, 72);
+                }
+              }
+            }
+          },
+          { rootMargin: "600px 0px" }
+        );
+        io.observe(sectionEl);
+      }
+    });
+
+    return () => {
+      cancelInteraction();
+      io?.disconnect();
+    };
+  }, [fragranceList]);
 
   const scrollByCard = (direction: -1 | 1) => {
     const el = ledgerRef.current;
@@ -192,14 +260,31 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           className="flex snap-x snap-mandatory overflow-x-auto touch-pan-x border-t border-b border-aube-hairline divide-x divide-aube-hairline no-scrollbar focus-visible:outline-1 focus-visible:outline-aube-text"
         >
-          {fragranceList.map((fragrance, index) => {
+          {fragranceList.map((fragrance) => {
             const isTouchRevealed = revealedSlug === fragrance.slug;
+            const isNotesLoaded = isTouchRevealed || Boolean(activatedNotes[fragrance.slug]);
             const isAdded = addedSlug === fragrance.slug;
+
+            const warmCardIntent = () => {
+              if (fragrance.notesImage) {
+                activateNotes(fragrance.slug);
+                const vw = window.innerWidth;
+                warmImage(fragrance.notesImage, vw <= 640 ? 260 : vw <= 1024 ? 340 : 400, 72);
+              }
+              // Pre-warm destination PDP hero & editorial photo on hover/touch intent
+              warmImage(fragrance.image, window.innerWidth <= 640 ? 220 : 275, 82);
+              if (fragrance.primaryGalleryImage) {
+                warmImage(fragrance.primaryGalleryImage, window.innerWidth <= 640 ? 360 : 340, 80);
+              }
+            };
 
             return (
               <article
                 key={fragrance.slug}
                 data-ledger-column
+                onPointerEnter={warmCardIntent}
+                onTouchStart={warmCardIntent}
+                onFocus={warmCardIntent}
                 className="group relative flex w-[74vw] shrink-0 snap-start flex-col bg-transparent p-4 transition-colors duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-black/[0.015] sm:w-[44vw] sm:p-6 md:w-[32vw] lg:w-1/3 lg:p-7"
               >
                 {/* Generous Flacon Plinth + Top-to-Down Ingredient Curtain Reveal */}
@@ -216,14 +301,14 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                         className="pointer-events-none absolute bottom-5 left-1/2 h-4.5 w-[48%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.30)_0%,rgba(28,20,14,0.12)_50%,transparent_76%)] transition-all duration-700 group-hover:scale-x-95 group-hover:opacity-60"
                       />
                       <div className="relative h-[86%] w-[86%]">
-                        <Image
+                        <SmartImage
                           src={fragrance.image}
                           alt={`${fragrance.name} 50 ml Eau de Parfum`}
                           fill
                           loading="lazy"
                           decoding="async"
-                          quality={80}
-                          sizes="(max-width: 640px) 220px, (max-width: 1024px) 300px, 340px"
+                          quality={75}
+                          sizes="(max-width: 640px) 96px, (max-width: 1024px) 170px, 200px"
                           className="object-contain p-5 md:[filter:drop-shadow(-12px_18px_20px_rgba(28,20,14,0.22))] sm:p-7 lg:p-8"
                         />
                       </div>
@@ -238,20 +323,22 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                             : "[clip-path:inset(0_0_100%_0)] group-hover:[clip-path:inset(0_0_0%_0)] group-focus-within:[clip-path:inset(0_0_0%_0)]"
                         }`}
                       >
-                        <Image
-                          src={fragrance.notesImage}
-                          alt={`Raw botanicals of ${fragrance.name}`}
-                          fill
-                          loading="lazy"
-                          fetchPriority="low"
-                          quality={75}
-                          sizes="(max-width: 640px) 260px, (max-width: 1024px) 380px, 440px"
-                          className={`object-cover object-center transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                            isTouchRevealed
-                              ? "translate-y-0 scale-100"
-                              : "-translate-y-4 scale-105 group-hover:translate-y-0 group-hover:scale-100 group-focus-within:translate-y-0 group-focus-within:scale-100"
-                          }`}
-                        />
+                        {isNotesLoaded && (
+                          <SmartImage
+                            src={fragrance.notesImage}
+                            alt={`Raw botanicals of ${fragrance.name}`}
+                            fill
+                            loading="eager"
+                            blurDataURL={fragrance.notesImageLqip}
+                            quality={72}
+                            sizes="(max-width: 640px) 260px, (max-width: 1024px) 340px, 400px"
+                            className={`object-cover object-center transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                              isTouchRevealed
+                                ? "translate-y-0 scale-100"
+                                : "-translate-y-4 scale-105 group-hover:translate-y-0 group-hover:scale-100 group-focus-within:translate-y-0 group-focus-within:scale-100"
+                            }`}
+                          />
+                        )}
                         <div
                           aria-hidden="true"
                           className="pointer-events-none absolute inset-0 bg-black/[0.04]"
@@ -267,6 +354,7 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
+                        activateNotes(fragrance.slug);
                         setRevealedSlug((curr) =>
                           curr === fragrance.slug ? null : fragrance.slug
                         );
@@ -357,7 +445,8 @@ export default function TheCollection({ items }: { items?: FragranceItem[] }) {
                   </div>
 
                   <p className="font-display text-sm font-normal tabular-nums text-aube-text whitespace-nowrap">
-                    ₹{fragrance.price.toLocaleString("en-IN")}
+                    <span className="font-sans">₹</span>
+                    {fragrance.price.toLocaleString("en-IN")}
                   </p>
                 </div>
 

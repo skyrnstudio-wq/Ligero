@@ -32,6 +32,7 @@ function buildStorefrontCsp(isHttps: boolean): string {
   const scriptSrc = [
     "'self'",
     "'unsafe-inline'",
+    "'inline-speculation-rules'",
     ...(isDev ? ["'unsafe-eval'"] : []),
     "https://checkout.razorpay.com",
     "https://*.razorpay.com",
@@ -83,7 +84,7 @@ function buildStudioCsp(isHttps: boolean): string {
 const API_CSP = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'";
 
 const PERMISSIONS_POLICY =
-  'camera=(), geolocation=(), microphone=(), usb=(), bluetooth=(), interest-cohort=(), browsing-topics=(), focus-without-user-activation=(), payment=(self "https://checkout.razorpay.com" "https://api.razorpay.com")';
+  'camera=(), geolocation=(), microphone=(), usb=(), bluetooth=(), browsing-topics=(), focus-without-user-activation=(), payment=(self "https://checkout.razorpay.com" "https://api.razorpay.com")';
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -154,7 +155,12 @@ export function middleware(req: NextRequest) {
     isPublicMedia ? "cross-origin" : "same-origin"
   );
   res.headers.set("X-DNS-Prefetch-Control", "off");
-  res.headers.set("Reporting-Endpoints", 'default="/api/csp-report"');
+  const reportOrigin = `${isHttps ? "https" : req.nextUrl.protocol.replace(":", "")}://${
+    (req.headers.get("x-forwarded-host") || req.headers.get("host") || req.nextUrl.host)
+      .split(",")[0]
+      .trim()
+  }`;
+  res.headers.set("Reporting-Endpoints", `default="${reportOrigin}/api/csp-report"`);
 
   if (isApi) {
     res.headers.set("Content-Security-Policy", API_CSP);

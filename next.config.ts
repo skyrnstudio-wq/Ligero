@@ -18,9 +18,9 @@ const nextConfig = (phase: string): NextConfig => {
       dangerouslyAllowSVG: false,
       contentDispositionType: "attachment",
       contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-      formats: ["image/webp"],
+      formats: ["image/avif", "image/webp"],
       minimumCacheTTL: 31536000,
-      imageSizes: [48, 96, 128, 256, 384, 480],
+      imageSizes: [48, 96, 128, 192, 256, 320, 384, 480],
       deviceSizes: [640, 750, 828, 1080, 1200, 1600, 1920],
       localPatterns: [
         {
@@ -86,7 +86,7 @@ const nextConfig = (phase: string): NextConfig => {
         },
       ];
     },
-    webpack: (config, { dev }) => {
+    webpack: (config, { dev, isServer }) => {
       if (dev) {
         config.watchOptions = {
           ignored: [
@@ -95,6 +95,18 @@ const nextConfig = (phase: string): NextConfig => {
             "**/.next/**",
             "**/.next-dev/**",
           ],
+        };
+      }
+      if (!isServer) {
+        config.resolve = config.resolve || {};
+        config.resolve.alias = {
+          ...(config.resolve.alias || {}),
+          "../build/polyfills/polyfill-module": false,
+          "next/dist/build/polyfills/polyfill-module": false,
+          [path.resolve(
+            __dirname,
+            "node_modules/next/dist/build/polyfills/polyfill-module.js"
+          )]: false,
         };
       }
       return config;

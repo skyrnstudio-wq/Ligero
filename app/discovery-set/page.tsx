@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import SmartImage from "@/components/smart-image";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import PrivateSalon from "@/components/private-salon";
@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = discoveryObj?.seo?.title || `${setName} (${perfumes.length} x 10 ml Perfumes)`;
   const description = formatMetaDescription(
     discoveryObj?.seo?.description ||
-      `Sample every permanent Ligero Parfum creation in ${countLabel} 10 ml travel atomizers. INR ${setPrice} with complimentary domestic surface shipping across India.`
+      `Sample every permanent Ligero Parfum creation in ${countLabel} 10 ml travel atomizers. INR ${setPrice} with free domestic surface shipping across India.`
   );
   const ogImage =
     discoveryObj?.seo?.image ||
@@ -142,13 +142,14 @@ export default async function DiscoverySetPage() {
                   aria-hidden="true"
                   className="pointer-events-none absolute bottom-3 left-1/2 h-5 w-[64%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.20)_0%,rgba(28,20,14,0.08)_50%,transparent_76%)] sm:bottom-6"
                 />
-                <Image
+                <SmartImage
                   src={setImage}
                   alt={`The ${perfumes.length} ten-millilitre vials of the Discovery Set`}
                   fill
                   priority
                   fetchPriority="high"
                   decoding="sync"
+                  blurDataURL={discoveryObj?.imageLqip}
                   quality={82}
                   sizes="(max-width: 640px) 92vw, (max-width: 1024px) 100vw, 58vw"
                   className="relative z-10 object-contain object-center p-2 md:[filter:drop-shadow(0_18px_26px_rgba(28,20,14,0.16))] sm:p-4"
@@ -251,7 +252,7 @@ export default async function DiscoverySetPage() {
                         aria-hidden="true"
                         className="pointer-events-none absolute bottom-2 left-1/2 h-4 w-[54%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(28,20,14,0.28)_0%,rgba(28,20,14,0.11)_52%,transparent_76%)] transition-all duration-500 group-hover:scale-x-90 group-hover:opacity-75"
                       />
-                      <Image
+                      <SmartImage
                         src={cutout}
                         alt={`${p.name} 10 ml Discovery Set vial perfume`}
                         fill

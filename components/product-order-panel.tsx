@@ -198,7 +198,7 @@ export default function ProductOrderPanel({
 
         {/* Sub-CTA Utility Links */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1 font-body text-[10.5px] text-pdp-muted">
-          <span>Complimentary tracked shipping</span>
+          <span>Free tracked shipping</span>
           <span>Handcrafted in small batches</span>
         </div>
       </div>

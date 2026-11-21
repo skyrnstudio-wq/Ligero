@@ -62,11 +62,15 @@ function sanitizeObjectBadge(badge?: string): string | undefined {
   return badge
 }
 
-function normalizePerfume(item: Partial<Product>, staticItem?: Product): Product {
+function normalizePerfume(
+  item: Partial<Product> & { galleryLqips?: Array<string | null | undefined> | Record<string, string> },
+  staticItem?: Product
+): Product {
   const mergedKeyIngredients =
     item.keyIngredients?.map((ing, idx) => ({
       ...ing,
       image: optimizeSanityImageUrl(ing.image || staticItem?.keyIngredients?.[idx]?.image, 900),
+      imageLqip: typeof ing.imageLqip === 'string' && ing.imageLqip.length <= 1600 ? ing.imageLqip : undefined,
     })) ||
     staticItem?.keyIngredients ||
     []
@@ -78,10 +82,29 @@ function normalizePerfume(item: Partial<Product>, staticItem?: Product): Product
     rawPoem[2] ?? staticItem?.notesPoem?.[2] ?? '',
   ]
 
+  const rawGallery = Array.isArray(item.gallery) ? item.gallery : []
   const optimizedGallery =
-    item.gallery && item.gallery.length > 0
-      ? item.gallery.map((g) => optimizeSanityImageUrl(g, 1440) || g)
+    rawGallery.length > 0
+      ? rawGallery.map((g) => optimizeSanityImageUrl(g, 1440) || g)
       : staticItem?.gallery || []
+
+  const galleryLqips: Record<string, string> = {}
+  if (Array.isArray(item.galleryLqips)) {
+    rawGallery.forEach((url, idx) => {
+      const lqip = item.galleryLqips && Array.isArray(item.galleryLqips) ? item.galleryLqips[idx] : undefined
+      if (url && typeof lqip === 'string' && lqip.length <= 1600) {
+        galleryLqips[url.split('?')[0]] = lqip
+      }
+    })
+  }
+  const notesImageUrl = optimizeSanityImageUrl(item.notesImage, 1000) || staticItem?.notesImage
+  const safeNotesLqip =
+    typeof item.notesImageLqip === 'string' && item.notesImageLqip.length <= 1600
+      ? item.notesImageLqip
+      : undefined
+  if (notesImageUrl && safeNotesLqip) {
+    galleryLqips[notesImageUrl.split('?')[0]] = safeNotesLqip
+  }
 
   const rawBadge = sanitizePerfumeBadge(item.badge) ?? sanitizePerfumeBadge(staticItem?.badge)
 
@@ -110,8 +133,10 @@ function normalizePerfume(item: Partial<Product>, staticItem?: Product): Product
       optimizeSanityImageUrl(item.image, 1000) ||
       staticItem?.image ||
       `/images/perfumes/cutouts/${item.slug || staticItem?.slug || 'aube'}.webp?v=2`,
-    notesImage: optimizeSanityImageUrl(item.notesImage, 1000) || staticItem?.notesImage,
+    notesImage: notesImageUrl,
+    notesImageLqip: safeNotesLqip,
     gallery: optimizedGallery,
+    galleryLqips: Object.keys(galleryLqips).length > 0 ? galleryLqips : undefined,
     relatedSlugs: item.relatedSlugs && item.relatedSlugs.length > 0 ? item.relatedSlugs : staticItem?.relatedSlugs || [],
     occasions: item.occasions && item.occasions.length > 0 ? item.occasions : staticItem?.occasions || [],
     isDark: typeof item.isDark === 'boolean' ? item.isDark : staticItem?.isDark ?? false,
@@ -149,6 +174,10 @@ function normalizeHouseObject(item: Partial<HouseObject>, staticObj?: HouseObjec
       optimizeSanityImageUrl(item.image, 1200) ||
       staticObj?.image ||
       '/images/objects/discovery-set-floating.webp',
+    imageLqip:
+      typeof item.imageLqip === 'string' && item.imageLqip.length <= 2200
+        ? item.imageLqip
+        : undefined,
     occasions: item.occasions && item.occasions.length > 0 ? item.occasions : staticObj?.occasions,
   }
 }

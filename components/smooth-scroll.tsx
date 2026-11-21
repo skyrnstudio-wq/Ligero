@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, createContext, useContext } from "react";
 import { usePathname } from "next/navigation";
-import Lenis from "lenis";
-import "lenis/dist/lenis.css";
+import type Lenis from "lenis";
 
 const LenisContext = createContext<Lenis | null>(null);
 
@@ -13,9 +12,8 @@ export function useLenis() {
 
 /**
  * SmoothScrollProvider:
- * Integrates Lenis smooth inertial scrolling across the entire application.
- * Utilizes Lenis native autoRaf, built-in anchor navigation offset, and
- * instantaneous scroll restoration on route changes.
+ * Lazily imports and initializes Lenis smooth inertial scrolling ONLY on desktop
+ * fine-pointer devices (zero Lenis JS downloaded on mobile/touch or reduced-motion).
  */
 export default function SmoothScrollProvider({
   children,
@@ -38,29 +36,37 @@ export default function SmoothScrollProvider({
       return;
     }
 
-    const lenis = new Lenis({
-      autoRaf: true,
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: "vertical",
-      gestureOrientation: "vertical",
-      smoothWheel: true,
-      syncTouch: false,
-      wheelMultiplier: 1,
-      touchMultiplier: 1.2,
-      anchors: {
-        offset: -70,
+    let cancelled = false;
+    let instance: Lenis | null = null;
+
+    void import("lenis").then(({ default: LenisCtor }) => {
+      if (cancelled) return;
+      instance = new LenisCtor({
+        autoRaf: true,
         duration: 1.2,
-      },
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: "vertical",
+        gestureOrientation: "vertical",
+        smoothWheel: true,
+        syncTouch: false,
+        wheelMultiplier: 1,
+        touchMultiplier: 1.2,
+        anchors: {
+          offset: -70,
+          duration: 1.2,
+        },
+      });
+
+      lenisRef.current = instance;
+      (window as unknown as { __lenis?: Lenis }).__lenis = instance;
     });
 
-    lenisRef.current = lenis;
-
-    // Expose lenis instance globally on window
-    (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
-
     return () => {
-      lenis.destroy();
+      cancelled = true;
+      if (instance) {
+        instance.destroy();
+        instance = null;
+      }
       lenisRef.current = null;
       (window as unknown as { __lenis?: unknown }).__lenis = undefined;
     };
